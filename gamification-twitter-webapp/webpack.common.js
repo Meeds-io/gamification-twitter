@@ -35,7 +35,6 @@ const config = {
   externals: {
     vuetify: 'Vuetify',
     vue: 'Vue',
-    jquery: '$'
   }
 };
 
