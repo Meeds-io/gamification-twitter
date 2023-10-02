@@ -23,61 +23,80 @@
     <artifactId>gamification-twitter-parent</artifactId>
     <version>1.0.x-SNAPSHOT</version>
   </parent>
-  <artifactId>gamification-twitter-webapps</artifactId>
+  <artifactId>gamification-twitter-webapp</artifactId>
   <packaging>war</packaging>
-  <name>Meeds:: Gamification Twitter - Webapps</name>
+  <name>Meeds:: Gamification Twitter - Webapp</name>
+  <dependencies>
+    <dependency>
+      <groupId>org.exoplatform.platform-ui</groupId>
+      <artifactId>platform-ui-skin</artifactId>
+      <classifier>sources</classifier>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
   <build>
-    <finalName>gamification-twitter</finalName>
+    <finalName>gamification-twitter-webapp</finalName>
     <plugins>
       <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <configuration>
-          <installDirectory>target</installDirectory>
-        </configuration>
+        <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
-            <id>install node and npm</id>
-            <phase>compile</phase>
+            <id>less-copy-resources</id>
+            <phase>generate-sources</phase>
             <goals>
-              <goal>install-node-and-npm</goal>
+              <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <nodeVersion>v11.4.0</nodeVersion>
-              <npmVersion>6.5.0</npmVersion>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm config</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>config set python "/usr/bin/python2.7"</arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm install</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm run build</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>run build</arguments>
+              <outputDirectory>${project.build.directory}/src/main/webapp/skin/less</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/webapp/skin/less</directory>
+                </resource>
+              </resources>
+              <overwrite>true</overwrite>
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>platform-ui-src</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeArtifactIds>platform-ui-skin</includeArtifactIds>
+              <outputDirectory>${project.build.directory}/src/main/webapp</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.lesscss</groupId>
+        <artifactId>lesscss-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>gitHubWebHookManagement</id>
+            <configuration>
+              <sourceDirectory>${project.build.directory}/src/main/webapp/skin/less</sourceDirectory>
+              <outputDirectory>${project.build.directory}/${project.build.finalName}/skin/css</outputDirectory>
+              <compress>false</compress>
+              <includes>
+                <include>gitHubWebHookManagement.less</include>
+              </includes>
+            </configuration>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

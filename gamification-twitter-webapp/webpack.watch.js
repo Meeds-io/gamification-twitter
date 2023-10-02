@@ -3,7 +3,7 @@ const { merge } = require('webpack-merge');
 const webpackCommonConfig = require('./webpack.prod.js');
 
 // the display name of the war
-const app = 'gamification-twitter';
+const app = 'gamification-twitter-webapp';
 
 const exoServerPath = "/exo-server";
 
