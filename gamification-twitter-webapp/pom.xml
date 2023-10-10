@@ -37,7 +37,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>gamification-twitter-webapp</finalName>
+    <finalName>gamification-twitter</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
@@ -75,6 +75,10 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
