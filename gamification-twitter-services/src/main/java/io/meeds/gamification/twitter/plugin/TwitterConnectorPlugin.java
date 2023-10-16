@@ -94,7 +94,7 @@ public class TwitterConnectorPlugin extends ConnectorPlugin {
     return CONNECTOR_NAME;
   }
 
-  public OAuth20Service getOAuthService(RemoteConnectorSettings remoteConnectorSettings) {
+  private OAuth20Service getOAuthService(RemoteConnectorSettings remoteConnectorSettings) {
     if (oAuthService == null || remoteConnectorSettings.hashCode() != remoteConnectorId) {
       remoteConnectorId = remoteConnectorSettings.hashCode();
       oAuthService = new ServiceBuilder(remoteConnectorSettings.getApiKey()).apiSecret(remoteConnectorSettings.getSecretKey())

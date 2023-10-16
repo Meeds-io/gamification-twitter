@@ -27,7 +27,7 @@ export default {
   PROFILE_BASER_URL: 'https://twitter.com',
   openOauthPopup() {
     // Construct the Twitter OAuth URL with the oauth_token
-    const authUrl =`https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${connector.apiKey}&redirect_uri=${connector.redirectUrl}&scope=users.read%20tweet.read&state=state&code_challenge=challenge&code_challenge_method=PLAIN`;
+    const authUrl =`${window.location.origin}/portal/twitterOauth`;
     const width = 600;
     const height = 600;
     const left = window.innerWidth / 2 - width / 2;
