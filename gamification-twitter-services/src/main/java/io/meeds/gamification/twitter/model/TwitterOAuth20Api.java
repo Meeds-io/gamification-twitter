@@ -16,15 +16,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.gamification.twitter.exception;
+package io.meeds.gamification.twitter.model;
 
-public class TwitterConnectionException extends Exception {
+import com.github.scribejava.core.builder.api.DefaultApi20;
 
-  public TwitterConnectionException(String message) {
-    super(message);
+public class TwitterOAuth20Api extends DefaultApi20 {
+  protected TwitterOAuth20Api() {
   }
 
-  public TwitterConnectionException(String message, Exception e) {
-    super(message, e);
+  public static TwitterOAuth20Api instance() {
+    return TwitterOAuth20Api.InstanceHolder.INSTANCE;
+  }
+
+  public String getAccessTokenEndpoint() {
+    return "https://api.twitter.com/2/oauth2/token";
+  }
+
+  protected String getAuthorizationBaseUrl() {
+    return "https://twitter.com/i/oauth2/authorize";
+  }
+
+  public String getRevokeTokenEndpoint() {
+    return "https://api.twitter.com/2/oauth2/revoke";
+  }
+
+  private static class InstanceHolder {
+    private static final TwitterOAuth20Api INSTANCE = new TwitterOAuth20Api();
+
+    private InstanceHolder() {
+    }
   }
 }

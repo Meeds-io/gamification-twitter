@@ -18,29 +18,30 @@
  */
 package io.meeds.gamification.twitter.plugin;
 
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.oauth.AccessTokenRequestParams;
+import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.pkce.PKCE;
+import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 import io.meeds.gamification.model.RemoteConnectorSettings;
 import io.meeds.gamification.plugin.ConnectorPlugin;
 import io.meeds.gamification.service.ConnectorSettingService;
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.gamification.twitter.model.TwitterAccessTokenContext;
+import io.meeds.gamification.twitter.model.TwitterOAuth20Api;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.twitter.TwitterAccessTokenContext;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.gatein.sso.agent.tomcat.ServletAccess;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
-import twitter4j.User;
-import twitter4j.auth.AccessToken;
-import twitter4j.auth.RequestToken;
-import twitter4j.conf.ConfigurationBuilder;
+import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class TwitterConnectorPlugin extends ConnectorPlugin {
 
@@ -50,7 +51,7 @@ public class TwitterConnectorPlugin extends ConnectorPlugin {
 
   private final ConnectorSettingService connectorSettingService;
 
-  private TwitterFactory                twitterFactory;
+  private OAuth20Service                oAuthService;
 
   private long                          remoteConnectorId;
 
@@ -59,41 +60,32 @@ public class TwitterConnectorPlugin extends ConnectorPlugin {
   }
 
   @Override
-  public String validateToken(String accessTokens) {
+  public String validateToken(String accessToken) {
     RemoteConnectorSettings remoteConnectorSettings = connectorSettingService.getConnectorSettings(CONNECTOR_NAME);
     remoteConnectorSettings.setSecretKey(connectorSettingService.getConnectorSecretKey(CONNECTOR_NAME));
     if (StringUtils.isBlank(remoteConnectorSettings.getApiKey()) || StringUtils.isBlank(remoteConnectorSettings.getSecretKey())) {
       LOG.warn("Missing '{}' connector settings", CONNECTOR_NAME);
       return null;
     }
-    Twitter twitter = getTwitterFactory(remoteConnectorSettings).getInstance();
-    String pattern = "oauth_verifier=([^&]+)";
-    Pattern r = Pattern.compile(pattern);
-    Matcher m = r.matcher(accessTokens);
-    if (m.find()) {
-      String verifier = m.group(1);
-      AccessToken accessToken;
-      User twitterUser;
-      try {
-        HttpServletRequest servletRequest = ServletAccess.getRequest();
-        HttpSession session = servletRequest.getSession();
-        RequestToken requestToken = (RequestToken) session.getAttribute(OAuthConstants.ATTRIBUTE_TWITTER_REQUEST_TOKEN);
-        accessToken = twitter.getOAuthAccessToken(requestToken, verifier);
-        session.removeAttribute(OAuthConstants.ATTRIBUTE_TWITTER_REQUEST_TOKEN);
-        TwitterAccessTokenContext accessTokenContext = new TwitterAccessTokenContext(accessToken.getToken(),
-                                                                                     accessToken.getTokenSecret());
+    try {
+      PKCE pkce = new PKCE();
+      pkce.setCodeChallenge("challenge");
+      pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
+      pkce.setCodeVerifier("challenge");
+      AccessTokenRequestParams params = AccessTokenRequestParams.create(accessToken);
+      params = params.pkceCodeVerifier(pkce.getCodeVerifier());
 
-        twitter = getAuthorizedTwitterInstance(accessTokenContext, remoteConnectorSettings);
-        twitterUser = twitter.verifyCredentials();
-        if (twitterUser == null || StringUtils.isBlank(twitterUser.getScreenName())) {
-          throw new OAuthException(OAuthExceptionCode.INVALID_STATE, "User Twitter identifier is empty");
-        }
-      } catch (TwitterException e) {
-        throw new OAuthException(OAuthExceptionCode.TWITTER_ERROR, "Error when obtaining user", e);
+      OAuth2AccessToken oAuth2AccessToken = getOAuthService(remoteConnectorSettings).getAccessToken(params);
+      TwitterAccessTokenContext twitterAccessTokenContext = new TwitterAccessTokenContext(oAuth2AccessToken);
+      String twitterIdentifier = fetchUsernameFromAccessToken(twitterAccessTokenContext);
+      if (StringUtils.isBlank(twitterIdentifier)) {
+        throw new OAuthException(OAuthExceptionCode.INVALID_STATE, "User Twitter identifier is empty");
       }
-      return twitterUser.getScreenName();
-    } else {
-      return null;
+      return twitterIdentifier;
+    } catch (InterruptedException | IOException e) { // NOSONAR
+      throw new OAuthException(OAuthExceptionCode.IO_ERROR, e);
+    } catch (ExecutionException e) {
+      throw new OAuthException(OAuthExceptionCode.UNKNOWN_ERROR, e);
     }
   }
 
@@ -102,26 +94,37 @@ public class TwitterConnectorPlugin extends ConnectorPlugin {
     return CONNECTOR_NAME;
   }
 
-  private TwitterFactory getTwitterFactory(RemoteConnectorSettings remoteConnectorSettings) {
-    if (twitterFactory == null || remoteConnectorSettings.hashCode() != remoteConnectorId) {
+  public OAuth20Service getOAuthService(RemoteConnectorSettings remoteConnectorSettings) {
+    if (oAuthService == null || remoteConnectorSettings.hashCode() != remoteConnectorId) {
       remoteConnectorId = remoteConnectorSettings.hashCode();
-      ConfigurationBuilder builder = new ConfigurationBuilder();
-      builder.setOAuthConsumerKey(remoteConnectorSettings.getApiKey())
-             .setOAuthConsumerSecret(remoteConnectorSettings.getSecretKey());
-      twitterFactory = new TwitterFactory(builder.build());
+      oAuthService = new ServiceBuilder(remoteConnectorSettings.getApiKey()).apiSecret(remoteConnectorSettings.getSecretKey())
+                                                                            .callback(remoteConnectorSettings.getRedirectUrl())
+                                                                            .defaultScope("users.read tweet.read")
+                                                                            .build(TwitterOAuth20Api.instance());
     }
-    return twitterFactory;
+    return oAuthService;
   }
 
-  private Twitter getAuthorizedTwitterInstance(TwitterAccessTokenContext accessTokenContext,
-                                               RemoteConnectorSettings remoteConnectorSettings) {
-    ConfigurationBuilder builder = new ConfigurationBuilder();
-    builder.setOAuthConsumerKey(remoteConnectorSettings.getApiKey())
-           .setOAuthConsumerSecret(remoteConnectorSettings.getSecretKey());
+  private static String fetchUsernameFromAccessToken(TwitterAccessTokenContext accessToken) throws IOException {
+    URL url = new URL("https://api.twitter.com/2/users/me");
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setRequestMethod("GET");
+    connection.setRequestProperty("Authorization", "Bearer " + accessToken.getAccessToken());
+    int responseCode = connection.getResponseCode();
+    if (responseCode == HttpURLConnection.HTTP_OK) { // success
+      BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+      String inputLine;
+      StringBuilder response = new StringBuilder();
 
-    builder.setOAuthAccessToken(accessTokenContext.getAccessToken());
-    builder.setOAuthAccessTokenSecret(accessTokenContext.getAccessTokenSecret());
-
-    return new TwitterFactory(builder.build()).getInstance();
+      while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
+      }
+      in.close();
+      // Extract username from the JSON response
+      JSONObject jsonResponse = new JSONObject(response.toString());
+      return jsonResponse.getJSONObject("data").getString("username");
+    } else {
+      throw new IOException("Error retrieving user information from Twitter. Response code: " + responseCode);
+    }
   }
 }

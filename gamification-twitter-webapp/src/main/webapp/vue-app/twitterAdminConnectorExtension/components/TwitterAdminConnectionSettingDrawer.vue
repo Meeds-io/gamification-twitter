@@ -250,7 +250,7 @@ export default {
       return this.disabled || !this.secretKey || !this.apiKey || !this.redirectUrl;
     },
     redirectUrl() {
-      return `${window.location.origin}/portal/twitter-oauth`;
+      return `${window.location.origin}/portal/rest/gamification/connectors/twitter/callback`;
     }
   },
   methods: {
