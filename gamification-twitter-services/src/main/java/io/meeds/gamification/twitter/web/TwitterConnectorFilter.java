@@ -19,19 +19,18 @@
 package io.meeds.gamification.twitter.web;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.pkce.PKCE;
+import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 import io.meeds.gamification.model.RemoteConnectorSettings;
 import io.meeds.gamification.service.ConnectorSettingService;
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.gamification.twitter.model.TwitterOAuth20Api;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
 import org.apache.commons.lang.StringUtils;
@@ -39,11 +38,6 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.web.filter.Filter;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
-import twitter4j.auth.RequestToken;
-import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterConnectorFilter implements Filter {
 
@@ -51,12 +45,12 @@ public class TwitterConnectorFilter implements Filter {
 
   private static final String CONNECTOR_NAME = "twitter";
 
-  private TwitterFactory      twitterFactory;
+  private OAuth20Service      oAuthService;
 
   private long                remoteConnectorId;
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
     ConnectorSettingService connectorSettingService = CommonsUtils.getService(ConnectorSettingService.class);
     RemoteConnectorSettings remoteConnectorSettings = connectorSettingService.getConnectorSettings(CONNECTOR_NAME);
     remoteConnectorSettings.setSecretKey(connectorSettingService.getConnectorSecretKey(CONNECTOR_NAME));
@@ -64,36 +58,34 @@ public class TwitterConnectorFilter implements Filter {
       LOG.warn("Missing '{}' connector settings", CONNECTOR_NAME);
       return;
     }
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
-    HttpSession session = httpRequest.getSession();
-
-    Twitter twitter = getTwitterFactory(remoteConnectorSettings).getInstance();
-
     try {
-      String redirectUrl = URLEncoder.encode(remoteConnectorSettings.getRedirectUrl(), StandardCharsets.UTF_8);
-      RequestToken requestToken = twitter.getOAuthRequestToken(redirectUrl);
-
-      // Save requestToken to session, but only temporarily until oauth
-      // workflow is finished
-      session.setAttribute(OAuthConstants.ATTRIBUTE_TWITTER_REQUEST_TOKEN, requestToken);
-
-      // Redirect to twitter to perform authentication
-      httpResponse.sendRedirect(requestToken.getAuthenticationURL());
-
-    } catch (TwitterException twitterException) {
-      throw new OAuthException(OAuthExceptionCode.TWITTER_ERROR, twitterException);
+      String secretState = "state";
+      PKCE pkce = new PKCE();
+      pkce.setCodeChallenge("challenge");
+      pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
+      pkce.setCodeVerifier("challenge");
+      String authorizationUrl = getOAuthService(remoteConnectorSettings).createAuthorizationUrlBuilder()
+                                                                        .pkce(pkce)
+                                                                        .state(secretState)
+                                                                        .build();
+      if (StringUtils.isNotBlank(authorizationUrl)) {
+        // Redirect to twitter to perform authentication
+        httpResponse.sendRedirect(authorizationUrl);
+      }
+    } catch (IOException e) { // NOSONAR
+      throw new OAuthException(OAuthExceptionCode.IO_ERROR, e);
     }
   }
 
-  public TwitterFactory getTwitterFactory(RemoteConnectorSettings remoteConnectorSettings) {
-    if (twitterFactory == null || remoteConnectorSettings.hashCode() != remoteConnectorId) {
+  private OAuth20Service getOAuthService(RemoteConnectorSettings remoteConnectorSettings) {
+    if (oAuthService == null || remoteConnectorSettings.hashCode() != remoteConnectorId) {
       remoteConnectorId = remoteConnectorSettings.hashCode();
-      ConfigurationBuilder builder = new ConfigurationBuilder();
-      builder.setOAuthConsumerKey(remoteConnectorSettings.getApiKey())
-             .setOAuthConsumerSecret(remoteConnectorSettings.getSecretKey());
-      twitterFactory = new TwitterFactory(builder.build());
+      oAuthService = new ServiceBuilder(remoteConnectorSettings.getApiKey()).apiSecret(remoteConnectorSettings.getSecretKey())
+                                                                            .callback(remoteConnectorSettings.getRedirectUrl())
+                                                                            .defaultScope("users.read tweet.read")
+                                                                            .build(TwitterOAuth20Api.instance());
     }
-    return twitterFactory;
+    return oAuthService;
   }
 }
