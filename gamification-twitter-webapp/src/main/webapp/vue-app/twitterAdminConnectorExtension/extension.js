@@ -26,5 +26,6 @@ export function init() {
     title: 'Twitter',
     description: 'twitterConnector.admin.label.description',
     vueComponent: Vue.options.components['twitter-admin-connector-item'],
+    rank: 30,
   });
 }
