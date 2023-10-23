@@ -35,165 +35,172 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         @submit="saveConnectorSetting">
         <v-stepper
           v-model="stepper"
-          class="ma-0 py-0 d-flex flex-column"
+          class="ma-0 pa-4 d-flex flex-column"
           vertical
           flat>
           <div class="flex-grow-1 flex-shrink-0">
             <v-stepper-step
-              step="1"
-              class="ma-0">
+              :step="1"
+              class="ma-0 pa-0"
+              editable>
               <span class="font-weight-bold dark-grey-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepOne') }}</span>
             </v-stepper-step>
-            <v-slide-y-transition>
-              <div v-show="stepper === 1" class="px-6">
-                <div class="pb-4 d-flex flex-column dark-grey-color">
-                  <v-card-text class="ps-0 py-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepOne.noteOne') }}
-                  </v-card-text>
-                  <v-card-text class="ps-0 pb-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepOne.instructionsOne') }}
-                  </v-card-text>
-                  <v-card-text class="ps-0 py-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepOne.instructionsTwo') }}
-                    <a href="https://developer.twitter.com/portal" target="_blank">{{ $t('twitterConnector.admin.label.twitterDeveloperPortal') }}
-                      <v-icon size="14" class="pb-1 pe-1">fas fa-external-link-alt</v-icon>
-                    </a>
-                  </v-card-text>
-                  <v-card-text class="ps-0 pt-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepOne.instructionsThree') }}
-                  </v-card-text>
-                  <img
-                    class="align-self-center"
-                    src="/gamification-twitter/images/SignUpFreeAccount.png"
-                    alt="SignUpFreeAccount"
-                    width="160">
-                  <v-card-text class="ps-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepOne.instructionsFour') }}
-                  </v-card-text>
-                  <img
-                    class="align-self-center"
-                    src="/gamification-twitter/images/signUpAgreement.png"
-                    alt="SignUpAgreement"
-                    width="160">
-                </div>
-              </div>
-            </v-slide-y-transition>
+            <v-stepper-items>
+              <v-stepper-content step="1" class="mx-0 px-0">
+                <v-slide-y-transition>
+                  <div class="pb-4 d-flex flex-column dark-grey-color">
+                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepOne.noteOne') }}
+                    </v-card-text>
+                    <v-card-text class="ps-0 pb-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepOne.instructionsOne') }}
+                    </v-card-text>
+                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepOne.instructionsTwo') }}
+                      <a href="https://developer.twitter.com/portal" target="_blank">{{ $t('twitterConnector.admin.label.twitterDeveloperPortal') }}
+                        <v-icon size="14" class="pb-1 pe-1">fas fa-external-link-alt</v-icon>
+                      </a>
+                    </v-card-text>
+                    <v-card-text class="ps-0 pt-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepOne.instructionsThree') }}
+                    </v-card-text>
+                    <img
+                      class="align-self-center"
+                      src="/gamification-twitter/images/SignUpFreeAccount.png"
+                      alt="SignUpFreeAccount"
+                      width="160">
+                    <v-card-text class="ps-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepOne.instructionsFour') }}
+                    </v-card-text>
+                    <img
+                      class="align-self-center"
+                      src="/gamification-twitter/images/signUpAgreement.png"
+                      alt="SignUpAgreement"
+                      width="160">
+                  </div>
+                </v-slide-y-transition>
+              </v-stepper-content>
+            </v-stepper-items>
           </div>
           <div class="flex-grow-1 flex-shrink-0">
             <v-stepper-step
-              :complete="stepper > 2"
-              step="2"
-              class="ma-0">
+              :step="2"
+              class="ma-0 pa-0"
+              editable>
               <span class="font-weight-bold dark-grey-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepTwo') }}</span>
             </v-stepper-step>
-            <v-slide-y-transition>
-              <div v-show="stepper === 2" class="px-6">
-                <div class="pb-4 d-flex flex-column dark-grey-color">
-                  <v-card-text class="ps-0 py-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepTwo.instructionsOne') }}
-                    <a href="https://developer.twitter.com/portal/dashboard" target="_blank">{{ $t('twitterConnector.admin.label.projectDashboard') }}
-                      <v-icon size="14" class="pb-1 pe-1">fas fa-external-link-alt</v-icon>
-                    </a>
-                  </v-card-text>
-                  <v-card-text class="ps-0 pt-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepTwo.instructionsTwo') }}
-                  </v-card-text>
-                  <img
-                    class="align-self-center"
-                    src="/gamification-twitter/images/projectApp.png"
-                    alt="ProjectApp"
-                    width="250">
-                  <v-card-text class="ps-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepTwo.instructionsThree') }}
-                  </v-card-text>
-                  <img
-                    class="align-self-center"
-                    src="/gamification-twitter/images/userAuthenticationSettings.png"
-                    alt="UserAuthenticationSettings"
-                    width="250">
-                  <v-card-text class="ps-0 pb-0 dark-grey-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFour')" />
-                  <v-card-text class="ps-0 py-0 dark-grey-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFive')" />
-                  <v-card-text class="ps-0 py-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepTwo.instructionsSix') }}:
-                  </v-card-text>
-                  <v-card-text class="dark-grey-color pb-1">
-                    {{ $t('twitterConnector.admin.label.redirectUrl') }}:
-                  </v-card-text>
-                  <div class="d-flex flex-row">
-                    <v-text-field
-                      :value="redirectUrl"
-                      class="px-4 pt-0"
-                      type="text"
-                      outlined
-                      disabled
-                      dense />
-                    <v-btn icon @click="copyText(redirectUrl)">
-                      <v-icon>fas fa-copy</v-icon>
-                    </v-btn>
+            <v-stepper-items>
+              <v-stepper-content step="2" class="mx-0 px-0">
+                <v-slide-y-transition>
+                  <div class="pb-4 d-flex flex-column dark-grey-color">
+                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepTwo.instructionsOne') }}
+                      <a href="https://developer.twitter.com/portal/dashboard" target="_blank">{{ $t('twitterConnector.admin.label.projectDashboard') }}
+                        <v-icon size="14" class="pb-1 pe-1">fas fa-external-link-alt</v-icon>
+                      </a>
+                    </v-card-text>
+                    <v-card-text class="ps-0 pt-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepTwo.instructionsTwo') }}
+                    </v-card-text>
+                    <img
+                      class="align-self-center"
+                      src="/gamification-twitter/images/projectApp.png"
+                      alt="ProjectApp"
+                      width="250">
+                    <v-card-text class="ps-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepTwo.instructionsThree') }}
+                    </v-card-text>
+                    <img
+                      class="align-self-center"
+                      src="/gamification-twitter/images/userAuthenticationSettings.png"
+                      alt="UserAuthenticationSettings"
+                      width="250">
+                    <v-card-text class="ps-0 pb-0 dark-grey-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFour')" />
+                    <v-card-text class="ps-0 py-0 dark-grey-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFive')" />
+                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepTwo.instructionsSix') }}:
+                    </v-card-text>
+                    <v-card-text class="dark-grey-color pb-1">
+                      {{ $t('twitterConnector.admin.label.redirectUrl') }}:
+                    </v-card-text>
+                    <div class="d-flex flex-row">
+                      <v-text-field
+                        :value="redirectUrl"
+                        class="px-4 pt-0"
+                        type="text"
+                        outlined
+                        disabled
+                        dense />
+                      <v-btn icon @click="copyText(redirectUrl)">
+                        <v-icon>fas fa-copy</v-icon>
+                      </v-btn>
+                    </div>
+                    <v-card-text class="dark-grey-color pb-1">
+                      {{ $t('twitterConnector.admin.label.websiteUrl') }}:
+                    </v-card-text>
+                    <div class="d-flex flex-row">
+                      <v-text-field
+                        :value="currentUrl"
+                        class="px-4 pt-0"
+                        type="text"
+                        outlined
+                        disabled
+                        dense />
+                      <v-btn icon @click="copyText(currentUrl)">
+                        <v-icon>fas fa-copy</v-icon>
+                      </v-btn>
+                    </div>
                   </div>
-                  <v-card-text class="dark-grey-color pb-1">
-                    {{ $t('twitterConnector.admin.label.websiteUrl') }}:
-                  </v-card-text>
-                  <div class="d-flex flex-row">
-                    <v-text-field
-                      :value="currentUrl"
-                      class="px-4 pt-0"
-                      type="text"
-                      outlined
-                      disabled
-                      dense />
-                    <v-btn icon @click="copyText(currentUrl)">
-                      <v-icon>fas fa-copy</v-icon>
-                    </v-btn>
-                  </div>
-                </div>
-              </div>
-            </v-slide-y-transition>
+                </v-slide-y-transition>
+              </v-stepper-content>
+            </v-stepper-items>
           </div>
           <div class="flex-grow-1 flex-shrink-0">
             <v-stepper-step
-              :complete="stepper > 3"
-              step="3"
-              class="ma-0">
+              :step="3"
+              class="ma-0 pa-0"
+              editable>
               <span class="font-weight-bold dark-grey-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepThree') }}</span>
             </v-stepper-step>
-            <v-slide-y-transition>
-              <div v-show="stepper === 3" class="px-6">
-                <div class="pb-4 d-flex flex-column dark-grey-color">
-                  <v-card-text class="ps-0 py-0 pb-4 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.stepThree.instructionsOne') }}
-                  </v-card-text>
-                  <v-card-text class="text-left ps-0 py-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.clientId') }}
-                  </v-card-text>
-                  <v-card-text class="ps-0 pt-2">
-                    <input
-                      ref="connectorApiKey"
-                      v-model="apiKey"
-                      :placeholder="$t('twitterConnector.admin.label.clientId.placeholder')"
-                      type="text"
-                      class="ignore-vuetify-classes full-width"
-                      required
-                      @input="disabled = false"
-                      @change="disabled = false">
-                  </v-card-text>
-                  <v-card-text class="text-left ps-0 py-0 dark-grey-color">
-                    {{ $t('twitterConnector.admin.label.clientSecret') }}
-                  </v-card-text>
-                  <v-card-text class="ps-0 pt-2">
-                    <input
-                      ref="connectorSecretKey"
-                      v-model="secretKey"
-                      :placeholder="$t('twitterConnector.admin.label.clientSecret.placeholder')"
-                      type="text"
-                      class="ignore-vuetify-classes full-width"
-                      required
-                      @input="disabled = false"
-                      @change="disabled = false">
-                  </v-card-text>
-                </div>
-              </div>
-            </v-slide-y-transition>
+            <v-stepper-items>
+              <v-stepper-content step="3" class="mx-0 px-0">
+                <v-slide-y-transition>
+                  <div class="pb-4 d-flex flex-column dark-grey-color">
+                    <v-card-text class="ps-0 py-0 pb-4 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.stepThree.instructionsOne') }}
+                    </v-card-text>
+                    <v-card-text class="text-left ps-0 py-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.clientId') }}
+                    </v-card-text>
+                    <v-card-text class="ps-0 pt-2">
+                      <input
+                        ref="connectorApiKey"
+                        v-model="apiKey"
+                        :placeholder="$t('twitterConnector.admin.label.clientId.placeholder')"
+                        type="text"
+                        class="ignore-vuetify-classes full-width"
+                        required
+                        @input="disabled = false"
+                        @change="disabled = false">
+                    </v-card-text>
+                    <v-card-text class="text-left ps-0 py-0 dark-grey-color">
+                      {{ $t('twitterConnector.admin.label.clientSecret') }}
+                    </v-card-text>
+                    <v-card-text class="ps-0 pt-2">
+                      <input
+                        ref="connectorSecretKey"
+                        v-model="secretKey"
+                        :placeholder="$t('twitterConnector.admin.label.clientSecret.placeholder')"
+                        type="text"
+                        class="ignore-vuetify-classes full-width"
+                        required
+                        @input="disabled = false"
+                        @change="disabled = false">
+                    </v-card-text>
+                  </div>
+                </v-slide-y-transition>
+              </v-stepper-content>
+            </v-stepper-items>
           </div>
         </v-stepper>
       </v-form>
