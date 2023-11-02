@@ -31,7 +31,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         v-model="isValidForm"
         class="form-horizontal pa-6"
         flat
-        @submit.prevent="saveAccountsSetting">
+        @submit="
+          $event.preventDefault();
+          $event.stopPropagation();
+        ">
         <div class="pb-4 d-flex flex-column dark-grey-color">
           <v-card-text class="ps-0 py-0 dark-grey-color text-subtitle-2">
             {{ $t('twitterConnector.admin.label.form.noteOne') }}

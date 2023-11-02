@@ -19,6 +19,7 @@ package io.meeds.gamification.twitter.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.CookieStore;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -33,10 +34,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -155,8 +159,11 @@ public class TwitterConsumerStorage {
 
   private HttpClient getHttpClient() {
     if (client == null) {
+      RequestConfig requestConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build();
       HttpClientConnectionManager clientConnectionManager = getClientConnectionManager();
       HttpClientBuilder httpClientBuilder = HttpClients.custom()
+                                                       .setDefaultRequestConfig(requestConfig)
+                                                       .setDefaultCookieStore(new BasicCookieStore())
                                                        .setConnectionManager(clientConnectionManager)
                                                        .setConnectionReuseStrategy(new DefaultConnectionReuseStrategy());
       client = httpClientBuilder.build();

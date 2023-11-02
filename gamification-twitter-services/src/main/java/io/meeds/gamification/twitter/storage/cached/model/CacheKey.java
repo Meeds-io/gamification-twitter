@@ -32,8 +32,6 @@ public class CacheKey implements Serializable {
 
   private long              remoteId;
 
-  private String            username;
-
   private String            bearerToken;
 
   private Integer           context;
@@ -43,11 +41,4 @@ public class CacheKey implements Serializable {
     this.bearerToken = bearerToken;
     this.context = context;
   }
-
-  public CacheKey(Integer context, String username, String bearerToken) {
-    this.username = username;
-    this.bearerToken = bearerToken;
-    this.context = context;
-  }
-
 }
