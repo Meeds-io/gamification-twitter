@@ -1,8 +1,8 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- *
- * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
- *
+ * 
+ * Copyright (C) 2022 Meeds Association contact@meeds.io
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -14,19 +14,31 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
  */
-import './initComponents';
-import './services.js';
+package io.meeds.gamification.twitter.storage.cached.model;
 
-export function init() {
-  extensionRegistry.registerComponent('gamification-admin-connector', 'admin-connector-item', {
-    id: 'twitterSetting',
-    name: 'twitter',
-    image: '/gamification-twitter/images/TwitterX.svg',
-    title: 'Twitter',
-    description: 'twitterConnector.admin.label.description',
-    vueComponent: Vue.options.components['twitter-admin-connector-item'],
-    rank: 30,
-  });
+import java.io.Serializable;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class CacheKey implements Serializable {
+
+  private static final long serialVersionUID = -7490772779963803443L;
+
+  private long              remoteId;
+
+  private String            bearerToken;
+
+  private Integer           context;
+
+  public CacheKey(Integer context, long remoteId, String bearerToken) {
+    this.remoteId = remoteId;
+    this.bearerToken = bearerToken;
+    this.context = context;
+  }
 }
