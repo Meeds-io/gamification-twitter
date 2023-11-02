@@ -9,24 +9,34 @@
  * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-import './initComponents';
-import './services.js';
 
-export function init() {
-  extensionRegistry.registerComponent('gamification-admin-connector', 'admin-connector-item', {
-    id: 'twitterSetting',
-    name: 'twitter',
-    image: '/gamification-twitter/images/TwitterX.svg',
-    title: 'Twitter',
-    description: 'twitterConnector.admin.label.description',
-    vueComponent: Vue.options.components['twitter-admin-connector-item'],
-    rank: 30,
-  });
+package io.meeds.gamification.twitter.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class RemoteTwitterAccount {
+
+  long   id;
+
+  String username;
+
+  String name;
+
+  String description;
+
+  String avatarUrl;
 }

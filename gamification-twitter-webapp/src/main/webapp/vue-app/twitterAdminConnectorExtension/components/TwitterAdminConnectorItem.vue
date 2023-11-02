@@ -104,7 +104,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </v-btn>
       </div>
     </template>
+    <twitter-admin-watched-account-list @updated="updateAccounts" />
     <twitter-admin-connection-setting-drawer ref="connectionSettingDrawer" />
+    <twitter-admin-token-form-drawer />
+    <twitter-admin-account-form-drawer />
     <exo-confirm-dialog
       ref="deleteConfirmDialog"
       :message="$t('gamification.connectors.message.confirmDeleteConnectorSetting')"
@@ -139,8 +142,7 @@ export default {
     return {
       editing: false,
       displayHookDetail: false,
-      selectedHook: null,
-      webhooks: [],
+      accounts: [],
       twitterConnectorLinkBasePath: '/portal/g/:platform:rewarding/gamificationConnectorsAdministration#twitter',
     };
   },
@@ -155,15 +157,6 @@ export default {
     },
     displayEnableButton() {
       return this.connectionSettingStored && !this.enabled;
-    },
-  },
-  watch: {
-    displayHookDetail() {
-      if (this.displayHookDetail && this.selectedHook?.id) {
-        window.history.replaceState('gamification connectors', this.$t('gamification.connectors.label.connectors'), `${this.twitterConnectorLinkBasePath}-${this.selectedHook?.id}`);
-      } else {
-        window.history.replaceState('gamification connectors', this.$t('gamification.connectors.label.connectors'), `${this.twitterConnectorLinkBasePath}-configuration`);
-      }
     },
   },
   created() {
@@ -204,6 +197,9 @@ export default {
       this.redirectUrl = null;
       this.editing = true;
       document.dispatchEvent(new CustomEvent('delete-connector-settings', {detail: 'twitter'}));
+    },
+    updateAccounts(accounts){
+      this.accounts = accounts;
     },
   }
 };
