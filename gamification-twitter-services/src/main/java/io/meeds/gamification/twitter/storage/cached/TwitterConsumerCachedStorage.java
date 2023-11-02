@@ -29,31 +29,21 @@ import org.exoplatform.services.cache.ExoCache;
 
 public class TwitterConsumerCachedStorage extends TwitterConsumerStorage {
 
-  public static final String                                   TWITTER_CACHE_NAME          = "twitter.connector";
+  public static final String                                   TWITTER_CACHE_NAME    = "twitter.connector";
 
-  private static final int                                     ACCOUNT_BY_USERNAME_CONTEXT = 0;
-
-  private static final int                                     ACCOUNT_BY_ID_CONTEXT       = 1;
+  private static final int                                     ACCOUNT_BY_ID_CONTEXT = 1;
 
   private final FutureExoCache<Serializable, Object, CacheKey> twitterFutureCache;
 
   public TwitterConsumerCachedStorage(CacheService cacheService) {
     ExoCache<Serializable, Object> cacheInstance = cacheService.getCacheInstance(TWITTER_CACHE_NAME);
     this.twitterFutureCache = new FutureExoCache<>((context, key) -> {
-      if (ACCOUNT_BY_USERNAME_CONTEXT == context.getContext()) {
-        return TwitterConsumerCachedStorage.super.retrieveTwitterAccount(context.getUsername(), context.getBearerToken());
-      } else if (ACCOUNT_BY_ID_CONTEXT == context.getContext()) {
+      if (ACCOUNT_BY_ID_CONTEXT == context.getContext()) {
         return TwitterConsumerCachedStorage.super.retrieveTwitterAccount(context.getRemoteId(), context.getBearerToken());
       } else {
         throw new UnsupportedOperationException();
       }
     }, cacheInstance);
-  }
-
-  @Override
-  public RemoteTwitterAccount retrieveTwitterAccount(String twitterUsername, String bearerToken) {
-    CacheKey cacheKey = new CacheKey(ACCOUNT_BY_USERNAME_CONTEXT, twitterUsername, bearerToken);
-    return (RemoteTwitterAccount) this.twitterFutureCache.get(cacheKey, cacheKey.hashCode());
   }
 
   @Override
@@ -70,8 +60,5 @@ public class TwitterConsumerCachedStorage extends TwitterConsumerStorage {
   @Override
   public void clearCache(TwitterAccount twitterAccount, String bearerToken) {
     this.twitterFutureCache.remove(new CacheKey(ACCOUNT_BY_ID_CONTEXT, twitterAccount.getRemoteId(), bearerToken).hashCode());
-    this.twitterFutureCache.remove(new CacheKey(ACCOUNT_BY_USERNAME_CONTEXT,
-                                                twitterAccount.getIdentifier(),
-                                                bearerToken).hashCode());
   }
 }
