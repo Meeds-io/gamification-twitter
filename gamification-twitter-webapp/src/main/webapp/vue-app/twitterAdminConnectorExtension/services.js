@@ -1,4 +1,5 @@
 /*
+ *
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
@@ -16,17 +17,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
-import './initComponents';
-import './services.js';
 
-export function init() {
-  extensionRegistry.registerComponent('gamification-admin-connector', 'admin-connector-item', {
-    id: 'twitterSetting',
-    name: 'twitter',
-    image: '/gamification-twitter/images/TwitterX.svg',
-    title: 'Twitter',
-    description: 'twitterConnector.admin.label.description',
-    vueComponent: Vue.options.components['twitter-admin-connector-item'],
-    rank: 30,
+import * as twitterConnectorService from './js/TwitterConnectorService.js';
+
+if (!Vue.prototype.$twitterConnectorService) {
+  window.Object.defineProperty(Vue.prototype, '$twitterConnectorService', {
+    value: twitterConnectorService,
   });
 }

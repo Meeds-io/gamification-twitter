@@ -18,10 +18,18 @@
  */
 import TwitterAdminConnectorItem from './components/TwitterAdminConnectorItem.vue';
 import TwitterAdminConnectionSettingDrawer from './components/TwitterAdminConnectionSettingDrawer.vue';
+import TwitterAdminAccountFormDrawer from './components/TwitterAdminAccountFormDrawer.vue';
+import TwitterAdminWatchedAccountList from './components/TwitterAdminWatchedAccountList.vue';
+import TwitterAdminWatchedAccount from './components/TwitterAdminWatchedAccount.vue';
+import TwitterAdminTokenFormDrawer from './components/TwitterAdminTokenFormDrawer.vue';
 
 const components = {
   'twitter-admin-connector-item': TwitterAdminConnectorItem,
   'twitter-admin-connection-setting-drawer': TwitterAdminConnectionSettingDrawer,
+  'twitter-admin-account-form-drawer': TwitterAdminAccountFormDrawer,
+  'twitter-admin-token-form-drawer': TwitterAdminTokenFormDrawer,
+  'twitter-admin-watched-account-list': TwitterAdminWatchedAccountList,
+  'twitter-admin-watched-account': TwitterAdminWatchedAccount,
 };
 
 for (const key in components) {
