@@ -64,9 +64,13 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
   @Override
   public List<TwitterAccount> getTwitterAccounts(String currentUser,
                                                  int offset,
-                                                 int limit) throws IllegalAccessException {
+                                                 int limit,
+                                                 boolean forceUpdate) throws IllegalAccessException {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to access Twitter watched accounts");
+    }
+    if (forceUpdate) {
+      twitterConsumerStorage.clearCache();
     }
     return getTwitterAccounts(offset, limit);
   }

@@ -19,7 +19,6 @@ package io.meeds.gamification.twitter.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.CookieStore;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

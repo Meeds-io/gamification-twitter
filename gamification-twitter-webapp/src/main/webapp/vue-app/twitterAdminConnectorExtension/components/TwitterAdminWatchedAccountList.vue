@@ -106,6 +106,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <script>
 
 export default {
+  props: {
+    forceUpdate: {
+      type: Boolean,
+      default: false
+    },
+  },
   data() {
     return {
       showLoadMoreButton: false,
@@ -126,6 +132,13 @@ export default {
       return this.watchedAccounts?.length === 0;
     }
   },
+  watch: {
+    forceUpdate() {
+      if (this.forceUpdate) {
+        this.refreshWatchedAccount();
+      }
+    }
+  },
   created() {
     this.$root.$on('twitter-accounts-updated', this.refreshWatchedAccount);
     this.$root.$on('twitter-bearer-token-updated', () => {
@@ -144,7 +157,7 @@ export default {
     },
     refreshWatchedAccount() {
       this.loading = true;
-      return this.$twitterConnectorService.getWatchedAccounts(this.offset, this.limit)
+      return this.$twitterConnectorService.getWatchedAccounts(this.offset, this.limit, this.forceUpdate)
         .then(data => {
           this.watchedAccounts = data.twitterAccountRestEntities;
           this.watchedAccountsCount = data.size || 0;

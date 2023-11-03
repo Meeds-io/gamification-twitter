@@ -79,8 +79,8 @@ export function deleteAccountToWatch(accountId) {
   });
 }
 
-export function getWatchedAccounts(offset, limit) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true`, {
+export function getWatchedAccounts(offset, limit, forceUpdate) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true&forceUpdate=${forceUpdate|| false}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
