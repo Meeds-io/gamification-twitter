@@ -31,7 +31,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </div>
         <v-list class="d-flex flex-column ms-3 py-0">
           <v-list-item-title class="align-self-start">
-            {{ name }}
+            {{ name }} ({{ identifier }})
           </v-list-item-title>
           <v-list-item-subtitle v-if="description" class="text-truncate d-flex caption mt-1">{{ description }}</v-list-item-subtitle>
           <div class="d-flex flex-row">
@@ -85,6 +85,9 @@ export default {
   computed: {
     name() {
       return this.account?.name;
+    },
+    identifier() {
+      return this.account?.identifier;
     },
     accountId() {
       return this.account?.id;

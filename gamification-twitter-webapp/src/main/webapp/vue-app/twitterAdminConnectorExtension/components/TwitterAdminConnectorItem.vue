@@ -35,6 +35,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           </template>
           <span>{{ $t('gamification.connectors.settings.BackToDetail') }}</span>
         </v-tooltip>
+        <v-spacer />
+        <v-btn
+          class="width-auto ms-n3"
+          icon
+          @click="forceUpdateAccounts">
+          <v-icon size="18" class="icon-default-color mx-2">fas fa-redo-alt</v-icon>
+        </v-btn>
       </div>
       <div class="d-flex flex-row px-4">
         <div>
@@ -104,7 +111,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </v-btn>
       </div>
     </template>
-    <twitter-admin-watched-account-list @updated="updateAccounts" />
+    <twitter-admin-watched-account-list :force-update="forceUpdate" />
     <twitter-admin-connection-setting-drawer ref="connectionSettingDrawer" />
     <twitter-admin-token-form-drawer />
     <twitter-admin-account-form-drawer />
@@ -142,8 +149,8 @@ export default {
     return {
       editing: false,
       displayHookDetail: false,
-      accounts: [],
       twitterConnectorLinkBasePath: '/portal/g/:platform:rewarding/gamificationConnectorsAdministration#twitter',
+      forceUpdate: false,
     };
   },
   computed: {
@@ -198,9 +205,9 @@ export default {
       this.editing = true;
       document.dispatchEvent(new CustomEvent('delete-connector-settings', {detail: 'twitter'}));
     },
-    updateAccounts(accounts){
-      this.accounts = accounts;
-    },
+    forceUpdateAccounts() {
+      this.forceUpdate = true;
+    }
   }
 };
 </script>

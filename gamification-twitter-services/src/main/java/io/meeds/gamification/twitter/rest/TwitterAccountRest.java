@@ -68,13 +68,14 @@ public class TwitterAccountRest implements ResourceContainer {
           @ApiResponse(responseCode = "401", description = "Unauthorized operation"), })
   public Response getWatchedAccounts(@QueryParam("offset") int offset,
                                      @Parameter(description = "Query results limit", required = true) @QueryParam("limit") int limit,
+                                     @Parameter(description = "Force update accounts") @Schema(defaultValue = "false") @QueryParam("forceUpdate") boolean forceUpdate,
                                      @Parameter(description = "Watched accounts total size") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize) {
 
     String currentUser = getCurrentUser();
     List<TwitterAccountRestEntity> twitterAccountRestEntities;
     try {
       TwitterAccountList twitterAccountList = new TwitterAccountList();
-      twitterAccountRestEntities = getTwitterAccountRestEntities(currentUser, offset, limit);
+      twitterAccountRestEntities = getTwitterAccountRestEntities(currentUser, offset, limit, forceUpdate);
       if (returnSize) {
         int twitterAccountsSize = twitterAccountService.countTwitterAccounts(currentUser);
         twitterAccountList.setSize(twitterAccountsSize);
@@ -212,8 +213,8 @@ public class TwitterAccountRest implements ResourceContainer {
     return Response.ok(String.valueOf(isStored)).type(MediaType.TEXT_PLAIN).build();
   }
 
-  private List<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username, int offset, int limit) throws IllegalAccessException {
-    Collection<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(username, offset, limit);
+  private List<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username, int offset, int limit, boolean forceUpdate) throws IllegalAccessException {
+    Collection<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(username, offset, limit, forceUpdate);
     return TwitterAccountBuilder.toRestEntities(twitterAccountService, twitterConsumerService, twitterAccounts);
   }
 }
