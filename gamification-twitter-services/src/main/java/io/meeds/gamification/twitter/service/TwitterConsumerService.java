@@ -18,6 +18,7 @@
 package io.meeds.gamification.twitter.service;
 
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
+import io.meeds.gamification.twitter.model.TokenStatus;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 public interface TwitterConsumerService {
@@ -41,6 +42,14 @@ public interface TwitterConsumerService {
    * @return {@link RemoteTwitterAccount}
    */
   RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken);
+
+  /**
+   * Check Twitter token status
+   *
+   * @param bearerToken Twitter bearer token
+   * @return {@link TokenStatus}
+   */
+  TokenStatus checkTwitterTokenStatus(String bearerToken);
 
   /**
    * clear remote webhook entities cache
