@@ -18,7 +18,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <template>
   <v-card
     flat>
-    <div class="d-flex flex-row">
+    <div class="d-flex flex-row" :class="!isValidToken && 'filter-blur-3'">
       <div class="d-flex">
         <div class="d-flex align-center">
           <v-img
@@ -53,6 +53,30 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </v-btn>
       </div>
     </div>
+    <v-overlay
+      :value="!isValidToken"
+      absolute
+      opacity="0.7"
+      class="d-flex position-absolute height-auto width-auto">
+      <div class="d-flex flex-row">
+        <div class="d-flex flex-column me-5">
+          <span class="text-h6">{{ $t('twitterConnector.label.tokenExpiredOrInvalid') }}</span>
+          <span class="text-h6">{{ $t('twitterConnector.label.regenerateAnotherToken') }}</span>
+        </div>
+      </div>
+    </v-overlay>
+    <v-overlay
+      :value="isValidToken && rateLimitReached"
+      absolute
+      opacity="0.7"
+      class="d-flex position-absolute height-auto width-auto">
+      <div class="d-flex flex-row">
+        <div class="d-flex flex-column me-5">
+          <span class="text-h6">{{ $t('twitterConnector.label.tokenRateLimitReached') }}</span>
+          <span class="text-h6">{{ $t('twitterConnector.label.youNeedToWait') }} {{ formatTime(timeUntilReset) }}</span>
+        </div>
+      </div>
+    </v-overlay>
     <exo-confirm-dialog
       ref="deleteAccountConfirmDialog"
       :message="$t('twitterConnector.admin.message.confirmDeleteAccount')"
@@ -71,9 +95,9 @@ export default {
       type: Object,
       default: null
     },
-    accountsLoaded: {
-      type: Boolean,
-      default: false
+    tokenStatus: {
+      type: Object,
+      default: null
     },
   },
   data() {
@@ -111,6 +135,26 @@ export default {
     watchedBy() {
       return this.account?.watchedBy;
     },
+    isValidToken() {
+      return this.tokenStatus?.valid;
+    },
+    tokenRemaining() {
+      return this.tokenStatus?.remaining;
+    },
+    tokenResetTime() {
+      return this.tokenStatus?.reset;
+    },
+    rateLimitReached() {
+      return this.tokenRemaining < 0;
+    }
+  },
+  created() {
+    this.timeUntilReset = this.tokenResetTime - Math.floor(Date.now() / 1000); // Initialize the timer
+    setInterval(() => {
+      if (this.timeUntilReset > 0) {
+        this.timeUntilReset--;
+      }
+    }, 1000);
   },
   methods: {
     deleteConfirmDialog(event) {
@@ -125,6 +169,12 @@ export default {
         this.$root.$emit('twitter-accounts-updated');
       });
     },
+    formatTime(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = seconds % 60;
+      return `${hours}:${minutes}:${remainingSeconds}`;
+    }
   }
 };
 </script>

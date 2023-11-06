@@ -15,7 +15,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function isBearerTokenStored() {
+export function checkTwitterTokenStatus() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/bearerToken`, {
     method: 'GET',
     credentials: 'include',
