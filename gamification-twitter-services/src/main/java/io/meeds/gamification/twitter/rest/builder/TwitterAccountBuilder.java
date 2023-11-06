@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
+import io.meeds.gamification.twitter.model.TokenStatus;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.rest.model.TwitterAccountRestEntity;
 import io.meeds.gamification.twitter.service.TwitterAccountService;
@@ -33,14 +34,16 @@ public class TwitterAccountBuilder {
   }
 
   public static TwitterAccountRestEntity toRestEntity(String twitterBearerToken,
+                                                      TokenStatus tokenStatus,
                                                       TwitterConsumerService twitterConsumerService,
                                                       TwitterAccount twitterAccount) {
     if (twitterAccount == null) {
       return null;
     }
-
-    RemoteTwitterAccount remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterAccount.getRemoteId(),
-                                                                                              twitterBearerToken);
+    RemoteTwitterAccount remoteTwitterAccount = null;
+    if (tokenStatus.isValid() && tokenStatus.getRemaining() > 0) {
+      remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterAccount.getRemoteId(), twitterBearerToken);
+    }
 
     return new TwitterAccountRestEntity(twitterAccount.getId(),
                                         twitterAccount.getRemoteId(),
@@ -58,8 +61,13 @@ public class TwitterAccountBuilder {
                                                               TwitterConsumerService twitterConsumerService,
                                                               Collection<TwitterAccount> twitterAccounts) {
     String twitterBearerToken = twitterAccountService.getTwitterBearerToken();
+    TokenStatus tokenStatus = twitterConsumerService.checkTwitterTokenStatus(twitterBearerToken);
+
     return twitterAccounts.stream()
-                          .map(twitterAccount -> toRestEntity(twitterBearerToken, twitterConsumerService, twitterAccount))
+                          .map(twitterAccount -> toRestEntity(twitterBearerToken,
+                                                              tokenStatus,
+                                                              twitterConsumerService,
+                                                              twitterAccount))
                           .toList();
   }
 }

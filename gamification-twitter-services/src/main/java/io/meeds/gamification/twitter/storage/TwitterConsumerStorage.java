@@ -27,6 +27,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.meeds.gamification.twitter.exception.TwitterConnectionException;
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
+import io.meeds.gamification.twitter.model.TokenStatus;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
@@ -98,6 +99,45 @@ public class TwitterConsumerStorage {
     remoteTwitterAccount.setDescription(extractSubItem(resultMap, "data", "description"));
     remoteTwitterAccount.setAvatarUrl(extractSubItem(resultMap, "data", "profile_image_url"));
     return remoteTwitterAccount;
+  }
+
+  public TokenStatus checkTwitterTokenStatus(String bearerToken) {
+    if (StringUtils.isBlank(bearerToken)) {
+      return null;
+    }
+    URI uri = URI.create("https://api.twitter.com/1.1/application/rate_limit_status.json?resources=users");
+    String response;
+    HttpClient httpClient = getHttpClient();
+    HttpGet request = new HttpGet(uri);
+    request.setHeader(AUTHORIZATION, BEARER + bearerToken);
+    HttpResponse httpResponse;
+    try {
+      httpResponse = httpClient.execute(request);
+      boolean isSuccess = httpResponse != null
+              && (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode() < 300);
+      if (isSuccess) {
+        response = processSuccessResponse(httpResponse);
+        Map<String, Object> resultMap = fromJsonStringToMap(response);
+        String remaining = extractSubItem(resultMap, "resources", "users", "/users/by/username/:username", "remaining");
+        String reset = extractSubItem(resultMap, "resources", "users", "/users/by/username/:username", "reset");
+        TokenStatus tokenStatus = new TokenStatus();
+        tokenStatus.setValid(true);
+        if (StringUtils.isNotBlank(remaining)) {
+          tokenStatus.setRemaining(Long.parseLong(remaining));
+        }
+        if (StringUtils.isNotBlank(reset)) {
+          tokenStatus.setReset(Long.parseLong(reset));
+        }
+        return tokenStatus;
+      } else if (httpResponse != null
+              && (httpResponse.getStatusLine().getStatusCode() == 401 || httpResponse.getStatusLine().getStatusCode() == 403)) {
+        return new TokenStatus(false, null, null);
+      } else {
+        return null;
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to retrieve Twitter bearer token status", e);
+    }
   }
 
   private String processGet(URI uri, String bearerToken) throws TwitterConnectionException {
