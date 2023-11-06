@@ -88,7 +88,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         class="py-4 d-flex flex-column">
         <twitter-admin-watched-account
           class="full-height"
-          :account="account" />
+          :account="account"
+          :token-status="tokenStatus" />
       </div>
       <template v-if="hasMore">
         <v-btn
@@ -122,6 +123,7 @@ export default {
       loading: true,
       watchedAccounts: [],
       bearerTokenStored: false,
+      tokenStatus: {}
     };
   },
   computed: {
@@ -143,16 +145,24 @@ export default {
     this.$root.$on('twitter-accounts-updated', this.refreshWatchedAccount);
     this.$root.$on('twitter-bearer-token-updated', () => {
       this.bearerTokenStored = true;
+      this.checkTwitterTokenStatus();
     });
-    this.isBearerTokenStored();
+    this.checkTwitterTokenStatus();
     this.refreshWatchedAccount();
   },
   methods: {
-    isBearerTokenStored() {
+    checkTwitterTokenStatus() {
       this.loading = true;
-      return this.$twitterConnectorService.isBearerTokenStored()
-        .then(stored => {
-          this.bearerTokenStored = stored;
+      return this.$twitterConnectorService.checkTwitterTokenStatus()
+        .then(data => {
+          if (data) {
+            this.$set(this.tokenStatus, 'valid', data.valid);
+            this.$set(this.tokenStatus, 'reset', data.reset);
+            this.$set(this.tokenStatus, 'remaining', data.remaining);
+            this.bearerTokenStored = true;
+          } else {
+            this.bearerTokenStored = false;
+          }
         }).finally(() => this.loading = false);
     },
     refreshWatchedAccount() {
