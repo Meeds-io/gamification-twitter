@@ -22,6 +22,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import io.meeds.gamification.twitter.model.TokenStatus;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.rest.builder.TwitterAccountBuilder;
 import io.meeds.gamification.twitter.rest.model.TwitterAccountList;
@@ -193,7 +194,7 @@ public class TwitterAccountRest implements ResourceContainer {
   }
 
   @GET
-  @Produces(MediaType.TEXT_PLAIN)
+  @Produces(MediaType.APPLICATION_JSON)
   @Path("/bearerToken")
   @RolesAllowed("users")
   @Operation(summary = "Checks if a twitter bearer token is stored", description = "This returns if twitter bearer token is stored or not", method = "GET")
@@ -202,15 +203,15 @@ public class TwitterAccountRest implements ResourceContainer {
       @ApiResponse(responseCode = "500", description = "Internal server error"),
       @ApiResponse(responseCode = "404", description = "Resource not found"),
       @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response isBearerTokenStored() {
+  public Response checkTwitterTokenStatus() {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
-    boolean isStored;
     try {
-      isStored = twitterAccountService.getTwitterBearerToken(currentUser) != null;
+      String bearerToken = twitterAccountService.getTwitterBearerToken(currentUser);
+      TokenStatus tokenStatus = twitterConsumerService.checkTwitterTokenStatus(bearerToken);
+      return Response.ok(tokenStatus).build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
     }
-    return Response.ok(String.valueOf(isStored)).type(MediaType.TEXT_PLAIN).build();
   }
 
   private List<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username, int offset, int limit, boolean forceUpdate) throws IllegalAccessException {
