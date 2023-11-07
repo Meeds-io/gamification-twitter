@@ -157,6 +157,13 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
     this.settingService.set(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY, SettingValue.create(encodedBearerToken));
   }
 
+  public void deleteTwitterBearerToken(String currentUser) throws IllegalAccessException {
+    if (!Utils.isRewardingManager(currentUser)) {
+      throw new IllegalAccessException("The user is not authorized to delete Twitter Bearer Token");
+    }
+    this.settingService.remove(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY);
+  }
+
   @Override
   public String getTwitterBearerToken(String currentUser) throws IllegalAccessException {
     if (!Utils.isRewardingManager(currentUser)) {

@@ -64,7 +64,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           </span>
         </v-btn>
       </div>
-      <div v-if="emptyWatchedAccountList && !bearerTokenStored" class="d-flex align-center py-5">
+      <div v-if="!bearerTokenStored" class="d-flex align-center py-5">
         <v-btn
           class="btn btn-primary ma-auto"
           small
@@ -155,8 +155,8 @@ export default {
       this.loading = true;
       return this.$twitterConnectorService.checkTwitterTokenStatus()
         .then(data => {
-          if (data) {
-            this.$set(this.tokenStatus, 'valid', data.valid);
+          if (data?.isValid !== null) {
+            this.$set(this.tokenStatus, 'valid', data.isValid);
             this.$set(this.tokenStatus, 'reset', data.reset);
             this.$set(this.tokenStatus, 'remaining', data.remaining);
             this.bearerTokenStored = true;
