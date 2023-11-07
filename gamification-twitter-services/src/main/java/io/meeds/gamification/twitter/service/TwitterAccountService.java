@@ -61,8 +61,7 @@ public interface TwitterAccountService {
    *           twitter account
    * @throws ObjectNotFoundException twitter account not found
    */
-  TwitterAccount getTwitterAccountById(long accountId, String username) throws IllegalAccessException,
-                                                                               ObjectNotFoundException;
+  TwitterAccount getTwitterAccountById(long accountId, String username) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
    * Get available watched twitter accounts using offset and limit.
@@ -95,9 +94,8 @@ public interface TwitterAccountService {
    * @throws ObjectNotFoundException when the Twitter account identified by its
    *           technical name is not found
    */
-  void addTwitterAccount(String twitterUsername, String currentUser) throws ObjectAlreadyExistsException,
-                                                                            IllegalAccessException,
-                                                                            ObjectNotFoundException;
+  void addTwitterAccount(String twitterUsername,
+                         String currentUser) throws ObjectAlreadyExistsException, IllegalAccessException, ObjectNotFoundException;
 
   /**
    * delete watched Twitter account
@@ -107,24 +105,33 @@ public interface TwitterAccountService {
    * @throws IllegalAccessException when user is not authorized to delete the
    *           watched Twitter account
    */
-  void deleteTwitterAccount(long twitterAccountId, String currentUser) throws IllegalAccessException,
-                                                                              ObjectNotFoundException;
+  void deleteTwitterAccount(long twitterAccountId, String currentUser) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
    * Saves Twitter bearer token
    *
    * @param bearerToken twitter bearer token
    * @param currentUser user name attempting to save Twitter bearer token
-   * @throws IllegalAccessException when user is not authorized save
-   *           Twitter bearer token
+   * @throws IllegalAccessException when user is not authorized save Twitter
+   *           bearer token
    */
   void saveTwitterBearerToken(String bearerToken, String currentUser) throws IllegalAccessException;
+
+  /**
+   * Deletes Twitter bearer token
+   *
+   * @param currentUser user name attempting to delete Twitter bearer token
+   * @throws IllegalAccessException when user is not authorized to delete Twitter
+   *           bearer token
+   */
+  void deleteTwitterBearerToken(String currentUser) throws IllegalAccessException;
 
   /**
    * gets Twitter bearer token
    *
    * @param currentUser user name attempting to access Twitter bearer token
-   * @throws IllegalAccessException when user is not authorized to access Twitter bearer token
+   * @throws IllegalAccessException when user is not authorized to access Twitter
+   *           bearer token
    * @return Twitter bearer token
    */
   String getTwitterBearerToken(String currentUser) throws IllegalAccessException;

@@ -45,6 +45,17 @@ export function saveBearerToken(bearerToken) {
   });
 }
 
+export function deleteTwitterBearerToken() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/bearerToken`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error when deleting twitter bearer token');
+    }
+  });
+}
+
 export function addAccountToWatch(twitterUsername) {
   const formData = new FormData();
   formData.append('twitterUsername', twitterUsername);
