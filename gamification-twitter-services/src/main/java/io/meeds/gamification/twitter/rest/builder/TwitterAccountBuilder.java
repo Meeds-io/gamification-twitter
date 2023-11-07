@@ -41,7 +41,8 @@ public class TwitterAccountBuilder {
       return null;
     }
     RemoteTwitterAccount remoteTwitterAccount = null;
-    if (tokenStatus.isValid() && tokenStatus.getRemaining() > 0) {
+    if (Boolean.TRUE.equals(tokenStatus != null && tokenStatus.getIsValid() != null && tokenStatus.getIsValid())
+        && tokenStatus.getRemaining() > 0) {
       remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterAccount.getRemoteId(), twitterBearerToken);
     }
 

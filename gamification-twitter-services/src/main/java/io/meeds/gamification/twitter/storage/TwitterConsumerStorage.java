@@ -102,8 +102,9 @@ public class TwitterConsumerStorage {
   }
 
   public TokenStatus checkTwitterTokenStatus(String bearerToken) {
+    TokenStatus tokenStatus = new TokenStatus();
     if (StringUtils.isBlank(bearerToken)) {
-      return null;
+      return tokenStatus;
     }
     URI uri = URI.create("https://api.twitter.com/1.1/application/rate_limit_status.json?resources=users");
     String response;
@@ -120,8 +121,7 @@ public class TwitterConsumerStorage {
         Map<String, Object> resultMap = fromJsonStringToMap(response);
         String remaining = extractSubItem(resultMap, "resources", "users", "/users/by/username/:username", "remaining");
         String reset = extractSubItem(resultMap, "resources", "users", "/users/by/username/:username", "reset");
-        TokenStatus tokenStatus = new TokenStatus();
-        tokenStatus.setValid(true);
+        tokenStatus.setIsValid(true);
         if (StringUtils.isNotBlank(remaining)) {
           tokenStatus.setRemaining(Long.parseLong(remaining));
         }

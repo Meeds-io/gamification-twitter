@@ -28,7 +28,7 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class TokenStatus {
 
-  private boolean isValid;
+  private Boolean isValid;
 
   private Long    remaining;
 
