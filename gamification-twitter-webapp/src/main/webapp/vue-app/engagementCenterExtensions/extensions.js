@@ -21,9 +21,13 @@ export function init() {
     type: 'twitter',
     options: {
       rank: 60,
-      icon: 'fab fa-x-twitter',
-      iconColorClass: 'text-color',
-      match: () => '',
+      image: '/gamification-twitter/images/TwitterX.svg',
+      match: (actionLabel) => [
+        'followAccount',
+        'likeTweet',
+        'mentionAccount',
+        'repostTweet',
+      ].includes(actionLabel),
       getLabel: () => ''
     },
   });
