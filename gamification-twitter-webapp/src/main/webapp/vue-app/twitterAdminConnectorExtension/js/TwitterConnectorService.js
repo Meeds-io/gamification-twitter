@@ -21,7 +21,7 @@ export function checkTwitterTokenStatus() {
     credentials: 'include',
   }).then((resp) => {
     if (resp?.ok) {
-      return resp.json();
+      return resp?.json();
     } else {
       throw new Error('Error when getting twitter bearer token status');
     }
@@ -41,6 +41,17 @@ export function saveBearerToken(bearerToken) {
   }).then((resp) => {
     if (!resp?.ok) {
       throw new Error('Error when saving twitter bearer token');
+    }
+  });
+}
+
+export function deleteTwitterBearerToken() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/bearerToken`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error when deleting twitter bearer token');
     }
   });
 }

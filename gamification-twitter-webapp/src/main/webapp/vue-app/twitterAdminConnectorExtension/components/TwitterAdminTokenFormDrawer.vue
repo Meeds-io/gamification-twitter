@@ -95,6 +95,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </template>
     <template #footer>
       <div class="d-flex">
+        <v-btn
+          v-if="bearerTokenStored"
+          class="btn error"
+          outlined
+          @click="deleteBearerToken">
+          {{ $t('twitterConnector.form.label.button.delete') }}
+        </v-btn>
         <v-spacer />
         <v-btn
           class="btn me-2"
@@ -103,8 +110,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </v-btn>
         <v-btn
           :disabled="disabledSave"
-          @click="saveAccountsSetting"
-          class="btn btn-primary">
+          class="btn btn-primary"
+          @click="saveBearerToken">
           {{ $t('twitterConnector.form.label.button.save') }}
         </v-btn>
       </div>
@@ -176,8 +183,14 @@ export default {
         this.isTokenEditing = false;
       }
     },
-    saveAccountsSetting() {
+    saveBearerToken() {
       return this.$twitterConnectorService.saveBearerToken(this.bearerToken).then(() => {
+        this.$root.$emit('twitter-bearer-token-updated');
+        this.close();
+      });
+    },
+    deleteBearerToken() {
+      return this.$twitterConnectorService.deleteTwitterBearerToken().then(() => {
         this.$root.$emit('twitter-bearer-token-updated');
         this.close();
       });
@@ -185,6 +198,7 @@ export default {
     clear() {
       this.bearerToken = null;
       this.isTokenEditing = false;
+      this.bearerTokenStored = false;
     },
   }
 };

@@ -66,6 +66,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       </div>
     </v-overlay>
     <v-overlay
+      v-if="isValidToken && rateLimitReached"
       :value="isValidToken && rateLimitReached"
       absolute
       opacity="0.7"
@@ -136,7 +137,7 @@ export default {
       return this.account?.watchedBy;
     },
     isValidToken() {
-      return this.tokenStatus?.valid;
+      return this.tokenStatus?.isValid;
     },
     tokenRemaining() {
       return this.tokenStatus?.remaining;
