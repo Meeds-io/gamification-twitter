@@ -21,7 +21,7 @@ export function checkTwitterTokenStatus() {
     credentials: 'include',
   }).then((resp) => {
     if (resp?.ok) {
-      return resp?.json();
+      return resp.json();
     } else {
       throw new Error('Error when getting twitter bearer token status');
     }
