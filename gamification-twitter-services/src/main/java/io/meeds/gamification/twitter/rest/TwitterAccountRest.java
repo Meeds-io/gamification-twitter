@@ -193,6 +193,24 @@ public class TwitterAccountRest implements ResourceContainer {
     }
   }
 
+  @DELETE
+  @Path("/bearerToken")
+  @RolesAllowed("users")
+  @Operation(summary = "Deletes Twitter bearer token.", description = "Deletes Twitter bearer token.", method = "DELETE")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "401", description = "Unauthorized operation"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"), })
+  public Response deleteTwitterBearerToken() {
+    String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
+    try {
+      twitterAccountService.deleteTwitterBearerToken(currentUser);
+      return Response.noContent().build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+    }
+  }
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/bearerToken")
