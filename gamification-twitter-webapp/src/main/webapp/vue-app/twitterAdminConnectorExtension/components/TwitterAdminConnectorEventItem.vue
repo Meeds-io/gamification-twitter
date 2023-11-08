@@ -1,0 +1,72 @@
+<!--
+This file is part of the Meeds project (https://meeds.io/).
+
+Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+<template>
+  <tr>
+    <td class="ps-4 no-border-bottom">
+      <gamification-admin-connector-event
+        :event="event"
+        class="py-2" />
+    </td>
+    <td class="no-border-bottom d-flex justify-center py-2">
+      <div class="d-flex flex-column align-center">
+        <v-switch
+          v-model="enabled"
+          :ripple="false"
+          color="primary"
+          class="connectorSwitcher my-auto"
+          @change="enableDisableEvent" />
+      </div>
+    </td>
+  </tr>
+</template>
+
+<script>
+export default {
+  props: {
+    event: {
+      type: Object,
+      default: null
+    },
+    accountId: {
+      type: String,
+      default: null
+    },
+  },
+  computed: {
+    id() {
+      return this.event?.id;
+    },
+    title() {
+      return this.event?.title;
+    },
+    enabled() {
+      const eventProperties = this.event?.properties;
+      if (eventProperties && eventProperties[`${this.accountId}.enabled`]) {
+        return eventProperties[`${this.accountId}.enabled`].toLowerCase() === 'true';
+      }
+      return true;
+    },
+  },
+  methods: {
+    enableDisableEvent() {
+      this.$twitterConnectorService.saveEventStatus(this.id, this.accountId, !this.enabled);
+    },
+  }
+};
+</script>

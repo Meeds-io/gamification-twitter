@@ -31,14 +31,14 @@ import io.meeds.gamification.twitter.model.TwitterAccessTokenContext;
 import io.meeds.gamification.twitter.model.TwitterOAuth20Api;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
+import io.meeds.oauth.utils.HttpResponseContext;
+import io.meeds.oauth.utils.OAuthUtils;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
@@ -110,21 +110,13 @@ public class TwitterConnectorPlugin extends ConnectorPlugin {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setRequestMethod("GET");
     connection.setRequestProperty("Authorization", "Bearer " + accessToken.getAccessToken());
-    int responseCode = connection.getResponseCode();
-    if (responseCode == HttpURLConnection.HTTP_OK) { // success
-      BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      String inputLine;
-      StringBuilder response = new StringBuilder();
-
-      while ((inputLine = in.readLine()) != null) {
-        response.append(inputLine);
-      }
-      in.close();
+    HttpResponseContext httpResponse = OAuthUtils.readUrlContent(connection);
+    if (httpResponse.getResponseCode() == HttpURLConnection.HTTP_OK) {
       // Extract username from the JSON response
-      JSONObject jsonResponse = new JSONObject(response.toString());
+      JSONObject jsonResponse = new JSONObject(httpResponse.getResponse());
       return jsonResponse.getJSONObject("data").getString("username");
     } else {
-      throw new IOException("Error retrieving user information from Twitter. Response code: " + responseCode);
+      throw new IOException("Error retrieving user information from Twitter." + httpResponse.getResponse());
     }
   }
 }

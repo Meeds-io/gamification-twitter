@@ -1,7 +1,8 @@
 <!--
 This file is part of the Meeds project (https://meeds.io/).
-Copyright (C) 2020 - 2023 Meeds Association
-contact@meeds.io
+
+Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -10,13 +11,14 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
+
 You should have received a copy of the GNU Lesser General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
   <v-app>
-    <template>
+    <template v-if="!displayAccountDetail">
       <div class="px-4 py-2 py-sm-5 d-flex align-center">
         <v-tooltip :disabled="$root.isMobile" bottom>
           <template #activator="{ on }">
@@ -95,23 +97,27 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           </v-btn>
         </div>
       </template>
+      <template v-if="!connectionSettingStored">
+        <div class="d-flex flex-column align-center py-5 px-4">
+          <v-btn
+            class="btn btn-primary ma-auto"
+            small
+            @click="openConnectionSetting">
+            <v-icon size="14" dark>
+              fas fa-cogs
+            </v-icon>
+            <span class="ms-2 subtitle-2 font-weight-bold">
+              {{ $t('twitterConnector.admin.label.allowConnection') }}
+            </span>
+          </v-btn>
+        </div>
+      </template>
+      <twitter-admin-watched-account-list :force-update="forceUpdate" />
     </template>
-    <template v-if="!connectionSettingStored">
-      <div class="d-flex flex-column align-center py-5 px-4">
-        <v-btn
-          class="btn btn-primary ma-auto"
-          small
-          @click="openConnectionSetting">
-          <v-icon size="14" dark>
-            fas fa-cogs
-          </v-icon>
-          <span class="ms-2 subtitle-2 font-weight-bold">
-            {{ $t('twitterConnector.admin.label.allowConnection') }}
-          </span>
-        </v-btn>
-      </div>
-    </template>
-    <twitter-admin-watched-account-list :force-update="forceUpdate" />
+    <twitter-admin-watched-account-detail
+      v-else
+      :account="selectedAccount"
+      @close="displayAccountDetail = false" />
     <twitter-admin-connection-setting-drawer ref="connectionSettingDrawer" />
     <twitter-admin-token-form-drawer />
     <twitter-admin-account-form-drawer />
@@ -148,9 +154,10 @@ export default {
   data() {
     return {
       editing: false,
-      displayHookDetail: false,
+      displayAccountDetail: false,
       twitterConnectorLinkBasePath: '/portal/g/:platform:rewarding/gamificationConnectorsAdministration#twitter',
       forceUpdate: false,
+      selectedAccount: null,
     };
   },
   computed: {
@@ -166,7 +173,17 @@ export default {
       return this.connectionSettingStored && !this.enabled;
     },
   },
+  watch: {
+    displayAccountDetail() {
+      if (this.displayAccountDetail && this.selectedAccount?.id) {
+        window.history.replaceState('gamification connectors', this.$t('gamification.connectors.label.connectors'), `${this.twitterConnectorLinkBasePath}-${this.selectedAccount?.id}`);
+      } else {
+        window.history.replaceState('gamification connectors', this.$t('gamification.connectors.label.connectors'), `${this.twitterConnectorLinkBasePath}-configuration`);
+      }
+    },
+  },
   created() {
+    this.$root.$on('twitter-account-detail', this.openAccountDetail);
     this.$root.$on('connector-settings-updated', (apiKey, secretKey, redirectUrl) => {
       if (!this.apiKey && !this.secretKey && !this.redirectUrl) {
         this.enabled = true;
@@ -176,6 +193,12 @@ export default {
       this.redirectUrl = redirectUrl;
       this.saveConnectorSetting(this.enabled);
     });
+    const fragment = document.location.hash.substring(1);
+    const match = fragment.split('-');
+    const accountId = Number(match[1]);
+    if (accountId) {
+      this.openAccountDetailById(accountId);
+    }
   },
   methods: {
     saveConnectorSetting(status) {
@@ -207,7 +230,19 @@ export default {
     },
     forceUpdateAccounts() {
       this.forceUpdate = true;
-    }
+    },
+    openAccountDetail(account) {
+      this.selectedAccount = account;
+      this.displayAccountDetail = true;
+    },
+    openAccountDetailById(id) {
+      this.$twitterConnectorService.getWatchedAccountById(id)
+        .then(account => {
+          if (account?.id) {
+            this.openAccountDetail(account);
+          }
+        });
+    },
   }
 };
 </script>
