@@ -156,11 +156,14 @@ export default {
       return this.$twitterConnectorService.checkTwitterTokenStatus()
         .then(data => {
           if (data?.isValid !== null) {
-            this.$set(this.tokenStatus, 'valid', data.isValid);
+            this.$set(this.tokenStatus, 'isValid', data.isValid);
             this.$set(this.tokenStatus, 'reset', data.reset);
             this.$set(this.tokenStatus, 'remaining', data.remaining);
             this.bearerTokenStored = true;
           } else {
+            this.$set(this.tokenStatus, 'isValid', null);
+            this.$set(this.tokenStatus, 'reset', null);
+            this.$set(this.tokenStatus, 'remaining', null);
             this.bearerTokenStored = false;
           }
         }).finally(() => this.loading = false);

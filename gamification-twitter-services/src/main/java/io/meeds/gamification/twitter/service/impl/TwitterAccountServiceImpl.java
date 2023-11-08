@@ -18,6 +18,8 @@
  */
 package io.meeds.gamification.twitter.service.impl;
 
+import io.meeds.gamification.model.EventDTO;
+import io.meeds.gamification.service.EventService;
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.service.TwitterAccountService;
@@ -37,7 +39,9 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TwitterAccountServiceImpl implements TwitterAccountService {
 
@@ -47,18 +51,24 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
 
   private static final String          BEARER_TOKEN_KEY        = "BEARER_TOKEN";
 
+  public static final String           ENABLED                 = ".enabled";
+
   private final SettingService         settingService;
 
   private final TwitterConsumerStorage twitterConsumerStorage;
 
   private final TwitterAccountStorage  twitterAccountStorage;
 
+  private final EventService           eventService;
+
   public TwitterAccountServiceImpl(SettingService settingService,
                                    TwitterConsumerStorage twitterConsumerStorage,
-                                   TwitterAccountStorage twitterAccountStorage) {
+                                   TwitterAccountStorage twitterAccountStorage,
+                                   EventService eventService) {
     this.settingService = settingService;
     this.twitterConsumerStorage = twitterConsumerStorage;
     this.twitterAccountStorage = twitterAccountStorage;
+    this.eventService = eventService;
   }
 
   @Override
@@ -179,6 +189,34 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       return decode(settingValue.getValue().toString());
     }
     return null;
+  }
+
+  @Override
+  public void setEventEnabledForAccount(long eventId,
+                                        long accountId,
+                                        boolean enabled,
+                                        String currentUser) throws IllegalAccessException, ObjectNotFoundException {
+    if (!Utils.isRewardingManager(currentUser)) {
+      throw new IllegalAccessException("The user is not authorized to enable/disable event for watched twitter account");
+    }
+    EventDTO eventDTO = eventService.getEvent(eventId);
+    if (eventDTO == null) {
+      throw new ObjectNotFoundException("event not found");
+    }
+    Map<String, String> eventProperties = eventDTO.getProperties();
+    if (eventProperties != null && !eventProperties.isEmpty()) {
+      String eventProjectStatus = eventProperties.get(accountId + ENABLED);
+      if (StringUtils.isNotBlank(eventProjectStatus)) {
+        eventProperties.remove(accountId + ENABLED);
+        eventProperties.put(accountId + ENABLED, String.valueOf(enabled));
+        eventDTO.setProperties(eventProperties);
+      }
+    } else {
+      Map<String, String> properties = new HashMap<>();
+      properties.put(accountId + ENABLED, String.valueOf(enabled));
+      eventDTO.setProperties(properties);
+    }
+    eventService.updateEvent(eventDTO);
   }
 
   private String encode(String token) {

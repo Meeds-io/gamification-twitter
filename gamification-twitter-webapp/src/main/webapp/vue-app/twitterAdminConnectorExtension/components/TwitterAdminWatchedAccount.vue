@@ -17,7 +17,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
   <v-card
-    flat>
+    flat
+    v-on="isValidToken && !rateLimitReached ? { click: openAccountDetail } : {}">
     <div class="d-flex flex-row" :class="!isValidToken && 'filter-blur-3'">
       <div class="d-flex">
         <div class="d-flex align-center">
@@ -175,7 +176,10 @@ export default {
       const minutes = Math.floor((seconds % 3600) / 60);
       const remainingSeconds = seconds % 60;
       return `${hours}:${minutes}:${remainingSeconds}`;
-    }
+    },
+    openAccountDetail() {
+      this.$root.$emit('twitter-account-detail', this.account);
+    },
   }
 };
 </script>
