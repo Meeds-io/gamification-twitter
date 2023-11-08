@@ -1,7 +1,8 @@
 <!--
 This file is part of the Meeds project (https://meeds.io/).
-Copyright (C) 2020 - 2023 Meeds Association
-contact@meeds.io
+
+Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -10,6 +11,7 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
+
 You should have received a copy of the GNU Lesser General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -156,11 +158,14 @@ export default {
       return this.$twitterConnectorService.checkTwitterTokenStatus()
         .then(data => {
           if (data?.isValid !== null) {
-            this.$set(this.tokenStatus, 'valid', data.isValid);
+            this.$set(this.tokenStatus, 'isValid', data.isValid);
             this.$set(this.tokenStatus, 'reset', data.reset);
             this.$set(this.tokenStatus, 'remaining', data.remaining);
             this.bearerTokenStored = true;
           } else {
+            this.$set(this.tokenStatus, 'isValid', null);
+            this.$set(this.tokenStatus, 'reset', null);
+            this.$set(this.tokenStatus, 'remaining', null);
             this.bearerTokenStored = false;
           }
         }).finally(() => this.loading = false);
