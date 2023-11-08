@@ -22,6 +22,9 @@ import TwitterAdminAccountFormDrawer from './components/TwitterAdminAccountFormD
 import TwitterAdminWatchedAccountList from './components/TwitterAdminWatchedAccountList.vue';
 import TwitterAdminWatchedAccount from './components/TwitterAdminWatchedAccount.vue';
 import TwitterAdminTokenFormDrawer from './components/TwitterAdminTokenFormDrawer.vue';
+import TwitterAdminConnectorAccountDetail from './components/TwitterAdminConnectorAccountDetail.vue';
+import TwitterAdminConnectorEventList from './components/TwitterAdminConnectorEventList.vue';
+import TwitterAdminConnectorEventItem from './components/TwitterAdminConnectorEventItem.vue';
 
 const components = {
   'twitter-admin-connector-item': TwitterAdminConnectorItem,
@@ -30,6 +33,9 @@ const components = {
   'twitter-admin-token-form-drawer': TwitterAdminTokenFormDrawer,
   'twitter-admin-watched-account-list': TwitterAdminWatchedAccountList,
   'twitter-admin-watched-account': TwitterAdminWatchedAccount,
+  'twitter-admin-watched-account-detail': TwitterAdminConnectorAccountDetail,
+  'twitter-admin-event-list': TwitterAdminConnectorEventList,
+  'twitter-admin-event-item': TwitterAdminConnectorEventItem,
 };
 
 for (const key in components) {
