@@ -32,7 +32,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>gamification-twitter-service</artifactId>
+      <artifactId>gamification-twitter-services</artifactId>
       <scope>provided</scope>
       <type>jar</type>
     </dependency>
