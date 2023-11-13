@@ -21,14 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.meeds.gamification.twitter.exception.TwitterConnectionException;
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TokenStatus;
 import io.meeds.gamification.twitter.model.TwitterAccount;
+import io.meeds.gamification.twitter.model.TwitterTrigger;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,13 +50,19 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 public class TwitterConsumerStorage {
 
-  public static final String TWITTER_API_URL          = "https://api.twitter.com/2";
+  public static final String TWITTER_API_URL                = "https://api.twitter.com/2";
 
-  public static final String BEARER                   = "Bearer ";
+  public static final String BEARER                         = "Bearer ";
 
-  public static final String AUTHORIZATION            = "Authorization";
+  public static final String AUTHORIZATION                  = "Authorization";
 
-  public static final String TWITTER_CONNECTION_ERROR = "twitter.connectionError";
+  public static final String TWITTER_CONNECTION_ERROR       = "twitter.connectionError";
+
+  public static final String TWITTER_RETRIEVE_ACCOUNT_ERROR = "Unable to retrieve Twitter account info.";
+
+  public static final String USERNAME                       = "username";
+
+  public static final String USERS                          = "users";
 
   private HttpClient         client;
 
@@ -65,7 +72,7 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      throw new IllegalStateException("Unable to retrieve Twitter account info.", e);
+      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
     }
     if (response == null) {
       throw new ObjectNotFoundException("twitter.accountNotFound");
@@ -74,7 +81,7 @@ public class TwitterConsumerStorage {
     RemoteTwitterAccount remoteTwitterAccount = new RemoteTwitterAccount();
     remoteTwitterAccount.setId(Long.parseLong(Objects.requireNonNull(extractSubItem(resultMap, "data", "id"))));
     remoteTwitterAccount.setName(extractSubItem(resultMap, "data", "name"));
-    remoteTwitterAccount.setUsername(extractSubItem(resultMap, "data", "username"));
+    remoteTwitterAccount.setUsername(extractSubItem(resultMap, "data", USERNAME));
     remoteTwitterAccount.setDescription(extractSubItem(resultMap, "data", "description"));
     remoteTwitterAccount.setAvatarUrl(extractSubItem(resultMap, "data", "profile_image_url"));
     return remoteTwitterAccount;
@@ -86,7 +93,7 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      throw new IllegalStateException("Unable to retrieve Twitter account info.", e);
+      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
     }
     if (response == null) {
       return null;
@@ -95,10 +102,67 @@ public class TwitterConsumerStorage {
     RemoteTwitterAccount remoteTwitterAccount = new RemoteTwitterAccount();
     remoteTwitterAccount.setId(Long.parseLong(Objects.requireNonNull(extractSubItem(resultMap, "data", "id"))));
     remoteTwitterAccount.setName(extractSubItem(resultMap, "data", "name"));
-    remoteTwitterAccount.setUsername(extractSubItem(resultMap, "data", "username"));
+    remoteTwitterAccount.setUsername(extractSubItem(resultMap, "data", USERNAME));
     remoteTwitterAccount.setDescription(extractSubItem(resultMap, "data", "description"));
     remoteTwitterAccount.setAvatarUrl(extractSubItem(resultMap, "data", "profile_image_url"));
     return remoteTwitterAccount;
+  }
+
+  public List<TwitterTrigger> getMentionEvents(long twitterRemoteId, long lastMentionTweetId, String bearerToken) {
+
+    StringBuilder builder = new StringBuilder(TWITTER_API_URL);
+    builder.append("/users/");
+    builder.append(twitterRemoteId);
+    builder.append("/mentions?expansions=author_id&max_results=100");
+    if (lastMentionTweetId > 0) {
+      builder.append("&since_id=");
+      builder.append(lastMentionTweetId);
+    }
+    URI uri = URI.create(builder.toString());
+    String response;
+    try {
+      response = processGet(uri, bearerToken);
+    } catch (TwitterConnectionException e) {
+      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
+    }
+    if (response == null) {
+      return Collections.emptyList();
+    }
+    // Extract usernames from JSON using Jackson
+    JsonNode rootNode = fromJsonStringToJsonNode(response);
+    JsonNode usersNode = rootNode.path("includes").path(USERS);
+    JsonNode dataNodes = rootNode.path("data");
+    List<TwitterTrigger> twitterEvents = new ArrayList<>();
+    for (JsonNode dataNode : dataNodes) {
+      long tweetId = dataNode.path("id").asLong();
+      long userId = dataNode.path("author_id").asLong();
+      String username = null;
+      for (JsonNode userNode : usersNode) {
+        if (userNode.has("id") && userNode.get("id").asLong() == userId) {
+          username = userNode.path(USERNAME).asText();
+          break; // Break the loop if the item is found
+        }
+      }
+      TwitterTrigger twitterEvent = new TwitterTrigger("mentionAccount", username, tweetId, "tweet", twitterRemoteId);
+      twitterEvents.add(twitterEvent);
+    }
+    return twitterEvents;
+  }
+
+  public long getLastMentionTweetId(long twitterRemoteId, String bearerToken) {
+    URI uri = URI.create(TWITTER_API_URL + "/users/" + twitterRemoteId + "/mentions");
+    String response;
+    try {
+      response = processGet(uri, bearerToken);
+    } catch (TwitterConnectionException e) {
+      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
+    }
+    if (response == null) {
+      return 0;
+    }
+    // Extract usernames from JSON using Jackson
+    JsonNode rootNode = fromJsonStringToJsonNode(response);
+    return rootNode.path("data").path(0).path("id").asLong();
   }
 
   public TokenStatus checkTwitterTokenStatus(String bearerToken) {
@@ -115,12 +179,12 @@ public class TwitterConsumerStorage {
     try {
       httpResponse = httpClient.execute(request);
       boolean isSuccess = httpResponse != null
-              && (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode() < 300);
+          && (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode() < 300);
       if (isSuccess) {
         response = processSuccessResponse(httpResponse);
         Map<String, Object> resultMap = fromJsonStringToMap(response);
-        String remaining = extractSubItem(resultMap, "resources", "users", "/users/by/username/:username", "remaining");
-        String reset = extractSubItem(resultMap, "resources", "users", "/users/by/username/:username", "reset");
+        String remaining = extractSubItem(resultMap, "resources", USERS, "/users/by/username/:username", "remaining");
+        String reset = extractSubItem(resultMap, "resources", USERS, "/users/by/username/:username", "reset");
         tokenStatus.setIsValid(true);
         if (StringUtils.isNotBlank(remaining)) {
           tokenStatus.setRemaining(Long.parseLong(remaining));
@@ -130,7 +194,7 @@ public class TwitterConsumerStorage {
         }
         return tokenStatus;
       } else if (httpResponse != null
-              && (httpResponse.getStatusLine().getStatusCode() == 401 || httpResponse.getStatusLine().getStatusCode() == 403)) {
+          && (httpResponse.getStatusLine().getStatusCode() == 401 || httpResponse.getStatusLine().getStatusCode() == 403)) {
         return new TokenStatus(false, null, null);
       } else {
         return null;
@@ -231,6 +295,15 @@ public class TwitterConsumerStorage {
       return objectMapper.readValue(jsonString, Map.class);
     } catch (IOException e) {
       throw new IllegalStateException("Error converting JSON string to map: " + jsonString, e);
+    }
+  }
+
+  private JsonNode fromJsonStringToJsonNode(String jsonString) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readTree(jsonString);
+    } catch (IOException e) {
+      throw new IllegalStateException("Error converting JSON string to JsonNode: " + jsonString, e);
     }
   }
 

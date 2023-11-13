@@ -66,4 +66,7 @@ public class TwitterAccountEntity implements Serializable {
 
   @Column(name = "REFRESH_DATE", nullable = false)
   private Date   refreshDate;
+
+  @Column(name = "LAST_MENTION_TWEET_ID")
+  private Long   lastMentionTweetId;
 }
