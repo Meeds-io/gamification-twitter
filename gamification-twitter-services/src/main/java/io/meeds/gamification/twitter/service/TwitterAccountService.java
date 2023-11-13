@@ -153,9 +153,16 @@ public interface TwitterAccountService {
    * @throws IllegalAccessException when user is not authorized enables/disables
    *           account event
    */
-  void setEventEnabledForAccount(long eventId,
-                                      long accountId,
-                                      boolean enabled,
-                                      String currentUser) throws IllegalAccessException, ObjectNotFoundException;
+  void setEventEnabledForAccount(long eventId, long accountId, boolean enabled, String currentUser) throws IllegalAccessException,
+                                                                                                    ObjectNotFoundException;
 
+  /**
+   * Update twitter account last mention tweet Id.
+   *
+   * @param accountId account Id
+   * @param lastMentionTweetId last mention Tweet Id
+   * @throws ObjectNotFoundException when the Twitter account identified by its
+   *           technical name is not found
+   */
+  void updateAccountLastMentionTweetId(long accountId, long lastMentionTweetId) throws ObjectNotFoundException;
 }

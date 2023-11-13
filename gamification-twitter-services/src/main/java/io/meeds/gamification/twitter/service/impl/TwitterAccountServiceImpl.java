@@ -23,8 +23,8 @@ import io.meeds.gamification.service.EventService;
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.service.TwitterAccountService;
+import io.meeds.gamification.twitter.service.TwitterConsumerService;
 import io.meeds.gamification.twitter.storage.TwitterAccountStorage;
-import io.meeds.gamification.twitter.storage.TwitterConsumerStorage;
 import io.meeds.gamification.utils.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
@@ -33,8 +33,6 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
@@ -44,8 +42,6 @@ import java.util.Map;
 
 public class TwitterAccountServiceImpl implements TwitterAccountService {
 
-  private static final Log             LOG                     = ExoLogger.getLogger(TwitterAccountServiceImpl.class);
-
   private static final Scope           TWITTER_CONNECTOR_SCOPE = Scope.APPLICATION.id("twitterConnector");
 
   private static final String          BEARER_TOKEN_KEY        = "BEARER_TOKEN";
@@ -54,7 +50,7 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
 
   private final SettingService         settingService;
 
-  private final TwitterConsumerStorage twitterConsumerStorage;
+  private final TwitterConsumerService twitterConsumerService;
 
   private final TwitterAccountStorage  twitterAccountStorage;
 
@@ -63,12 +59,12 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
   private final CodecInitializer       codecInitializer;
 
   public TwitterAccountServiceImpl(SettingService settingService,
-                                   TwitterConsumerStorage twitterConsumerStorage,
+                                   TwitterConsumerService twitterConsumerService,
                                    TwitterAccountStorage twitterAccountStorage,
                                    EventService eventService,
                                    CodecInitializer codecInitializer) {
     this.settingService = settingService;
-    this.twitterConsumerStorage = twitterConsumerStorage;
+    this.twitterConsumerService = twitterConsumerService;
     this.twitterAccountStorage = twitterAccountStorage;
     this.eventService = eventService;
     this.codecInitializer = codecInitializer;
@@ -83,7 +79,7 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       throw new IllegalAccessException("The user is not authorized to access Twitter watched accounts");
     }
     if (forceUpdate) {
-      twitterConsumerStorage.clearCache();
+      twitterConsumerService.clearCache();
     }
     return getTwitterAccounts(offset, limit);
   }
@@ -130,7 +126,7 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to add a twitter watched account");
     }
-    RemoteTwitterAccount remoteTwitterAccount = twitterConsumerStorage.retrieveTwitterAccount(twitterUsername,
+    RemoteTwitterAccount remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterUsername,
                                                                                               getTwitterBearerToken(currentUser));
     if (remoteTwitterAccount != null) {
       TwitterAccount existsAccount = twitterAccountStorage.getTwitterAccountByRemoteId(remoteTwitterAccount.getId());
@@ -142,6 +138,11 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       twitterAccount.setRemoteId(remoteTwitterAccount.getId());
       twitterAccount.setName(remoteTwitterAccount.getName());
       twitterAccount.setWatchedBy(currentUser);
+      long lastMentionTweetId =
+                              twitterConsumerService.getLastMentionTweetId(remoteTwitterAccount.getId(), getTwitterBearerToken());
+      if (lastMentionTweetId > 0) {
+        twitterAccount.setLastMentionTweetId(lastMentionTweetId);
+      }
       twitterAccountStorage.addTwitterAccount(twitterAccount);
     }
   }
@@ -158,7 +159,7 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       throw new ObjectNotFoundException("Twitter account with remote id : " + twitterAccountId + " wasn't found");
     }
     twitterAccountStorage.deleteTwitterAccount(twitterAccountId);
-    twitterConsumerStorage.clearCache(twitterAccount, getTwitterBearerToken());
+    twitterConsumerService.clearCache(twitterAccount, getTwitterBearerToken());
   }
 
   @Override
@@ -220,6 +221,17 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       eventDTO.setProperties(properties);
     }
     eventService.updateEvent(eventDTO);
+  }
+
+  public void updateAccountLastMentionTweetId(long accountId, long lastMentionTweetId) throws ObjectNotFoundException {
+    if (accountId <= 0) {
+      throw new IllegalArgumentException("Account id must be positive");
+    }
+    TwitterAccount account = twitterAccountStorage.getTwitterAccountById(accountId);
+    if (account == null) {
+      throw new ObjectNotFoundException("Twitter account with id : " + accountId + " wasn't found");
+    }
+    twitterAccountStorage.updateAccountLastMentionTweetId(accountId, lastMentionTweetId);
   }
 
   private String encode(String token) {
