@@ -63,8 +63,14 @@ public class TwitterAccountStorage {
   }
 
   public TwitterAccount getTwitterAccountByRemoteId(long remoteId) {
-    TwitterAccountEntity connectorHookEntity = twitterAccountDAO.getAccountByRemoteId(remoteId);
-    return fromEntity(connectorHookEntity);
+    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.getAccountByRemoteId(remoteId);
+    return fromEntity(twitterAccountEntity);
+  }
+
+  public TwitterAccount updateAccountLastMentionTweetId(long accountId, long lastMentionTweetId) {
+    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.find(accountId);
+    twitterAccountEntity.setLastMentionTweetId(lastMentionTweetId);
+    return fromEntity(twitterAccountDAO.update(twitterAccountEntity));
   }
 
   public TwitterAccount deleteTwitterAccount(long accountId) {

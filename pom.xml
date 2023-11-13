@@ -81,7 +81,7 @@
       <!-- Current project artifacts -->
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>gamification-twitter-service</artifactId>
+        <artifactId>gamification-twitter-services</artifactId>
         <version>${project.version}</version>
       </dependency>
 
