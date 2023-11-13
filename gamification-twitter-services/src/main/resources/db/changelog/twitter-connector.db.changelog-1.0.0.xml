@@ -56,6 +56,12 @@
   <changeSet author="twitter-connector" id="1.0.0-2" dbms="oracle,postgresql">
     <createSequence sequenceName="SEQ_TWITTER_ACCOUNTS_ID" startValue="1"/>
   </changeSet>
+
+  <changeSet author="exo-twitter-connector" id="1.0.0-3">
+    <addColumn tableName="TWITTER_ACCOUNTS">
+      <column name="LAST_MENTION_TWEET_ID" type="BIGINT"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>
 
 

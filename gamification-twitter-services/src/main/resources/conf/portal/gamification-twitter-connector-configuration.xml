@@ -25,62 +25,6 @@
   <external-component-plugins>
     <target-component>io.meeds.gamification.service.EventRegistry</target-component>
     <component-plugin>
-      <name>FollowAccount</name>
-      <set-method>addPlugin</set-method>
-      <type>io.meeds.gamification.plugin.EventConfigPlugin</type>
-      <init-params>
-        <object-param>
-          <name>event</name>
-          <object type="io.meeds.gamification.model.EventDTO">
-            <field name="title">
-              <string>followAccount</string>
-            </field>
-            <field name="type">
-              <string>twitter</string>
-            </field>
-            <field name="trigger">
-              <string>followAccount</string>
-            </field>
-            <field name="cancellerEvents">
-              <collection type="java.util.ArrayList" item-type="java.lang.String">
-                <value>
-                  <string>unfollowAccount</string>
-                </value>
-              </collection>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>LikeTweet</name>
-      <set-method>addPlugin</set-method>
-      <type>io.meeds.gamification.plugin.EventConfigPlugin</type>
-      <init-params>
-        <object-param>
-          <name>event</name>
-          <object type="io.meeds.gamification.model.EventDTO">
-            <field name="title">
-              <string>likeTweet</string>
-            </field>
-            <field name="type">
-              <string>twitter</string>
-            </field>
-            <field name="trigger">
-              <string>likeTweet</string>
-            </field>
-            <field name="cancellerEvents">
-              <collection type="java.util.ArrayList" item-type="java.lang.String">
-                <value>
-                  <string>unlikeTweet</string>
-                </value>
-              </collection>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
       <name>MentionAccount</name>
       <set-method>addPlugin</set-method>
       <type>io.meeds.gamification.plugin.EventConfigPlugin</type>
@@ -96,41 +40,6 @@
             </field>
             <field name="trigger">
               <string>mentionAccount</string>
-            </field>
-            <field name="cancellerEvents">
-              <collection type="java.util.ArrayList" item-type="java.lang.String">
-                <value>
-                  <string>deleteTweet</string>
-                </value>
-              </collection>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>RepostTweet</name>
-      <set-method>addPlugin</set-method>
-      <type>io.meeds.gamification.plugin.EventConfigPlugin</type>
-      <init-params>
-        <object-param>
-          <name>event</name>
-          <object type="io.meeds.gamification.model.EventDTO">
-            <field name="title">
-              <string>repostTweet</string>
-            </field>
-            <field name="type">
-              <string>twitter</string>
-            </field>
-            <field name="trigger">
-              <string>repostTweet</string>
-            </field>
-            <field name="cancellerEvents">
-              <collection type="java.util.ArrayList" item-type="java.lang.String">
-                <value>
-                  <string>deleteTweet</string>
-                </value>
-              </collection>
             </field>
           </object>
         </object-param>

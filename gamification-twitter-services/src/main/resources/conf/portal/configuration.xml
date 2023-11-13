@@ -42,6 +42,11 @@
   </component>
 
   <component>
+    <key>io.meeds.gamification.twitter.service.TwitterTriggerService</key>
+    <type>io.meeds.gamification.twitter.service.impl.TwitterTriggerServiceImpl</type>
+  </component>
+
+  <component>
     <key>io.meeds.gamification.twitter.service.TwitterAccountService</key>
     <type>io.meeds.gamification.twitter.service.impl.TwitterAccountServiceImpl</type>
   </component>
@@ -97,6 +102,40 @@
           <description>Change logs of Twitter Connector</description>
           <value>db/changelog/twitter-connector.db.changelog-1.0.0.xml</value>
         </values-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>twitter.action.event</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.gamification.twitter.listener.TwitterEventsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>twitter.cancel.action.event</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.gamification.twitter.listener.TwitterEventsListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
+    <component-plugin>
+      <name>TwitterAccountRemoteUpdate</name>
+      <set-method>addCronJob</set-method>
+      <type>org.exoplatform.services.scheduler.CronJob</type>
+      <description>Configuration to manage the periodic updating of twitter account events</description>
+      <init-params>
+        <properties-param>
+          <name>cronjob.info</name>
+          <description>Configuration to manage the periodic updating of twitter account events</description>
+          <property name="jobName" value="TwitterAccountRemoteUpdate"/>
+          <property name="groupName" value="Gamification"/>
+          <property name="job" value="io.meeds.gamification.twitter.scheduled.TwitterAccountRemoteUpdate"/>
+          <property name="expression" value="${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}"/><!-- Every hour -->
+        </properties-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>

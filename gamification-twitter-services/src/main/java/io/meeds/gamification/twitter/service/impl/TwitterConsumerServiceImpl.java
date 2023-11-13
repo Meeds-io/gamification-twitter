@@ -19,9 +19,13 @@ package io.meeds.gamification.twitter.service.impl;
 
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TokenStatus;
+import io.meeds.gamification.twitter.model.TwitterAccount;
+import io.meeds.gamification.twitter.model.TwitterTrigger;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
 import io.meeds.gamification.twitter.storage.TwitterConsumerStorage;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+
+import java.util.List;
 
 public class TwitterConsumerServiceImpl implements TwitterConsumerService {
 
@@ -46,9 +50,23 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService {
     return twitterConsumerStorage.checkTwitterTokenStatus(bearerToken);
   }
 
+  @Override
+  public List<TwitterTrigger> getMentionEvents(long twitterRemoteId, long lastMentionTweetId, String bearerToken) {
+    return twitterConsumerStorage.getMentionEvents(twitterRemoteId, lastMentionTweetId, bearerToken);
+  }
+
+  @Override
+  public long getLastMentionTweetId(long twitterRemoteId, String bearerToken) {
+    return twitterConsumerStorage.getLastMentionTweetId(twitterRemoteId, bearerToken);
+  }
 
   @Override
   public void clearCache() {
     twitterConsumerStorage.clearCache();
+  }
+
+  @Override
+  public void clearCache(TwitterAccount twitterAccount, String bearerToken) {
+    twitterConsumerStorage.clearCache(twitterAccount, bearerToken);
   }
 }
