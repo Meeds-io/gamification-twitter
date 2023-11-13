@@ -26,7 +26,7 @@
     <artifactId>gamification-twitter-parent</artifactId>
     <version>1.0.x-meed-SNAPSHOT</version>
   </parent>
-  <artifactId>gamification-twitter-service</artifactId>
+  <artifactId>gamification-twitter-services</artifactId>
   <packaging>jar</packaging>
   <name>Meeds:: Gamification Twitter - Service</name>
   <dependencies>

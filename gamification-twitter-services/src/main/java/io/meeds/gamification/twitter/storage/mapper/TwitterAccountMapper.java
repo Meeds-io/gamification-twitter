@@ -56,6 +56,9 @@ public class TwitterAccountMapper {
       String userIdentityId = identityManager.getOrCreateUserIdentity(twitterAccount.getWatchedBy()).getId();
       twitterAccountEntity.setWatchedBy(Long.parseLong(userIdentityId));
     }
+    if (twitterAccount.getLastMentionTweetId() > 0) {
+      twitterAccountEntity.setLastMentionTweetId(twitterAccount.getLastMentionTweetId());
+    }
     return twitterAccountEntity;
   }
 
@@ -75,7 +78,8 @@ public class TwitterAccountMapper {
                               twitterAccountEntity.getUpdatedDate() != null ? Utils.toSimpleDateFormat(twitterAccountEntity.getUpdatedDate())
                                                                             : null,
                               twitterAccountEntity.getRefreshDate() != null ? Utils.toSimpleDateFormat(twitterAccountEntity.getRefreshDate())
-                                                                            : null);
+                                                                            : null,
+                              twitterAccountEntity.getLastMentionTweetId() != null ? twitterAccountEntity.getLastMentionTweetId() : 0);
   }
 
 }

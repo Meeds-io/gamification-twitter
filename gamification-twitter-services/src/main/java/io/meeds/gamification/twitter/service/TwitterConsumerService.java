@@ -19,7 +19,11 @@ package io.meeds.gamification.twitter.service;
 
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TokenStatus;
+import io.meeds.gamification.twitter.model.TwitterAccount;
+import io.meeds.gamification.twitter.model.TwitterTrigger;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+
+import java.util.List;
 
 public interface TwitterConsumerService {
 
@@ -52,7 +56,35 @@ public interface TwitterConsumerService {
   TokenStatus checkTwitterTokenStatus(String bearerToken);
 
   /**
-   * clear remote webhook entities cache
+   * Retrieve available tweets in which the account identified by its identifier
+   * was mentioned
+   *
+   * @param twitterRemoteId Twitter account remote Id
+   * @param lastMentionTweetId last mention tweet Id
+   * @param bearerToken Twitter bearer token
+   */
+  List<TwitterTrigger> getMentionEvents(long twitterRemoteId, long lastMentionTweetId, String bearerToken);
+
+  /**
+   * Gets the last tweet in which the account identified by its identifier was
+   * mentioned
+   *
+   * @param twitterRemoteId Twitter account remote Id
+   * @param bearerToken Twitter bearer token
+   * @return Tweet id
+   */
+  long getLastMentionTweetId(long twitterRemoteId, String bearerToken);
+
+  /**
+   * clear remote twitter account entities cache
    */
   void clearCache();
+
+  /**
+   * clear remote twitter account entity cache
+   * 
+   * @param twitterAccount Twitter account
+   * @param bearerToken Twitter bearer token
+   */
+  void clearCache(TwitterAccount twitterAccount, String bearerToken);
 }
