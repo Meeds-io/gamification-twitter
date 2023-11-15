@@ -25,7 +25,7 @@
   <property name="autoIncrement" value="false" dbms="oracle,postgresql"/>
 
   <!-- Definition of TWITTER_ACCOUNTS table -->
-  <changeSet id="1.0.0-1" author="exo-twitter-connector">
+  <changeSet author="twitter-connector" id="1.0.0-1">
     <createTable tableName="TWITTER_ACCOUNTS">
       <column name="ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TWITTER_ACCOUNTS"/>
@@ -53,11 +53,11 @@
       </column>
     </createTable>
   </changeSet>
-  <changeSet author="exo-twitter-connector" id="1.0.0-2" dbms="oracle,postgresql">
+  <changeSet author="twitter-connector" id="1.0.0-2" dbms="oracle,postgresql">
     <createSequence sequenceName="SEQ_TWITTER_ACCOUNTS_ID" startValue="1"/>
   </changeSet>
 
-  <changeSet author="exo-twitter-connector" id="1.0.0-3">
+  <changeSet author="twitter-connector" id="1.0.0-3">
     <addColumn tableName="TWITTER_ACCOUNTS">
       <column name="LAST_MENTION_TWEET_ID" type="BIGINT"/>
     </addColumn>
