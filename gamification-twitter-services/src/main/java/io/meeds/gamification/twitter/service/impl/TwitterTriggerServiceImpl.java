@@ -19,14 +19,12 @@
 package io.meeds.gamification.twitter.service.impl;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.meeds.gamification.twitter.model.TwitterTrigger;
 import io.meeds.gamification.twitter.service.TwitterTriggerService;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.picocontainer.Startable;
@@ -39,19 +37,16 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 
 import io.meeds.gamification.model.EventDTO;
-import io.meeds.gamification.model.filter.EventFilter;
 import io.meeds.gamification.service.ConnectorService;
 import io.meeds.gamification.service.EventService;
 
 public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startable {
 
-  private static final Log       LOG                         = ExoLogger.getLogger(TwitterTriggerServiceImpl.class);
+  private static final Log       LOG                        = ExoLogger.getLogger(TwitterTriggerServiceImpl.class);
 
-  public static final String     CONNECTOR_NAME              = "twitter";
+  public static final String     CONNECTOR_NAME             = "twitter";
 
-  public static final String     TWITTER_ACTION_EVENT        = "twitter.action.event";
-
-  public static final String     TWITTER_CANCEL_ACTION_EVENT = "twitter.cancel.action.event";
+  public static final String     GAMIFICATION_GENERIC_EVENT = "exo.gamification.generic.action";
 
   private final ConnectorService connectorService;
 
@@ -98,17 +93,14 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
 
   private boolean isEventEnabled(String eventName, String trigger, String remoteAccountId) {
     EventDTO eventDTO = eventService.getEventByTitleAndTrigger(eventName, trigger);
-    if (eventDTO != null) {
-      return isOrganizationEventEnabled(eventDTO, remoteAccountId);
-    }
-    return true;
+    return eventDTO != null && isAccountEventEnabled(eventDTO, remoteAccountId);
   }
 
-  private boolean isOrganizationEventEnabled(EventDTO eventDTO, String remoteAccountId) {
-    String organizationPropertyKey = remoteAccountId + ".enabled";
+  private boolean isAccountEventEnabled(EventDTO eventDTO, String remoteAccountId) {
+    String accountPropertyKey = remoteAccountId + ".enabled";
     Map<String, String> properties = eventDTO.getProperties();
     if (properties != null && !properties.isEmpty()) {
-      return Boolean.parseBoolean(properties.get(organizationPropertyKey));
+      return Boolean.parseBoolean(properties.get(accountPropertyKey));
     }
     return true;
   }
@@ -119,7 +111,7 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
                         String.valueOf(twitterTrigger.getAccountId()))) {
       return;
     }
-    String receiverId = connectorService.getAssociatedUsername(CONNECTOR_NAME, twitterTrigger.getIdentifier());
+    String receiverId = connectorService.getAssociatedUsername(CONNECTOR_NAME, twitterTrigger.getTwitterUsername());
     if (StringUtils.isNotBlank(receiverId)) {
       Identity socialIdentity = identityManager.getOrCreateUserIdentity(receiverId);
       if (socialIdentity != null) {
@@ -133,31 +125,19 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
 
   private void broadcastTwitterEvent(String ruleTitle, String receiverId, String objectId, String objectType) {
     try {
-      Map<String, String> gam = new HashMap<>();
-      gam.put("senderId", receiverId);
-      gam.put("receiverId", receiverId);
-      gam.put("objectId", objectId);
-      gam.put("objectType", objectType);
       EventDTO eventDTO = eventService.getEventByTypeAndTitle(CONNECTOR_NAME, ruleTitle);
       if (eventDTO != null) {
+        Map<String, String> gam = new HashMap<>();
+        gam.put("senderId", receiverId);
+        gam.put("receiverId", receiverId);
+        gam.put("objectId", objectId);
+        gam.put("objectType", objectType);
         gam.put("ruleTitle", eventDTO.getTitle());
-        listenerService.broadcast(TWITTER_ACTION_EVENT, gam, "");
-      } else {
-        List<EventDTO> events = eventService.getEvents(new EventFilter(CONNECTOR_NAME, null), 0, 0);
-        List<EventDTO> eventsToCancel = events.stream()
-                                              .filter(event -> event.getCancellerEvents() != null
-                                                  && event.getCancellerEvents().contains(ruleTitle))
-                                              .toList();
-        if (CollectionUtils.isNotEmpty(eventsToCancel)) {
-          for (EventDTO eventToCancel : eventsToCancel) {
-            gam.put("ruleTitle", eventToCancel.getTitle());
-            listenerService.broadcast(TWITTER_CANCEL_ACTION_EVENT, gam, "");
-          }
-        }
+        listenerService.broadcast(GAMIFICATION_GENERIC_EVENT, gam, "");
+        LOG.info("Twitter action {} broadcasted for user {}", ruleTitle, receiverId);
       }
-      LOG.info("Twitter action {} broadcasted for user {}", ruleTitle, receiverId);
     } catch (Exception e) {
-      LOG.error("Cannot broadcast github event", e);
+      LOG.error("Cannot broadcast twitter gamification event", e);
     }
   }
 }

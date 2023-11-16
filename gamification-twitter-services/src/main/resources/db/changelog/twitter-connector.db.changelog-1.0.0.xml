@@ -59,7 +59,7 @@
 
   <changeSet author="twitter-connector" id="1.0.0-3">
     <addColumn tableName="TWITTER_ACCOUNTS">
-      <column name="LAST_MENTION_TWEET_ID" type="BIGINT"/>
+      <column name="LAST_MENTION_TWEET_ID" type="BIGINT" defaultValueNumeric="0"/>
     </addColumn>
   </changeSet>
 </databaseChangeLog>

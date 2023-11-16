@@ -29,13 +29,23 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           </v-card-text>
         </div>
         <v-spacer />
-        <v-btn
+        <v-tooltip
           v-if="!emptyWatchedAccountList && bearerTokenStored"
-          class="ma-auto"
-          icon
-          @click="addWatchedAccount">
-          <v-icon class="mx-2 primary--text" size="20">fas fa-plus</v-icon>
-        </v-btn>
+          :disabled="$root.isMobile"
+          bottom>
+          <template #activator="{ on }">
+            <div class="d-flex ma-auto" v-on="on">
+              <v-btn
+                :disabled="maxAccountsReached"
+                class="ma-auto"
+                icon
+                @click="addWatchedAccount">
+                <v-icon class="mx-2 primary--text" size="20">fas fa-plus</v-icon>
+              </v-btn>
+            </div>
+          </template>
+          <span> {{ addButtonLabel }}</span>
+        </v-tooltip>
         <v-tooltip
           v-if="bearerTokenStored"
           :disabled="$root.isMobile"
@@ -62,7 +72,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             fas fa-plus
           </v-icon>
           <span class="ms-2 subtitle-2 font-weight-bold">
-            Add account
+            {{ $t('twitterConnector.admin.label.addAccount') }}
           </span>
         </v-btn>
       </div>
@@ -134,6 +144,12 @@ export default {
     },
     emptyWatchedAccountList() {
       return this.watchedAccounts?.length === 0;
+    },
+    maxAccountsReached() {
+      return this.watchedAccounts?.length === 2;
+    },
+    addButtonLabel() {
+      return this.maxAccountsReached ? this.$t('twitterConnector.admin.label.maxAccountsReached') : this.$t('twitterConnector.admin.label.addAccount');
     }
   },
   watch: {

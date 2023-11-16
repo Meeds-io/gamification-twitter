@@ -24,7 +24,7 @@
   <parent>
     <artifactId>addons-parent-pom</artifactId>
     <groupId>org.exoplatform.addons</groupId>
-    <version>17-meed-M04</version>
+    <version>17-M04</version>
     <relativePath/>
   </parent>
   <groupId>io.meeds.gamification-twitter</groupId>
@@ -81,7 +81,7 @@
       <!-- Current project artifacts -->
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>gamification-twitter-services</artifactId>
+        <artifactId>gamification-twitter-service</artifactId>
         <version>${project.version}</version>
       </dependency>
 
