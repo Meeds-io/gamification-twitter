@@ -22,6 +22,8 @@ import io.meeds.gamification.twitter.model.TwitterTrigger;
 import io.meeds.gamification.twitter.service.TwitterAccountService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
 import io.meeds.gamification.twitter.service.TwitterTriggerService;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -49,7 +51,7 @@ public class TwitterAccountRemoteUpdate implements Job {
   private final TwitterTriggerService  twitterTriggerService;
 
   public TwitterAccountRemoteUpdate() {
-    this.twitterTriggerService =  ExoContainerContext.getService(TwitterTriggerService.class);
+    this.twitterTriggerService = ExoContainerContext.getService(TwitterTriggerService.class);
     this.twitterConsumerService = ExoContainerContext.getService(TwitterConsumerService.class);
     this.twitterAccountService = ExoContainerContext.getService(TwitterAccountService.class);
   }
@@ -57,20 +59,27 @@ public class TwitterAccountRemoteUpdate implements Job {
   @Override
   @ExoTransactional
   public void execute(JobExecutionContext context) {
-    List<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(0, -1);
     String bearerToken = twitterAccountService.getTwitterBearerToken();
-    twitterAccounts.forEach(twitterAccount -> {
+    if (StringUtils.isBlank(bearerToken)) {
+      return;
+    }
+    List<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(0, -1);
+    if (CollectionUtils.isNotEmpty(twitterAccounts)) {
+      twitterAccounts.forEach(twitterAccount -> processTwitterAccount(twitterAccount, bearerToken));
+    }
+  }
+
+  private void processTwitterAccount(TwitterAccount twitterAccount, String bearerToken) {
+    try {
       List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount.getRemoteId(),
                                                                                      twitterAccount.getLastMentionTweetId(),
                                                                                      bearerToken);
-      mentionTriggers.forEach(twitterTriggerService::handleTriggerAsync);
-
-      long lastMentionTweetId = twitterConsumerService.getLastMentionTweetId(twitterAccount.getRemoteId(), bearerToken);
-      try {
-        twitterAccountService.updateAccountLastMentionTweetId(twitterAccount.getId(), lastMentionTweetId);
-      } catch (ObjectNotFoundException e) {
-        LOG.warn("Error while updating twitter account {}", twitterAccount.getId(), e);
+      if (CollectionUtils.isNotEmpty(mentionTriggers)) {
+        mentionTriggers.forEach(twitterTriggerService::handleTriggerAsync);
+        twitterAccountService.updateAccountLastMentionTweetId(twitterAccount.getId(), mentionTriggers.get(0).getTweetId());
       }
-    });
+    } catch (ObjectNotFoundException e) {
+      LOG.warn("Error while updating twitter account {}", twitterAccount.getId(), e);
+    }
   }
 }

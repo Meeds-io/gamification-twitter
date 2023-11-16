@@ -66,16 +66,6 @@ public interface TwitterConsumerService {
   List<TwitterTrigger> getMentionEvents(long twitterRemoteId, long lastMentionTweetId, String bearerToken);
 
   /**
-   * Gets the last tweet in which the account identified by its identifier was
-   * mentioned
-   *
-   * @param twitterRemoteId Twitter account remote Id
-   * @param bearerToken Twitter bearer token
-   * @return Tweet id
-   */
-  long getLastMentionTweetId(long twitterRemoteId, String bearerToken);
-
-  /**
    * clear remote twitter account entities cache
    */
   void clearCache();

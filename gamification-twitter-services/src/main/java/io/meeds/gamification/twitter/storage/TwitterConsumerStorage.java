@@ -149,22 +149,6 @@ public class TwitterConsumerStorage {
     return twitterEvents;
   }
 
-  public long getLastMentionTweetId(long twitterRemoteId, String bearerToken) {
-    URI uri = URI.create(TWITTER_API_URL + "/users/" + twitterRemoteId + "/mentions");
-    String response;
-    try {
-      response = processGet(uri, bearerToken);
-    } catch (TwitterConnectionException e) {
-      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
-    }
-    if (response == null) {
-      return 0;
-    }
-    // Extract usernames from JSON using Jackson
-    JsonNode rootNode = fromJsonStringToJsonNode(response);
-    return rootNode.path("data").path(0).path("id").asLong();
-  }
-
   public TokenStatus checkTwitterTokenStatus(String bearerToken) {
     TokenStatus tokenStatus = new TokenStatus();
     if (StringUtils.isBlank(bearerToken)) {

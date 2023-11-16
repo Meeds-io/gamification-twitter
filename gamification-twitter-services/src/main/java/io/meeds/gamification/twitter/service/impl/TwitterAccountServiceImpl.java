@@ -22,10 +22,12 @@ import io.meeds.gamification.model.EventDTO;
 import io.meeds.gamification.service.EventService;
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterAccount;
+import io.meeds.gamification.twitter.model.TwitterTrigger;
 import io.meeds.gamification.twitter.service.TwitterAccountService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
 import io.meeds.gamification.twitter.storage.TwitterAccountStorage;
 import io.meeds.gamification.utils.Utils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.api.settings.SettingService;
@@ -126,6 +128,9 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to add a twitter watched account");
     }
+    if (twitterAccountStorage.countTwitterAccounts() >= 2) {
+      throw new IllegalStateException("The maximum number of watched twitter accounts has been reached");
+    }
     RemoteTwitterAccount remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterUsername,
                                                                                               getTwitterBearerToken(currentUser));
     if (remoteTwitterAccount != null) {
@@ -138,10 +143,11 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       twitterAccount.setRemoteId(remoteTwitterAccount.getId());
       twitterAccount.setName(remoteTwitterAccount.getName());
       twitterAccount.setWatchedBy(currentUser);
-      long lastMentionTweetId =
-                              twitterConsumerService.getLastMentionTweetId(remoteTwitterAccount.getId(), getTwitterBearerToken());
-      if (lastMentionTweetId > 0) {
-        twitterAccount.setLastMentionTweetId(lastMentionTweetId);
+      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(remoteTwitterAccount.getId(),
+                                                                                     0L,
+                                                                                     getTwitterBearerToken());
+      if (CollectionUtils.isNotEmpty(mentionTriggers)) {
+        twitterAccount.setLastMentionTweetId(mentionTriggers.get(0).getTweetId());
       }
       twitterAccountStorage.addTwitterAccount(twitterAccount);
     }

@@ -107,20 +107,6 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
-    <component-plugin>
-      <name>twitter.action.event</name>
-      <set-method>addListener</set-method>
-      <type>io.meeds.gamification.twitter.listener.TwitterEventsListener</type>
-    </component-plugin>
-    <component-plugin>
-      <name>twitter.cancel.action.event</name>
-      <set-method>addListener</set-method>
-      <type>io.meeds.gamification.twitter.listener.TwitterEventsListener</type>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
     <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
     <component-plugin>
       <name>TwitterAccountRemoteUpdate</name>
@@ -134,7 +120,7 @@
           <property name="jobName" value="TwitterAccountRemoteUpdate"/>
           <property name="groupName" value="Gamification"/>
           <property name="job" value="io.meeds.gamification.twitter.scheduled.TwitterAccountRemoteUpdate"/>
-          <property name="expression" value="${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}"/><!-- Every hour -->
+          <property name="expression" value="${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}"/><!-- Every 15 minutes -->
         </properties-param>
       </init-params>
     </component-plugin>

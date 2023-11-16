@@ -26,7 +26,7 @@
     <artifactId>gamification-twitter-parent</artifactId>
     <version>1.0.x-meed-SNAPSHOT</version>
   </parent>
-  <artifactId>gamification-twitter-services</artifactId>
+  <artifactId>gamification-twitter-service</artifactId>
   <packaging>jar</packaging>
   <name>Meeds:: Gamification Twitter - Service</name>
   <dependencies>
@@ -52,7 +52,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>gamification-twitter-services</finalName>
+    <finalName>gamification-twitter-service</finalName>
     <plugins>
       <plugin>
         <groupId>org.projectlombok</groupId>
