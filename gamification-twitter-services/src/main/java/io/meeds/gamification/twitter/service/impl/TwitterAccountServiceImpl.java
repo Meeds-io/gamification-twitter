@@ -126,6 +126,9 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to add a twitter watched account");
     }
+    if (twitterAccountStorage.countTwitterAccounts() >= 2) {
+      throw new IllegalAccessException("The maximum number of watched twitter accounts has been reached");
+    }
     RemoteTwitterAccount remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterUsername,
                                                                                               getTwitterBearerToken(currentUser));
     if (remoteTwitterAccount != null) {

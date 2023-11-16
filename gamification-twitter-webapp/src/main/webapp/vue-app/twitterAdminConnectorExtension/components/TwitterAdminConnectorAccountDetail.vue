@@ -37,7 +37,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <span>{{ $t('gamification.connectors.settings.BackToDetail') }}</span>
       </v-tooltip>
     </div>
-      <twitter-admin-event-list :account="account" />
+    <twitter-admin-event-list :account="account" />
   </div>
 </template>
 <script>
