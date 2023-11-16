@@ -28,7 +28,12 @@ export function init() {
         'mentionAccount',
         'repostTweet',
       ].includes(actionLabel),
-      getLabel: () => ''
-    },
+      getLink: realization => {
+        if (realization.objectType === 'tweet' && realization.objectId > 0) {
+          realization.link = `https://twitter.com/tweet/status/${realization.objectId}`;
+          return realization.link;
+        }
+      },
+    }
   });
 }
