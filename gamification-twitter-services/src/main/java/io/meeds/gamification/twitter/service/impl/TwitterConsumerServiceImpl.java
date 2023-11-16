@@ -56,11 +56,6 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService {
   }
 
   @Override
-  public long getLastMentionTweetId(long twitterRemoteId, String bearerToken) {
-    return twitterConsumerStorage.getLastMentionTweetId(twitterRemoteId, bearerToken);
-  }
-
-  @Override
   public void clearCache() {
     twitterConsumerStorage.clearCache();
   }

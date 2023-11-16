@@ -29,7 +29,7 @@ public class TwitterTrigger {
 
   private String trigger;
 
-  private String identifier;
+  private String twitterUsername;
 
   private long   tweetId;
 
@@ -38,6 +38,6 @@ public class TwitterTrigger {
   private long   accountId;
 
   public TwitterTrigger clone() { // NOSONAR
-    return new TwitterTrigger(trigger, identifier, tweetId, type, accountId);
+    return new TwitterTrigger(trigger, twitterUsername, tweetId, type, accountId);
   }
 }
