@@ -45,9 +45,14 @@
       <artifactId>gamification-services</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.exoplatform.addons.gamification</groupId>
+      <artifactId>gamification-services</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
-    <finalName>gamification-twitter-services</finalName>
+    <finalName>gamification-twitter-service</finalName>
     <plugins>
       <plugin>
         <groupId>org.projectlombok</groupId>
