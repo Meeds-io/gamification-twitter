@@ -19,8 +19,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <template>
   <tr>
     <td class="ps-4 no-border-bottom">
-      <gamification-admin-connector-event
-        :event="event"
+      <gamification-admin-connector-trigger
+        :trigger="trigger"
         class="py-2" />
     </td>
     <td class="no-border-bottom d-flex justify-center py-2">
@@ -29,8 +29,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           v-model="enabled"
           :ripple="false"
           color="primary"
-          class="connectorSwitcher my-auto"
-          @change="enableDisableEvent" />
+          class="my-auto"
+          @change="enableDisableTrigger" />
       </div>
     </td>
   </tr>
@@ -39,7 +39,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <script>
 export default {
   props: {
-    event: {
+    trigger: {
       type: Object,
       default: null
     },
@@ -49,23 +49,19 @@ export default {
     },
   },
   computed: {
-    id() {
-      return this.event?.id;
-    },
     title() {
-      return this.event?.title;
+      return this.trigger?.title;
+    },
+    disabledAccounts() {
+      return this.trigger?.disabledAccounts;
     },
     enabled() {
-      const eventProperties = this.event?.properties;
-      if (eventProperties && eventProperties[`${this.accountId}.enabled`]) {
-        return eventProperties[`${this.accountId}.enabled`].toLowerCase() === 'true';
-      }
-      return true;
+      return !this.disabledAccounts.includes(this.accountId);
     },
   },
   methods: {
-    enableDisableEvent() {
-      this.$twitterConnectorService.saveEventStatus(this.id, this.accountId, !this.enabled);
+    enableDisableTrigger() {
+      this.$gamificationConnectorService.saveTriggerStatus(this.title, this.accountId, !this.enabled);
     },
   }
 };

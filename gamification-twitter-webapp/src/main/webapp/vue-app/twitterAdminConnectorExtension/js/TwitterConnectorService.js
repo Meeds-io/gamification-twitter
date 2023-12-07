@@ -116,24 +116,4 @@ export function getWatchedAccountById(accountId) {
   });
 }
 
-export function saveEventStatus(eventId, accountId, enabled) {
-  const formData = new FormData();
-  formData.append('eventId', eventId);
-  formData.append('accountId', accountId);
-  formData.append('enabled', enabled);
-
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/events/status`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams(formData).toString(),
-  }).then(resp => {
-    if (!resp?.ok) {
-      throw new Error('Response code indicates a server error');
-    }
-  });
-}
-
 
