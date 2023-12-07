@@ -144,19 +144,6 @@ public interface TwitterAccountService {
   String getTwitterBearerToken();
 
   /**
-   * Enables/disables watched account event
-   *
-   * @param eventId event Id
-   * @param accountId account remote Id
-   * @param enabled true to enabled, else false
-   * @param currentUser user name attempting to enables/disables event.
-   * @throws IllegalAccessException when user is not authorized enables/disables
-   *           account event
-   */
-  void setEventEnabledForAccount(long eventId, long accountId, boolean enabled, String currentUser) throws IllegalAccessException,
-                                                                                                    ObjectNotFoundException;
-
-  /**
    * Update twitter account last mention tweet Id.
    *
    * @param accountId account Id
