@@ -232,30 +232,6 @@ public class TwitterAccountRest implements ResourceContainer {
     }
   }
 
-  @Path("events/status")
-  @POST
-  @RolesAllowed("users")
-  @Operation(summary = "enables/disables event for watched Twitter account.", description = "enables/disables event for watched Twitter account.", method = "POST")
-  @ApiResponses(value = {
-          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
-          @ApiResponse(responseCode = "400", description = "Bad request"),
-          @ApiResponse(responseCode = "401", description = "Unauthorized operation"),
-          @ApiResponse(responseCode = "500", description = "Internal server error"), })
-  public Response updateAccountEventStatus(@Parameter(description = "Event Id", required = true) @FormParam("eventId") long eventId,
-                                           @Parameter(description = "Account remote Id", required = true) @FormParam("accountId") long accountId,
-                                           @Parameter(description = "Event status enabled/disabled. possible values: true for enabled, else false", required = true) @FormParam("enabled") boolean enabled) {
-
-    String currentUser = getCurrentUser();
-    try {
-      twitterAccountService.setEventEnabledForAccount(eventId, accountId, enabled, currentUser);
-      return Response.noContent().build();
-    } catch (IllegalAccessException e) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
-    } catch (ObjectNotFoundException e) {
-      return Response.status(Response.Status.NOT_FOUND).entity("Event not found").build();
-    }
-  }
-
   private List<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username, int offset, int limit, boolean forceUpdate) throws IllegalAccessException {
     Collection<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(username, offset, limit, forceUpdate);
     return TwitterAccountBuilder.toRestEntities(twitterAccountService, twitterConsumerService, twitterAccounts);
