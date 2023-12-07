@@ -155,7 +155,7 @@ export default {
     return {
       editing: false,
       displayAccountDetail: false,
-      twitterConnectorLinkBasePath: '/portal/g/:platform:rewarding/gamificationConnectorsAdministration#twitter',
+      twitterConnectorLinkBasePath: '/portal/administration/home/recognition/connectors#twitter',
       forceUpdate: false,
       selectedAccount: null,
     };
