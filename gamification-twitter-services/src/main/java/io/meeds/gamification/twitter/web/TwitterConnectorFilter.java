@@ -19,25 +19,29 @@
 package io.meeds.gamification.twitter.web;
 
 import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
+
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.web.filter.Filter;
+
 import io.meeds.gamification.model.RemoteConnectorSettings;
 import io.meeds.gamification.service.ConnectorSettingService;
 import io.meeds.gamification.twitter.model.TwitterOAuth20Api;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import org.apache.commons.lang.StringUtils;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.web.filter.Filter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class TwitterConnectorFilter implements Filter {
 
