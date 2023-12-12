@@ -16,13 +16,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
-import './initComponents';
-import './services.js';
-
 export function init() {
-  extensionRegistry.registerComponent('gamification-admin-connector', 'admin-connector-item', {
-    id: 'twitterSetting',
+  extensionRegistry.registerExtension('engagementCenterConnectors', 'connector-extensions', {
+    id: 'twitter',
     name: 'twitter',
-    vueComponent: Vue.options.components['twitter-admin-connector-item'],
+    image: '/gamification-twitter/images/TwitterX.svg',
+    title: 'Twitter',
+    description: 'twitterConnector.admin.label.description',
+    rank: 30,
   });
 }
