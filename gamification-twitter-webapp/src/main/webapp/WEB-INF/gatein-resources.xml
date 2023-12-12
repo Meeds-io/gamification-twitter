@@ -58,6 +58,9 @@
     <depends>
       <module>extensionRegistry</module>
     </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
   </module>
 
   <module>
@@ -65,6 +68,26 @@
     <load-group>gamification-admin-connectors</load-group>
     <script>
       <path>/js/twitterAdminConnectorExtension.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>engagementCenterConnectorsTwitterExtensions</name>
+    <load-group>engagement-center-connector-extensions</load-group>
+    <script>
+      <path>/js/connectorExtensions.bundle.js</path>
     </script>
     <depends>
       <module>vue</module>
