@@ -33,7 +33,7 @@ import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
 import io.meeds.oauth.utils.HttpResponseContext;
 import io.meeds.oauth.utils.OAuthUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.json.JSONObject;

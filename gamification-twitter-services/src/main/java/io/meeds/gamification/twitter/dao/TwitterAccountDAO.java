@@ -21,8 +21,8 @@ package io.meeds.gamification.twitter.dao;
 import io.meeds.gamification.twitter.entity.TwitterAccountEntity;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class TwitterAccountDAO extends GenericDAOJPAImpl<TwitterAccountEntity, Long> {
