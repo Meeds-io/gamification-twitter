@@ -20,7 +20,7 @@ package io.meeds.gamification.twitter.web;
 
 import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
