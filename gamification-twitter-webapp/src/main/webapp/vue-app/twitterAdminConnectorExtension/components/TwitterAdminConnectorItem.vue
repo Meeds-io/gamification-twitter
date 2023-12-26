@@ -22,18 +22,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <div class="px-4 py-2 py-sm-5 d-flex align-center">
         <v-tooltip :disabled="$root.isMobile" bottom>
           <template #activator="{ on }">
-            <v-card
-              class="d-flex align-center"
-              flat
+            <v-btn
+              class="ps-0"
+              outlined
               v-on="on"
               @click="backToConnectorDetail">
-              <v-btn
-                class="width-auto ms-n3"
-                icon>
-                <v-icon size="18" class="icon-default-color mx-2">fa-arrow-left</v-icon>
-              </v-btn>
-              <div class="text-header-title">{{ $t('twitterConnector.admin.label.configuration') }}</div>
-            </v-card>
+              <v-icon size="18" class="text-color mx-2">fa-arrow-left</v-icon>
+              <span class="text-color font-weight-bold icon-default-size">{{ $t('twitterConnector.admin.label.configuration') }}</span>
+            </v-btn>
           </template>
           <span>{{ $t('gamification.connectors.settings.BackToDetail') }}</span>
         </v-tooltip>
@@ -47,7 +43,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       </div>
       <div class="d-flex flex-row px-4">
         <div>
-          <v-card-text class="px-0 py-0 dark-grey-color font-weight-bold">
+          <v-card-text class="px-0 py-0 text-color font-weight-bold">
             {{ $t('twitterConnector.admin.label.connect') }}
           </v-card-text>
           <v-card-text class="dark-grey-color px-0 pt-0">

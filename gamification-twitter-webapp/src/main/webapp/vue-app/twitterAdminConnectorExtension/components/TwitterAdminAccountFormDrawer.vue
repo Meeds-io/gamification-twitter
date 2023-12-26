@@ -32,15 +32,15 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         class="form-horizontal pa-6"
         flat
         @submit.prevent="addAccountToWatch">
-        <div class="pb-4 d-flex flex-column dark-grey-color">
-          <v-card-text class="ps-0 py-0 dark-grey-color text-subtitle-2">
+        <div class="pb-4 d-flex flex-column text-color">
+          <v-card-text class="ps-0 py-0 text-color text-subtitle-2">
             {{ $t('twitterConnector.admin.label.form.noteOne') }}
             <a href="https://developer.twitter.com/portal" target="_blank">{{ $t('twitterConnector.admin.label.twitterAccessLevels') }}
               <v-icon size="14" class="pb-1 pe-1">fas fa-external-link-alt</v-icon>
             </a>
           </v-card-text>
-          <v-card-text class="ps-0 py-0 pt-2 dark-grey-color text-subtitle-2" v-sanitized-html="$t('twitterConnector.admin.label.form.noteTwo')" />
-          <v-card-text class="ps-0 dark-grey-color text-subtitle-2">
+          <v-card-text class="ps-0 py-0 pt-2 text-color text-subtitle-2" v-sanitized-html="$t('twitterConnector.admin.label.form.noteTwo')" />
+          <v-card-text class="ps-0 text-color text-subtitle-2">
             {{ $t('twitterConnector.admin.label.accountToWatch') }}
           </v-card-text>
           <v-card-text class="d-flex py-0 ps-0">
