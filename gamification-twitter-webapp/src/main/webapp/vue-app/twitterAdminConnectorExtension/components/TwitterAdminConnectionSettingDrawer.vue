@@ -43,25 +43,25 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               :step="1"
               class="ma-0 pa-0"
               editable>
-              <span class="font-weight-bold dark-grey-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepOne') }}</span>
+              <span class="font-weight-bold text-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepOne') }}</span>
             </v-stepper-step>
             <v-stepper-items>
               <v-stepper-content step="1" class="mx-0 px-0">
                 <v-slide-y-transition>
-                  <div class="pb-4 d-flex flex-column dark-grey-color">
-                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                  <div class="pb-4 d-flex flex-column text-color">
+                    <v-card-text class="ps-0 py-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepOne.noteOne') }}
                     </v-card-text>
-                    <v-card-text class="ps-0 pb-0 dark-grey-color">
+                    <v-card-text class="ps-0 pb-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepOne.instructionsOne') }}
                     </v-card-text>
-                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                    <v-card-text class="ps-0 py-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepOne.instructionsTwo') }}
                       <a href="https://developer.twitter.com/portal" target="_blank">{{ $t('twitterConnector.admin.label.twitterDeveloperPortal') }}
                         <v-icon size="14" class="pb-1 pe-1">fas fa-external-link-alt</v-icon>
                       </a>
                     </v-card-text>
-                    <v-card-text class="ps-0 pt-0 dark-grey-color">
+                    <v-card-text class="ps-0 pt-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepOne.instructionsThree') }}
                     </v-card-text>
                     <img
@@ -69,7 +69,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                       src="/gamification-twitter/images/SignUpFreeAccount.png"
                       alt="SignUpFreeAccount"
                       width="160">
-                    <v-card-text class="ps-0 dark-grey-color">
+                    <v-card-text class="ps-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepOne.instructionsFour') }}
                     </v-card-text>
                     <img
@@ -87,19 +87,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               :step="2"
               class="ma-0 pa-0"
               editable>
-              <span class="font-weight-bold dark-grey-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepTwo') }}</span>
+              <span class="font-weight-bold text-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepTwo') }}</span>
             </v-stepper-step>
             <v-stepper-items>
               <v-stepper-content step="2" class="mx-0 px-0">
                 <v-slide-y-transition>
-                  <div class="pb-4 d-flex flex-column dark-grey-color">
-                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                  <div class="pb-4 d-flex flex-column text-color">
+                    <v-card-text class="ps-0 py-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepTwo.instructionsOne') }}
                       <a href="https://developer.twitter.com/portal/dashboard" target="_blank">{{ $t('twitterConnector.admin.label.projectDashboard') }}
                         <v-icon size="14" class="pb-1 pe-1">fas fa-external-link-alt</v-icon>
                       </a>
                     </v-card-text>
-                    <v-card-text class="ps-0 pt-0 dark-grey-color">
+                    <v-card-text class="ps-0 pt-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepTwo.instructionsTwo') }}
                     </v-card-text>
                     <img
@@ -107,7 +107,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                       src="/gamification-twitter/images/projectApp.png"
                       alt="ProjectApp"
                       width="250">
-                    <v-card-text class="ps-0 dark-grey-color">
+                    <v-card-text class="ps-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepTwo.instructionsThree') }}
                     </v-card-text>
                     <img
@@ -115,12 +115,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                       src="/gamification-twitter/images/userAuthenticationSettings.png"
                       alt="UserAuthenticationSettings"
                       width="250">
-                    <v-card-text class="ps-0 pb-0 dark-grey-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFour')" />
-                    <v-card-text class="ps-0 py-0 dark-grey-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFive')" />
-                    <v-card-text class="ps-0 py-0 dark-grey-color">
+                    <v-card-text class="ps-0 pb-0 text-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFour')" />
+                    <v-card-text class="ps-0 py-0 text-color" v-sanitized-html="$t('twitterConnector.admin.label.stepTwo.instructionsFive')" />
+                    <v-card-text class="ps-0 py-0 text-color">
                       {{ $t('twitterConnector.admin.label.stepTwo.instructionsSix') }}:
                     </v-card-text>
-                    <v-card-text class="dark-grey-color pb-1">
+                    <v-card-text class="text-color pb-1">
                       {{ $t('twitterConnector.admin.label.redirectUrl') }}:
                     </v-card-text>
                     <div class="d-flex flex-row">
@@ -135,7 +135,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         <v-icon>fas fa-copy</v-icon>
                       </v-btn>
                     </div>
-                    <v-card-text class="dark-grey-color pb-1">
+                    <v-card-text class="text-color pb-1">
                       {{ $t('twitterConnector.admin.label.websiteUrl') }}:
                     </v-card-text>
                     <div class="d-flex flex-row">
@@ -160,16 +160,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               :step="3"
               class="ma-0 pa-0"
               editable>
-              <span class="font-weight-bold dark-grey-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepThree') }}</span>
+              <span class="font-weight-bold text-color text-subtitle-1">{{ $t('twitterConnector.admin.label.stepThree') }}</span>
             </v-stepper-step>
             <v-stepper-items>
               <v-stepper-content step="3" class="mx-0 px-0">
                 <v-slide-y-transition>
-                  <div class="pb-4 d-flex flex-column dark-grey-color">
-                    <v-card-text class="ps-0 py-0 pb-4 dark-grey-color">
+                  <div class="pb-4 d-flex flex-column text-color">
+                    <v-card-text class="ps-0 py-0 pb-4 text-color">
                       {{ $t('twitterConnector.admin.label.stepThree.instructionsOne') }}
                     </v-card-text>
-                    <v-card-text class="text-left ps-0 py-0 dark-grey-color">
+                    <v-card-text class="text-left ps-0 py-0 text-color">
                       {{ $t('twitterConnector.admin.label.clientId') }}
                     </v-card-text>
                     <v-card-text class="ps-0 pt-2">
@@ -183,7 +183,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                         @input="disabled = false"
                         @change="disabled = false">
                     </v-card-text>
-                    <v-card-text class="text-left ps-0 py-0 dark-grey-color">
+                    <v-card-text class="text-left ps-0 py-0 text-color">
                       {{ $t('twitterConnector.admin.label.clientSecret') }}
                     </v-card-text>
                     <v-card-text class="ps-0 pt-2">
