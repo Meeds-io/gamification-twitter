@@ -53,7 +53,13 @@
       </column>
     </createTable>
   </changeSet>
-  <changeSet author="twitter-connector" id="1.0.0-2" dbms="oracle,postgresql">
+  <changeSet author="twitter-connector" id="1.0.0-2" dbms="oracle,postgresql,hsqldb" onValidationFail="MARK_RAN" failOnError="false">
+    <validCheckSum>ANY</validCheckSum>
+    <preConditions>
+      <not>
+        <sequenceExists sequenceName="SEQ_TWITTER_ACCOUNTS_ID" />
+      </not>
+    </preConditions>
     <createSequence sequenceName="SEQ_TWITTER_ACCOUNTS_ID" startValue="1"/>
   </changeSet>
 
