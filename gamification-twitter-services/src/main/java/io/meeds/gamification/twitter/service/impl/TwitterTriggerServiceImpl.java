@@ -19,6 +19,7 @@
 package io.meeds.gamification.twitter.service.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,6 +27,7 @@ import java.util.concurrent.Executors;
 import io.meeds.gamification.service.TriggerService;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
 import io.meeds.gamification.twitter.service.TwitterTriggerService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.picocontainer.Startable;
@@ -118,14 +120,14 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
 
   private void broadcastTwitterEvent(String ruleTitle, String receiverId, String objectId, String objectType) {
     try {
-      EventDTO eventDTO = eventService.getEventByTypeAndTitle(CONNECTOR_NAME, ruleTitle);
-      if (eventDTO != null) {
+      List<EventDTO> events = eventService.getEventsByTitle(ruleTitle, 0, -1);
+      if (CollectionUtils.isNotEmpty(events)) {
         Map<String, String> gam = new HashMap<>();
         gam.put("senderId", receiverId);
         gam.put("receiverId", receiverId);
         gam.put("objectId", objectId);
         gam.put("objectType", objectType);
-        gam.put("ruleTitle", eventDTO.getTitle());
+        gam.put("ruleTitle", ruleTitle);
         listenerService.broadcast(GAMIFICATION_GENERIC_EVENT, gam, "");
         LOG.info("Twitter action {} broadcasted for user {}", ruleTitle, receiverId);
       }
