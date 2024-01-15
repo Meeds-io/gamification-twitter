@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,12 +110,11 @@ public class TwitterConsumerStorage {
     return remoteTwitterAccount;
   }
 
-  public List<TwitterTrigger> getMentionEvents(long twitterRemoteId, long lastMentionTweetId, String bearerToken) {
-
+  public List<TwitterTrigger> getMentionEvents(TwitterAccount twitterAccount, long lastMentionTweetId, String bearerToken) {
     StringBuilder builder = new StringBuilder(TWITTER_API_URL);
     builder.append("/users/");
-    builder.append(twitterRemoteId);
-    builder.append("/mentions?expansions=author_id&max_results=100");
+    builder.append(twitterAccount.getRemoteId());
+    builder.append("/mentions?tweet.fields=conversation_id&expansions=author_id,entities.mentions.username&max_results=100");
     if (lastMentionTweetId > 0) {
       builder.append("&since_id=");
       builder.append(lastMentionTweetId);
@@ -135,6 +136,19 @@ public class TwitterConsumerStorage {
     List<TwitterTrigger> twitterEvents = new ArrayList<>();
     for (JsonNode dataNode : dataNodes) {
       long tweetId = dataNode.path("id").asLong();
+      long parentTweetId = dataNode.path("conversation_id").asLong();
+      String text = dataNode.path("text").asText();
+      if (tweetId != parentTweetId) {
+        Pattern pattern = Pattern.compile("@" + twitterAccount.getIdentifier());
+        Matcher matcher = pattern.matcher(text);
+        int count = 0;
+        while (matcher.find()) {
+          count++;
+        }
+        if (count <= 1) {
+          continue; // Skip if it is a default replay mention
+        }
+      }
       long userId = dataNode.path("author_id").asLong();
       String username = null;
       for (JsonNode userNode : usersNode) {
@@ -143,7 +157,8 @@ public class TwitterConsumerStorage {
           break; // Break the loop if the item is found
         }
       }
-      TwitterTrigger twitterEvent = new TwitterTrigger("mentionAccount", username, tweetId, "tweet", twitterRemoteId);
+      TwitterTrigger twitterEvent =
+                                  new TwitterTrigger("mentionAccount", username, tweetId, "tweet", twitterAccount.getRemoteId());
       twitterEvents.add(twitterEvent);
     }
     return twitterEvents;
