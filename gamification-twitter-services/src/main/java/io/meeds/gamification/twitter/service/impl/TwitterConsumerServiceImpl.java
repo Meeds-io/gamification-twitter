@@ -51,8 +51,8 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService {
   }
 
   @Override
-  public List<TwitterTrigger> getMentionEvents(long twitterRemoteId, long lastMentionTweetId, String bearerToken) {
-    return twitterConsumerStorage.getMentionEvents(twitterRemoteId, lastMentionTweetId, bearerToken);
+  public List<TwitterTrigger> getMentionEvents(TwitterAccount twitterAccount, long lastMentionTweetId, String bearerToken) {
+    return twitterConsumerStorage.getMentionEvents(twitterAccount, lastMentionTweetId, bearerToken);
   }
 
   @Override

@@ -25,6 +25,7 @@ import io.meeds.gamification.twitter.service.TwitterTriggerService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.quartz.DisallowConcurrentExecution;
@@ -32,9 +33,11 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
-import org.exoplatform.container.ExoContainerContext;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A service that will manage the periodic updating of twitter account events.
@@ -42,18 +45,22 @@ import java.util.List;
 @DisallowConcurrentExecution
 public class TwitterAccountRemoteUpdate implements Job {
 
-  private static final Log             LOG = ExoLogger.getLogger(TwitterAccountRemoteUpdate.class);
+  private static final Log               LOG = ExoLogger.getLogger(TwitterAccountRemoteUpdate.class);
 
-  private final TwitterConsumerService twitterConsumerService;
+  private final TwitterConsumerService   twitterConsumerService;
 
-  private final TwitterAccountService  twitterAccountService;
+  private final TwitterAccountService    twitterAccountService;
 
-  private final TwitterTriggerService  twitterTriggerService;
+  private final TwitterTriggerService    twitterTriggerService;
+
+  private final ScheduledExecutorService scheduledExecutor;
 
   public TwitterAccountRemoteUpdate() {
-    this.twitterTriggerService = ExoContainerContext.getService(TwitterTriggerService.class);
-    this.twitterConsumerService = ExoContainerContext.getService(TwitterConsumerService.class);
-    this.twitterAccountService = ExoContainerContext.getService(TwitterAccountService.class);
+    PortalContainer container = PortalContainer.getInstance();
+    this.twitterTriggerService = container.getComponentInstanceOfType(TwitterTriggerService.class);
+    this.twitterConsumerService = container.getComponentInstanceOfType(TwitterConsumerService.class);
+    this.twitterAccountService = container.getComponentInstanceOfType(TwitterAccountService.class);
+    this.scheduledExecutor = Executors.newScheduledThreadPool(1);
   }
 
   @Override
@@ -71,15 +78,29 @@ public class TwitterAccountRemoteUpdate implements Job {
 
   private void processTwitterAccount(TwitterAccount twitterAccount, String bearerToken) {
     try {
-      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount.getRemoteId(),
+      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount,
                                                                                      twitterAccount.getLastMentionTweetId(),
                                                                                      bearerToken);
+
       if (CollectionUtils.isNotEmpty(mentionTriggers)) {
-        mentionTriggers.forEach(twitterTriggerService::handleTriggerAsync);
-        twitterAccountService.updateAccountLastMentionTweetId(twitterAccount.getId(), mentionTriggers.get(0).getTweetId());
+        processMentionTriggers(mentionTriggers, twitterAccount);
       }
     } catch (ObjectNotFoundException e) {
       LOG.warn("Error while updating twitter account {}", twitterAccount.getId(), e);
     }
+  }
+
+  private void processMentionTriggers(List<TwitterTrigger> mentionTriggers,
+                                      TwitterAccount twitterAccount) throws ObjectNotFoundException {
+    int delayBetweenActions = 1;
+
+    for (TwitterTrigger trigger : mentionTriggers) {
+      scheduleTriggerHandling(trigger, delayBetweenActions);
+    }
+    twitterAccountService.updateAccountLastMentionTweetId(twitterAccount.getId(), mentionTriggers.get(0).getTweetId());
+  }
+
+  private void scheduleTriggerHandling(TwitterTrigger trigger, int delayInSeconds) {
+    scheduledExecutor.schedule(() -> twitterTriggerService.handleTrigger(trigger), delayInSeconds, TimeUnit.SECONDS);
   }
 }

@@ -21,16 +21,12 @@ package io.meeds.gamification.twitter.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import io.meeds.gamification.service.TriggerService;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
 import io.meeds.gamification.twitter.service.TwitterTriggerService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.services.listener.ListenerService;
@@ -43,7 +39,7 @@ import io.meeds.gamification.model.EventDTO;
 import io.meeds.gamification.service.ConnectorService;
 import io.meeds.gamification.service.EventService;
 
-public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startable {
+public class TwitterTriggerServiceImpl implements TwitterTriggerService {
 
   private static final Log       LOG                        = ExoLogger.getLogger(TwitterTriggerServiceImpl.class);
 
@@ -61,8 +57,6 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
 
   private final ListenerService  listenerService;
 
-  private ExecutorService        executorService;
-
   public TwitterTriggerServiceImpl(ListenerService listenerService,
                                    ConnectorService connectorService,
                                    IdentityManager identityManager,
@@ -75,26 +69,8 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
     this.triggerService = triggerService;
   }
 
-  @Override
-  public void start() {
-    QueuedThreadPool threadFactory = new QueuedThreadPool(5, 1, 1);
-    threadFactory.setName("Gamification - Twitter connector");
-    executorService = Executors.newCachedThreadPool(threadFactory);
-  }
-
-  @Override
-  public void stop() {
-    if (executorService != null) {
-      executorService.shutdownNow();
-    }
-  }
-
-  public void handleTriggerAsync(TwitterTrigger twitterTrigger) {
-    executorService.execute(() -> handleTriggerAsyncInternal(twitterTrigger));
-  }
-
   @ExoTransactional
-  public void handleTriggerAsyncInternal(TwitterTrigger twitterTrigger) {
+  public void handleTrigger(TwitterTrigger twitterTrigger) {
     processEvent(twitterTrigger);
   }
 
