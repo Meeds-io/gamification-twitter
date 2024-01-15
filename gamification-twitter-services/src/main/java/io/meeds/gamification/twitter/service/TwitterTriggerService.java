@@ -22,9 +22,9 @@ import io.meeds.gamification.twitter.model.TwitterTrigger;
 public interface TwitterTriggerService {
 
   /**
-   * Handle twitter trigger asynchronously
+   * Handle twitter trigger
    *
    * @param twitterTrigger twitter retrieved trigger.
    */
-  void handleTriggerAsync(TwitterTrigger twitterTrigger);
+  void handleTrigger(TwitterTrigger twitterTrigger);
 }
