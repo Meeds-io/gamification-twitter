@@ -26,5 +26,5 @@ public interface TwitterTriggerService {
    *
    * @param twitterTrigger twitter retrieved trigger.
    */
-  void handleTrigger(TwitterTrigger twitterTrigger);
+  void handleTriggerAsync(TwitterTrigger twitterTrigger);
 }

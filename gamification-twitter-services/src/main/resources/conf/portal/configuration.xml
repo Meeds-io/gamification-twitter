@@ -119,7 +119,7 @@
           <description>Configuration to manage the periodic updating of twitter account events</description>
           <property name="jobName" value="TwitterAccountRemoteUpdate"/>
           <property name="groupName" value="Gamification"/>
-          <property name="job" value="io.meeds.gamification.twitter.scheduled.TwitterAccountRemoteUpdate"/>
+          <property name="job" value="io.meeds.gamification.twitter.scheduled.TwitterAccountRemoteUpdateJob"/>
           <property name="expression" value="${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}"/><!-- Every 15 minutes -->
         </properties-param>
       </init-params>
