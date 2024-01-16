@@ -142,8 +142,9 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       twitterAccount.setIdentifier(remoteTwitterAccount.getUsername());
       twitterAccount.setRemoteId(remoteTwitterAccount.getId());
       twitterAccount.setName(remoteTwitterAccount.getName());
+      twitterAccount.setIdentifier(remoteTwitterAccount.getUsername());
       twitterAccount.setWatchedBy(currentUser);
-      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(remoteTwitterAccount.getId(),
+      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount,
                                                                                      0L,
                                                                                      getTwitterBearerToken());
       if (CollectionUtils.isNotEmpty(mentionTriggers)) {
