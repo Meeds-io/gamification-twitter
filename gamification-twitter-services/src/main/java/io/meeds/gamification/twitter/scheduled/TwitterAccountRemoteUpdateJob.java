@@ -40,9 +40,9 @@ import java.util.List;
  * A service that will manage the periodic updating of twitter account events.
  */
 @DisallowConcurrentExecution
-public class TwitterAccountRemoteUpdate implements Job {
+public class TwitterAccountRemoteUpdateJob implements Job {
 
-  private static final Log             LOG = ExoLogger.getLogger(TwitterAccountRemoteUpdate.class);
+  private static final Log             LOG = ExoLogger.getLogger(TwitterAccountRemoteUpdateJob.class);
 
   private final TwitterConsumerService twitterConsumerService;
 
@@ -50,7 +50,7 @@ public class TwitterAccountRemoteUpdate implements Job {
 
   private final TwitterTriggerService  twitterTriggerService;
 
-  public TwitterAccountRemoteUpdate() {
+  public TwitterAccountRemoteUpdateJob() {
     this.twitterTriggerService = ExoContainerContext.getService(TwitterTriggerService.class);
     this.twitterConsumerService = ExoContainerContext.getService(TwitterConsumerService.class);
     this.twitterAccountService = ExoContainerContext.getService(TwitterAccountService.class);
@@ -71,15 +71,23 @@ public class TwitterAccountRemoteUpdate implements Job {
 
   private void processTwitterAccount(TwitterAccount twitterAccount, String bearerToken) {
     try {
-      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount.getRemoteId(),
+      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount,
                                                                                      twitterAccount.getLastMentionTweetId(),
                                                                                      bearerToken);
+
       if (CollectionUtils.isNotEmpty(mentionTriggers)) {
-        mentionTriggers.forEach(twitterTriggerService::handleTriggerAsync);
-        twitterAccountService.updateAccountLastMentionTweetId(twitterAccount.getId(), mentionTriggers.get(0).getTweetId());
+        processMentionTriggers(mentionTriggers, twitterAccount);
       }
     } catch (ObjectNotFoundException e) {
       LOG.warn("Error while updating twitter account {}", twitterAccount.getId(), e);
     }
+  }
+
+  private void processMentionTriggers(List<TwitterTrigger> mentionTriggers,
+                                      TwitterAccount twitterAccount) throws ObjectNotFoundException {
+    for (TwitterTrigger trigger : mentionTriggers) {
+      twitterTriggerService.handleTriggerAsync(trigger);
+    }
+    twitterAccountService.updateAccountLastMentionTweetId(twitterAccount.getId(), mentionTriggers.get(0).getTweetId());
   }
 }
