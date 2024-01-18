@@ -50,6 +50,8 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
+import static io.meeds.gamification.twitter.utils.Utils.MENTION_ACCOUNT_EVENT_NAME;
+
 public class TwitterConsumerStorage {
 
   public static final String TWITTER_API_URL                = "https://api.twitter.com/2";
@@ -158,7 +160,7 @@ public class TwitterConsumerStorage {
         }
       }
       TwitterTrigger twitterEvent =
-                                  new TwitterTrigger("mentionAccount", username, tweetId, "tweet", twitterAccount.getRemoteId());
+                                  new TwitterTrigger(MENTION_ACCOUNT_EVENT_NAME, username, tweetId, "tweet", twitterAccount.getRemoteId());
       twitterEvents.add(twitterEvent);
     }
     return twitterEvents;
