@@ -43,11 +43,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
+import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
+
 public class TwitterConnectorPlugin extends ConnectorPlugin {
 
-  private static final Log              LOG            = ExoLogger.getLogger(TwitterConnectorPlugin.class);
-
-  private static final String           CONNECTOR_NAME = "twitter";
+  private static final Log              LOG = ExoLogger.getLogger(TwitterConnectorPlugin.class);
 
   private final ConnectorSettingService connectorSettingService;
 
