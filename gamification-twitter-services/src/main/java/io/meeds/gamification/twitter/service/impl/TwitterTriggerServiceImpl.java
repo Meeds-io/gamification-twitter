@@ -43,11 +43,12 @@ import io.meeds.gamification.model.EventDTO;
 import io.meeds.gamification.service.ConnectorService;
 import io.meeds.gamification.service.EventService;
 
+import static io.meeds.gamification.twitter.utils.Utils.ACCOUNT_ID;
+import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
+
 public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startable {
 
   private static final Log       LOG                        = ExoLogger.getLogger(TwitterTriggerServiceImpl.class);
-
-  public static final String     CONNECTOR_NAME             = "twitter";
 
   public static final String     GAMIFICATION_GENERIC_EVENT = "exo.gamification.generic.action";
 
@@ -110,15 +111,21 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
     if (StringUtils.isNotBlank(receiverId)) {
       Identity socialIdentity = identityManager.getOrCreateUserIdentity(receiverId);
       if (socialIdentity != null) {
+        String eventDetails = "{" + ACCOUNT_ID + ": " + twitterTrigger.getAccountId() + "}";
         broadcastTwitterEvent(twitterTrigger.getTrigger(),
                               receiverId,
                               String.valueOf(twitterTrigger.getTweetId()),
-                              twitterTrigger.getType());
+                              twitterTrigger.getType(),
+                              eventDetails);
       }
     }
   }
 
-  private void broadcastTwitterEvent(String ruleTitle, String receiverId, String objectId, String objectType) {
+  private void broadcastTwitterEvent(String ruleTitle,
+                                     String receiverId,
+                                     String objectId,
+                                     String objectType,
+                                     String eventDetails) {
     try {
       List<EventDTO> events = eventService.getEventsByTitle(ruleTitle, 0, -1);
       if (CollectionUtils.isNotEmpty(events)) {
@@ -128,6 +135,7 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
         gam.put("objectId", objectId);
         gam.put("objectType", objectType);
         gam.put("ruleTitle", ruleTitle);
+        gam.put("eventDetails", eventDetails);
         listenerService.broadcast(GAMIFICATION_GENERIC_EVENT, gam, "");
         LOG.info("Twitter action {} broadcasted for user {}", ruleTitle, receiverId);
       }

@@ -18,6 +18,9 @@
  */
 package io.meeds.gamification.twitter.service.impl;
 
+import io.meeds.gamification.model.RuleDTO;
+import io.meeds.gamification.model.filter.RuleFilter;
+import io.meeds.gamification.service.RuleService;
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
@@ -38,6 +41,9 @@ import org.exoplatform.web.security.security.TokenServiceInitializationException
 
 import java.util.List;
 
+import static io.meeds.gamification.twitter.utils.Utils.ACCOUNT_ID;
+import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
+
 public class TwitterAccountServiceImpl implements TwitterAccountService {
 
   private static final Scope           TWITTER_CONNECTOR_SCOPE = Scope.APPLICATION.id("twitterConnector");
@@ -50,15 +56,19 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
 
   private final TwitterAccountStorage  twitterAccountStorage;
 
+  private final RuleService            ruleService;
+
   private final CodecInitializer       codecInitializer;
 
   public TwitterAccountServiceImpl(SettingService settingService,
                                    TwitterConsumerService twitterConsumerService,
                                    TwitterAccountStorage twitterAccountStorage,
+                                   RuleService ruleService,
                                    CodecInitializer codecInitializer) {
     this.settingService = settingService;
     this.twitterConsumerService = twitterConsumerService;
     this.twitterAccountStorage = twitterAccountStorage;
+    this.ruleService = ruleService;
     this.codecInitializer = codecInitializer;
   }
 
@@ -134,9 +144,7 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
       twitterAccount.setName(remoteTwitterAccount.getName());
       twitterAccount.setIdentifier(remoteTwitterAccount.getUsername());
       twitterAccount.setWatchedBy(currentUser);
-      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount,
-                                                                                     0L,
-                                                                                     getTwitterBearerToken());
+      List<TwitterTrigger> mentionTriggers = twitterConsumerService.getMentionEvents(twitterAccount, 0L, getTwitterBearerToken());
       if (CollectionUtils.isNotEmpty(mentionTriggers)) {
         twitterAccount.setLastMentionTweetId(mentionTriggers.get(0).getTweetId());
       }
@@ -157,6 +165,15 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
     }
     twitterAccountStorage.deleteTwitterAccount(twitterAccountId);
     twitterConsumerService.clearCache(twitterAccount, getTwitterBearerToken());
+    RuleFilter ruleFilter = new RuleFilter(true);
+    ruleFilter.setEventType(CONNECTOR_NAME);
+    ruleFilter.setIncludeDeleted(true);
+    List<RuleDTO> rules = ruleService.getRules(ruleFilter, 0, -1);
+    rules.stream()
+         .filter(r -> !r.getEvent().getProperties().isEmpty()
+             && r.getEvent().getProperties().get(ACCOUNT_ID).equals(String.valueOf(twitterAccount.getRemoteId())))
+         .map(RuleDTO::getId)
+         .forEach(ruleService::deleteRuleById);
   }
 
   @Override
