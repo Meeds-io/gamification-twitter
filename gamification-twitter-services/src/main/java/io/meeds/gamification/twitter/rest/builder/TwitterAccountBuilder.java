@@ -47,7 +47,7 @@ public class TwitterAccountBuilder {
     }
 
     return new TwitterAccountRestEntity(twitterAccount.getId(),
-                                        twitterAccount.getRemoteId(),
+                                        String.valueOf(twitterAccount.getRemoteId()),
                                         twitterAccount.getIdentifier(),
                                         remoteTwitterAccount != null ? remoteTwitterAccount.getName() : twitterAccount.getName(),
                                         twitterAccount.getWatchedDate(),

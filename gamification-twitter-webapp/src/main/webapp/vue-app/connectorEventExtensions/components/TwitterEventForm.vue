@@ -67,7 +67,7 @@ export default {
           this.accounts = data.twitterAccountRestEntities;
         }).finally(() => {
           if (this.properties) {
-            this.selected = this.accounts.find(a => Number(a.remoteId) === Number(this.properties.accountId));
+            this.selected = this.accounts.find(a => a.remoteId === this.properties.accountId);
             this.value = this.accounts.indexOf(this.selected);
           } else if (this.accounts.length === 1) {
             this.selected = this.accounts[0];

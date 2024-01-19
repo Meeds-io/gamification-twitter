@@ -27,7 +27,7 @@ public class TwitterAccountRestEntity {
 
   private long   id;
 
-  private long   remoteId;
+  private String remoteId;
 
   private String identifier;
 

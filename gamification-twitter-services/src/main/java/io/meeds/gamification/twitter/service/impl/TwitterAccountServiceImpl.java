@@ -171,7 +171,7 @@ public class TwitterAccountServiceImpl implements TwitterAccountService {
     List<RuleDTO> rules = ruleService.getRules(ruleFilter, 0, -1);
     rules.stream()
          .filter(r -> !r.getEvent().getProperties().isEmpty()
-             && r.getEvent().getProperties().get(ACCOUNT_ID).equals(String.valueOf(twitterAccountId)))
+             && r.getEvent().getProperties().get(ACCOUNT_ID).equals(String.valueOf(twitterAccount.getRemoteId())))
          .map(RuleDTO::getId)
          .forEach(ruleService::deleteRuleById);
   }
