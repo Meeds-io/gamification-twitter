@@ -65,6 +65,15 @@
   </external-component-plugins>
 
   <external-component-plugins>
+    <target-component>io.meeds.gamification.service.EventService</target-component>
+    <component-plugin>
+      <name>twitter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.gamification.twitter.plugin.TwitterEventPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
     <target-component>org.exoplatform.web.filter.ExtensibleFilter</target-component>
     <component-plugin>
       <name>Twitter Oauth Redirect Filter</name>

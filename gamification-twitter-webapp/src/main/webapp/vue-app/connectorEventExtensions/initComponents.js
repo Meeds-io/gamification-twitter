@@ -1,8 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
- * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
- * 
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -11,37 +10,19 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package io.meeds.gamification.twitter.rest.model;
+import TwitterEventForm from './components/TwitterEventForm.vue';
+import TwitterAccountItem from './components/TwitterAccountItem.vue';
 
-import lombok.*;
+const components = {
+  'twitter-connector-event-form': TwitterEventForm,
+  'twitter-connector-account-item': TwitterAccountItem
+};
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class TwitterAccountRestEntity {
-
-  private long   id;
-
-  private String remoteId;
-
-  private String identifier;
-
-  private String name;
-
-  private String watchedDate;
-
-  private String watchedBy;
-
-  private String updatedDate;
-
-  private String refreshDate;
-
-  private String description;
-
-  private String avatarUrl;
+for (const key in components) {
+  Vue.component(key, components[key]);
 }
