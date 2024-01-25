@@ -18,7 +18,6 @@
  */
 package io.meeds.gamification.twitter.dao;
 
-import io.meeds.gamification.twitter.entity.TwitterAccountEntity;
 import io.meeds.gamification.twitter.entity.TwitterTweetEntity;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;

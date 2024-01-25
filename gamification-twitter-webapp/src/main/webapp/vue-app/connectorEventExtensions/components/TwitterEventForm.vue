@@ -106,9 +106,7 @@ export default {
     if (this.isTriggerForAccount) {
       this.retrieveAccounts();
     } else {
-      if (this.properties?.tweetLink) {
-        this.tweetLink = this.properties?.tweetLink;
-      }
+      this.tweetLink = this.properties?.tweetLink;
     }
   },
   methods: {
