@@ -1,7 +1,8 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
+ * 
  * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -10,23 +11,33 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import TwitterEvent from './components/TwitterEvent.vue';
-import TwitterEventDisplay from './components/TwitterEventDisplay.vue';
-import TwitterEventForm from './components/TwitterEventForm.vue';
-import TwitterAccountItem from './components/TwitterAccountItem.vue';
+package io.meeds.gamification.twitter.model;
 
-const components = {
-  'twitter-connector-event': TwitterEvent,
-  'twitter-connector-event-display': TwitterEventDisplay,
-  'twitter-connector-event-form': TwitterEventForm,
-  'twitter-connector-account-item': TwitterAccountItem
-};
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-for (const key in components) {
-  Vue.component(key, components[key]);
+import java.util.Set;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Tweet implements Cloneable {
+
+  private long        tweetId;
+
+  private String      tweetLink;
+
+  private Set<String> likers;
+
+  private Set<String> retweeters;
+
+  public Tweet clone() { // NOSONAR
+    return new Tweet(tweetId, tweetLink, likers, retweeters);
+  }
 }

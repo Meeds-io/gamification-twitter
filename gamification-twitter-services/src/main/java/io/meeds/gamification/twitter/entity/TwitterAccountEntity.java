@@ -40,6 +40,8 @@ import lombok.Data;
 @Data
 public class TwitterAccountEntity implements Serializable {
 
+  private static final long serialVersionUID = -7390409979056587159L;
+
   @Id
   @SequenceGenerator(name = "SEQ_TWITTER_ACCOUNTS_ID", sequenceName = "SEQ_TWITTER_ACCOUNTS_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_TWITTER_ACCOUNTS_ID")

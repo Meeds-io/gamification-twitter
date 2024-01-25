@@ -49,24 +49,37 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 import static io.meeds.gamification.twitter.utils.Utils.MENTION_ACCOUNT_EVENT_NAME;
+import static io.meeds.gamification.twitter.utils.Utils.extractTweetId;
 
 public class TwitterConsumerStorage {
 
-  public static final String TWITTER_API_URL                = "https://api.twitter.com/2";
+  private static final Log   LOG                                     = ExoLogger.getLogger(TwitterConsumerStorage.class);
 
-  public static final String BEARER                         = "Bearer ";
+  public static final String TWITTER_API_URL                         = "https://api.twitter.com/2";
 
-  public static final String AUTHORIZATION                  = "Authorization";
+  public static final String BEARER                                  = "Bearer ";
 
-  public static final String TWITTER_CONNECTION_ERROR       = "twitter.connectionError";
+  public static final String AUTHORIZATION                           = "Authorization";
 
-  public static final String TWITTER_RETRIEVE_ACCOUNT_ERROR = "Unable to retrieve Twitter account info.";
+  public static final String TWITTER_CONNECTION_ERROR                = "twitter.connectionError";
 
-  public static final String USERNAME                       = "username";
+  public static final String TWITTER_RETRIEVE_ACCOUNT_ERROR          =
+                                                            "Unable to retrieve info for Twitter account with identifier {}.";
 
-  public static final String USERS                          = "users";
+  public static final String TWITTER_RETRIEVE_ACCOUNT_MENTIONS_ERROR =
+                                                                     "Unable to retrieve mentions for Twitter account with id {}.";
+
+  public static final String TWITTER_RETRIEVE_TWEET_LIKERS_ERROR     = "Unable to retrieve likers for Tweet with id {}.";
+
+  public static final String TWITTER_RETRIEVE_TWEET_RETWEETERS_ERROR = "Unable to retrieve retweeters for Tweet with id {}.";
+
+  public static final String USERNAME                                = "username";
+
+  public static final String USERS                                   = "users";
 
   private HttpClient         client;
 
@@ -76,7 +89,8 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
+      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_ERROR, twitterUsername);
+      return null;
     }
     if (response == null) {
       throw new ObjectNotFoundException("twitter.accountNotFound");
@@ -97,7 +111,8 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
+      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_ERROR, twitterRemoteId);
+      return null;
     }
     if (response == null) {
       return null;
@@ -126,7 +141,8 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
+      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_MENTIONS_ERROR, twitterAccount.getRemoteId());
+      return Collections.emptyList();
     }
     if (response == null) {
       return Collections.emptyList();
@@ -159,11 +175,70 @@ public class TwitterConsumerStorage {
           break; // Break the loop if the item is found
         }
       }
-      TwitterTrigger twitterEvent =
-                                  new TwitterTrigger(MENTION_ACCOUNT_EVENT_NAME, username, tweetId, "tweet", twitterAccount.getRemoteId());
+      TwitterTrigger twitterEvent = new TwitterTrigger(MENTION_ACCOUNT_EVENT_NAME,
+                                                       username,
+                                                       tweetId,
+                                                       "tweet",
+                                                       twitterAccount.getRemoteId());
       twitterEvents.add(twitterEvent);
     }
     return twitterEvents;
+  }
+
+  public Set<String> retrieveTweetLikers(String tweetLink, String bearerToken) {
+    String tweetId = extractTweetId(tweetLink);
+    if (StringUtils.isNotBlank(tweetId)) {
+      String builder = TWITTER_API_URL + "/tweets/" + tweetId + "/liking_users";
+      URI uri = URI.create(builder);
+      String response;
+      try {
+        response = processGet(uri, bearerToken);
+      } catch (TwitterConnectionException e) {
+        LOG.warn(TWITTER_RETRIEVE_TWEET_LIKERS_ERROR, tweetId);
+        return Collections.emptySet();
+      }
+      if (response == null) {
+        return Collections.emptySet();
+      }
+      // Extract usernames from JSON using Jackson
+      JsonNode rootNode = fromJsonStringToJsonNode(response);
+      JsonNode dataNodes = rootNode.path("data");
+      Set<String> likers = new HashSet<>();
+      for (JsonNode dataNode : dataNodes) {
+        String username = dataNode.path(USERNAME).asText();
+        likers.add(username);
+      }
+      return likers;
+    }
+    return Collections.emptySet();
+  }
+
+  public Set<String> retrieveTweetRetweeters(String tweetLink, String bearerToken) {
+    String tweetId = extractTweetId(tweetLink);
+    if (StringUtils.isNotBlank(tweetId)) {
+      String builder = TWITTER_API_URL + "/tweets/" + tweetId + "/retweeted_by";
+      URI uri = URI.create(builder);
+      String response;
+      try {
+        response = processGet(uri, bearerToken);
+      } catch (TwitterConnectionException e) {
+        LOG.warn(TWITTER_RETRIEVE_TWEET_RETWEETERS_ERROR, tweetId);
+        return Collections.emptySet();
+      }
+      if (response == null) {
+        return Collections.emptySet();
+      }
+      // Extract usernames from JSON using Jackson
+      JsonNode rootNode = fromJsonStringToJsonNode(response);
+      JsonNode dataNodes = rootNode.path("data");
+      Set<String> retweeters = new HashSet<>();
+      for (JsonNode dataNode : dataNodes) {
+        String username = dataNode.path(USERNAME).asText();
+        retweeters.add(username);
+      }
+      return retweeters;
+    }
+    return Collections.emptySet();
   }
 
   public TokenStatus checkTwitterTokenStatus(String bearerToken) {
