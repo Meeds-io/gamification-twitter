@@ -18,6 +18,9 @@
  */
 package io.meeds.gamification.twitter.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Utils {
 
   public static final String CONNECTOR_NAME             = "twitter";
@@ -26,7 +29,19 @@ public class Utils {
 
   public static final String ACCOUNT_ID                 = "accountId";
 
+  public static final String TWEET_LINK                 = "tweetLink";
+
   private Utils() {
     // Private constructor for Utils class
+  }
+
+  public static String extractTweetId(String tweetUrl) {
+    Pattern pattern = Pattern.compile("/status/(\\d+)");
+    Matcher matcher = pattern.matcher(tweetUrl);
+    if (matcher.find()) {
+      return matcher.group(1);
+    } else {
+      return null;
+    }
   }
 }

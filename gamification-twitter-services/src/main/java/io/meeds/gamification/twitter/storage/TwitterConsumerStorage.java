@@ -51,6 +51,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 import static io.meeds.gamification.twitter.utils.Utils.MENTION_ACCOUNT_EVENT_NAME;
+import static io.meeds.gamification.twitter.utils.Utils.extractTweetId;
 
 public class TwitterConsumerStorage {
 
@@ -164,6 +165,60 @@ public class TwitterConsumerStorage {
       twitterEvents.add(twitterEvent);
     }
     return twitterEvents;
+  }
+
+  public Set<String> retrieveTweetLikers(String tweetLink, String bearerToken) {
+    String tweetId = extractTweetId(tweetLink);
+    if (StringUtils.isNotBlank(tweetId)) {
+      String builder = TWITTER_API_URL + "/tweets/" + tweetId + "/liking_users";
+      URI uri = URI.create(builder);
+      String response;
+      try {
+        response = processGet(uri, bearerToken);
+      } catch (TwitterConnectionException e) {
+        throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
+      }
+      if (response == null) {
+        return Collections.emptySet();
+      }
+      // Extract usernames from JSON using Jackson
+      JsonNode rootNode = fromJsonStringToJsonNode(response);
+      JsonNode dataNodes = rootNode.path("data");
+      Set<String> likers = new HashSet<>();
+      for (JsonNode dataNode : dataNodes) {
+        String username = dataNode.path(USERNAME).asText();
+        likers.add(username);
+      }
+      return likers;
+    }
+    return Collections.emptySet();
+  }
+
+  public Set<String> retrieveTweetRetweeters(String tweetLink, String bearerToken) {
+    String tweetId = extractTweetId(tweetLink);
+    if (StringUtils.isNotBlank(tweetId)) {
+      String builder = TWITTER_API_URL + "/tweets/" + tweetId + "/retweeted_by";
+      URI uri = URI.create(builder);
+      String response;
+      try {
+        response = processGet(uri, bearerToken);
+      } catch (TwitterConnectionException e) {
+        throw new IllegalStateException(TWITTER_RETRIEVE_ACCOUNT_ERROR, e);
+      }
+      if (response == null) {
+        return Collections.emptySet();
+      }
+      // Extract usernames from JSON using Jackson
+      JsonNode rootNode = fromJsonStringToJsonNode(response);
+      JsonNode dataNodes = rootNode.path("data");
+      Set<String> retweeters = new HashSet<>();
+      for (JsonNode dataNode : dataNodes) {
+        String username = dataNode.path(USERNAME).asText();
+        retweeters.add(username);
+      }
+      return retweeters;
+    }
+    return Collections.emptySet();
   }
 
   public TokenStatus checkTwitterTokenStatus(String bearerToken) {

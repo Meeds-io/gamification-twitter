@@ -68,6 +68,47 @@
       <column name="LAST_MENTION_TWEET_ID" type="BIGINT" defaultValueNumeric="0"/>
     </addColumn>
   </changeSet>
+
+  <changeSet author="twitter-connector" id="1.0.0-4">
+    <createTable tableName="TWITTER_TWEETS">
+      <column name="TWEET_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TWITTER_TWEETS"/>
+      </column>
+      <column name="TWEET_LINK" type="NVARCHAR(250)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="TWITTER_TWEET_LIKERS">
+      <column name="LIKER_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TWITTER_TWEET_LIKER_ID" />
+      </column>
+      <column name="TWEET_ID" type="BIGINT">
+        <constraints nullable="false" foreignKeyName="FK_TWITTER_TWEET_LIKER_ID" references="TWITTER_TWEETS(TWEET_ID)" deleteCascade="true" />
+      </column>
+      <column name="LIKER_USERNAME" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="TWITTER_TWEET_RETWEETERS">
+      <column name="RETWEETER_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TWITTER_TWEET_RETWEETER_ID" />
+      </column>
+      <column name="TWEET_ID" type="BIGINT">
+        <constraints nullable="false" foreignKeyName="FK_TWITTER_TWEET_RETWEETER_ID" references="TWITTER_TWEETS(TWEET_ID)" deleteCascade="true" />
+      </column>
+      <column name="RETWEETER_USERNAME" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="twitter-connector" id="1.0.0-5" dbms="oracle,postgresql,hsqldb" onValidationFail="MARK_RAN" failOnError="false">
+    <preConditions>
+      <not>
+        <sequenceExists sequenceName="SEQ_TWITTER_TWEETS_ID" />
+      </not>
+    </preConditions>
+    <createSequence sequenceName="SEQ_TWITTER_TWEETS_ID" startValue="1"/>
+  </changeSet>
 </databaseChangeLog>
 
 

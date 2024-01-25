@@ -24,6 +24,7 @@ import io.meeds.gamification.twitter.model.TwitterTrigger;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TwitterConsumerService {
 
@@ -46,6 +47,24 @@ public interface TwitterConsumerService {
    * @return {@link RemoteTwitterAccount}
    */
   RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken);
+
+  /**
+   * Retrieve the list of tweet likers.
+   *
+   * @param tweetLink Tweet link
+   * @param bearerToken Twitter bearer token
+   * @return the {@link List} of tweet likers
+   */
+  Set<String> retrieveTweetLikers(String tweetLink, String bearerToken);
+
+  /**
+   * Retrieve the list of tweet retweeters.
+   *
+   * @param tweetLink Tweet link
+   * @param bearerToken Twitter bearer token
+   * @return the {@link List} of tweet retweeters
+   */
+  Set<String> retrieveTweetRetweeters(String tweetLink, String bearerToken);
 
   /**
    * Check Twitter token status
