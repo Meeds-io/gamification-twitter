@@ -17,34 +17,32 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-chip
-    @click="$emit('handle') "
-    dark
-    class="width-fit-content">
-    <v-avatar left>
-      <v-img :src="avatarUrl" />
-    </v-avatar>
-    <span class="text-truncate">
-      {{ name }}
-    </span>
-  </v-chip>
+  <v-app>
+    <twitter-connector-event-form
+      v-if="isEditing"
+      :trigger="trigger"
+      :properties="properties" />
+    <twitter-connector-event-display
+      v-else
+      :trigger="trigger"
+      :properties="properties" />
+  </v-app>
 </template>
-
 <script>
 export default {
   props: {
-    account: {
+    properties: {
       type: Object,
       default: null
     },
-  },
-  computed: {
-    name() {
-      return this.account?.name || this.account?.identifier;
+    trigger: {
+      type: String,
+      default: null
     },
-    avatarUrl() {
-      return this.account?.avatarUrl;
+    isEditing: {
+      type: Boolean,
+      default: false
     }
-  }
+  },
 };
 </script>

@@ -24,7 +24,7 @@ import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.TokenStatus;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.rest.model.TwitterAccountRestEntity;
-import io.meeds.gamification.twitter.service.TwitterAccountService;
+import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
 
 public class TwitterAccountBuilder {
@@ -58,7 +58,7 @@ public class TwitterAccountBuilder {
                                         remoteTwitterAccount != null ? remoteTwitterAccount.getAvatarUrl() : null);
   }
 
-  public static List<TwitterAccountRestEntity> toRestEntities(TwitterAccountService twitterAccountService,
+  public static List<TwitterAccountRestEntity> toRestEntities(TwitterService twitterAccountService,
                                                               TwitterConsumerService twitterConsumerService,
                                                               Collection<TwitterAccount> twitterAccounts) {
     String twitterBearerToken = twitterAccountService.getTwitterBearerToken();
