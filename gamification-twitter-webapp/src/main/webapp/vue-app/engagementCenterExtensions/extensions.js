@@ -33,6 +33,7 @@ export function init() {
           return realization.link;
         }
       },
+      isExtensible: true
     }
   });
 }
