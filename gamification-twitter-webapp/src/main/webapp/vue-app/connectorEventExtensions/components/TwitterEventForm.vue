@@ -101,12 +101,19 @@ export default {
       this.value = null;
       document.dispatchEvent(new CustomEvent('event-form-unfilled'));
     },
+    isValidLink() {
+      if (!this.isValidLink) {
+        document.dispatchEvent(new CustomEvent('event-form-unfilled'));
+      }
+    },
   },
   created() {
     if (this.isTriggerForAccount) {
       this.retrieveAccounts();
-    } else {
+    } else if (this.properties?.tweetLink){
       this.tweetLink = this.properties?.tweetLink;
+    } else {
+      document.dispatchEvent(new CustomEvent('event-form-unfilled'));
     }
   },
   methods: {
@@ -126,6 +133,8 @@ export default {
             };
             document.dispatchEvent(new CustomEvent('event-form-filled', {detail: eventProperties}));
             this.value = this.accounts.indexOf(this.selected);
+          } else {
+            document.dispatchEvent(new CustomEvent('event-form-unfilled'));
           }
           this.loadingAccounts = false;
         });
