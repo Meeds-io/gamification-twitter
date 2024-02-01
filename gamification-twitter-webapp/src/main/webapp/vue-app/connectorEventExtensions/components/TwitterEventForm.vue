@@ -97,6 +97,7 @@ export default {
         this.retrieveAccounts();
       }
       this.tweetLink = null;
+      this.isValidLink = true;
       this.selected = null;
       this.value = null;
       document.dispatchEvent(new CustomEvent('event-form-unfilled'));

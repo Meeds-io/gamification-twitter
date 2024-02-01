@@ -30,6 +30,5 @@ export function init() {
       'mentionAccount',
       'retweet',
     ].includes(params?.trigger),
-    rank: 2,
   });
 }
