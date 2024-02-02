@@ -43,8 +43,7 @@ import io.meeds.gamification.model.EventDTO;
 import io.meeds.gamification.service.ConnectorService;
 import io.meeds.gamification.service.EventService;
 
-import static io.meeds.gamification.twitter.utils.Utils.ACCOUNT_ID;
-import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
+import static io.meeds.gamification.twitter.utils.Utils.*;
 
 public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startable {
 
@@ -111,7 +110,8 @@ public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startab
     if (StringUtils.isNotBlank(receiverId)) {
       Identity socialIdentity = identityManager.getOrCreateUserIdentity(receiverId);
       if (socialIdentity != null) {
-        String eventDetails = "{" + ACCOUNT_ID + ": " + twitterTrigger.getAccountId() + "}";
+        String eventDetails = "{" + ACCOUNT_ID + ": " + twitterTrigger.getAccountId() + ", " + TWEET_ID + ": "
+            + twitterTrigger.getTweetId() + "}";
         broadcastTwitterEvent(twitterTrigger.getTrigger(),
                               receiverId,
                               String.valueOf(twitterTrigger.getTweetId()),

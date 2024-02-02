@@ -15,18 +15,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import TwitterEvent from './components/TwitterEvent.vue';
-import TwitterEventDisplay from './components/TwitterEventDisplay.vue';
-import TwitterEventForm from './components/TwitterEventForm.vue';
-import TwitterAccountItem from './components/TwitterAccountItem.vue';
+window.twttr = (function(d, s, id) {
+  /* eslint-disable prefer-const */
+  let js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) {return t;}
+  js = d.createElement(s);
+  js.id = id;
+  js.src = 'https://platform.twitter.com/widgets.js';
+  fjs.parentNode.insertBefore(js, fjs);
 
-const components = {
-  'twitter-connector-event': TwitterEvent,
-  'twitter-connector-event-display': TwitterEventDisplay,
-  'twitter-connector-event-form': TwitterEventForm,
-  'twitter-connector-account-item': TwitterAccountItem
-};
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
 
-for (const key in components) {
-  Vue.component(key, components[key]);
-}
+  return t;
+}(document, 'script', 'twitter-wjs'));

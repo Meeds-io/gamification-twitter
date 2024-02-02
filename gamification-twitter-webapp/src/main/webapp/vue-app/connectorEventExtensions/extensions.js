@@ -18,15 +18,17 @@
  */
 import '../connectorEventExtensions/initComponents';
 import '../connectorEventExtensions/services';
+import '../connectorEventExtensions/twitterWidgets';
 
 export function init() {
   extensionRegistry.registerComponent('engagementCenterEvent', 'connector-event-extensions', {
     id: 'twitter-event',
     name: 'twitter',
-    vueComponent: Vue.options.components['twitter-connector-event-form'],
+    vueComponent: Vue.options.components['twitter-connector-event'],
     isEnabled: (params) => [
-      'mentionAccount'
+      'likeTweet',
+      'mentionAccount',
+      'retweet',
     ].includes(params?.trigger),
-    rank: 2,
   });
 }

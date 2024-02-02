@@ -27,7 +27,7 @@ import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.rest.builder.TwitterAccountBuilder;
 import io.meeds.gamification.twitter.rest.model.TwitterAccountList;
 import io.meeds.gamification.twitter.rest.model.TwitterAccountRestEntity;
-import io.meeds.gamification.twitter.service.TwitterAccountService;
+import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,11 +51,11 @@ public class TwitterAccountRest implements ResourceContainer {
 
   public static final String           TWITTER_ACCOUNT_NOT_FOUND = "The TWitter account doesn't exit";
 
-  private final TwitterAccountService  twitterAccountService;
+  private final TwitterService twitterAccountService;
 
   private final TwitterConsumerService twitterConsumerService;
 
-  public TwitterAccountRest(TwitterAccountService twitterAccountService, TwitterConsumerService twitterConsumerService) {
+  public TwitterAccountRest(TwitterService twitterAccountService, TwitterConsumerService twitterConsumerService) {
     this.twitterAccountService = twitterAccountService;
     this.twitterConsumerService = twitterConsumerService;
   }

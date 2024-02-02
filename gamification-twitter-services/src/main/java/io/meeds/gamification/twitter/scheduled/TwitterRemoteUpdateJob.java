@@ -17,9 +17,10 @@
  */
 package io.meeds.gamification.twitter.scheduled;
 
+import io.meeds.gamification.twitter.model.Tweet;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
-import io.meeds.gamification.twitter.service.TwitterAccountService;
+import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
 import io.meeds.gamification.twitter.service.TwitterTriggerService;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,25 +36,28 @@ import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.container.ExoContainerContext;
 
 import java.util.List;
+import java.util.Set;
+
+import static io.meeds.gamification.twitter.utils.Utils.extractTweetId;
 
 /**
- * A service that will manage the periodic updating of twitter account events.
+ * A service that will manage the periodic updating of twitter events.
  */
 @DisallowConcurrentExecution
-public class TwitterAccountRemoteUpdateJob implements Job {
+public class TwitterRemoteUpdateJob implements Job {
 
-  private static final Log             LOG = ExoLogger.getLogger(TwitterAccountRemoteUpdateJob.class);
+  private static final Log             LOG = ExoLogger.getLogger(TwitterRemoteUpdateJob.class);
 
   private final TwitterConsumerService twitterConsumerService;
 
-  private final TwitterAccountService  twitterAccountService;
+  private final TwitterService twitterAccountService;
 
   private final TwitterTriggerService  twitterTriggerService;
 
-  public TwitterAccountRemoteUpdateJob() {
+  public TwitterRemoteUpdateJob() {
     this.twitterTriggerService = ExoContainerContext.getService(TwitterTriggerService.class);
     this.twitterConsumerService = ExoContainerContext.getService(TwitterConsumerService.class);
-    this.twitterAccountService = ExoContainerContext.getService(TwitterAccountService.class);
+    this.twitterAccountService = ExoContainerContext.getService(TwitterService.class);
   }
 
   @Override
@@ -66,6 +70,10 @@ public class TwitterAccountRemoteUpdateJob implements Job {
     List<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(0, -1);
     if (CollectionUtils.isNotEmpty(twitterAccounts)) {
       twitterAccounts.forEach(twitterAccount -> processTwitterAccount(twitterAccount, bearerToken));
+    }
+    List<Tweet> tweets = twitterAccountService.getTweets(0, -1);
+    if (CollectionUtils.isNotEmpty(tweets)) {
+      tweets.forEach(tweet -> processTweetReactionsUpdate(tweet, bearerToken));
     }
   }
 
@@ -89,5 +97,44 @@ public class TwitterAccountRemoteUpdateJob implements Job {
       twitterTriggerService.handleTriggerAsync(trigger);
     }
     twitterAccountService.updateAccountLastMentionTweetId(twitterAccount.getId(), mentionTriggers.get(0).getTweetId());
+  }
+
+  private void processTweetReactionsUpdate(Tweet tweet, String bearerToken) {
+    Set<String> tweetLikers = twitterConsumerService.retrieveTweetLikers(tweet.getTweetLink(), bearerToken);
+    Set<String> tweetRetweeters = twitterConsumerService.retrieveTweetRetweeters(tweet.getTweetLink(), bearerToken);
+    if (!CollectionUtils.isEqualCollection(tweetLikers, tweet.getLikers())) {
+      tweetLikers.stream().filter(liker -> !tweet.getLikers().contains(liker)).forEach(liker -> {
+        TwitterTrigger twitterTrigger = new TwitterTrigger();
+        twitterTrigger.setType("tweet");
+        twitterTrigger.setTrigger("likeTweet");
+        twitterTrigger.setTwitterUsername(liker);
+        String tweetId = extractTweetId(tweet.getTweetLink());
+        if (StringUtils.isNotBlank(tweetId)) {
+          twitterTrigger.setTweetId(Long.parseLong(tweetId));
+        }
+        twitterTriggerService.handleTriggerAsync(twitterTrigger);
+      });
+    }
+    if (!CollectionUtils.isEqualCollection(tweetRetweeters, tweet.getRetweeters())) {
+      tweetRetweeters.stream().filter(retweeter -> !tweet.getRetweeters().contains(retweeter)).forEach(retweeter -> {
+        TwitterTrigger twitterTrigger = new TwitterTrigger();
+        twitterTrigger.setType("tweet");
+        twitterTrigger.setTrigger("retweet");
+        twitterTrigger.setTwitterUsername(retweeter);
+        String tweetId = extractTweetId(tweet.getTweetLink());
+        if (StringUtils.isNotBlank(tweetId)) {
+          twitterTrigger.setTweetId(Long.parseLong(tweetId));
+        }
+        twitterTriggerService.handleTriggerAsync(twitterTrigger);
+      });
+    }
+    if (!CollectionUtils.isEqualCollection(tweetLikers, tweet.getLikers())
+        || !CollectionUtils.isEqualCollection(tweetRetweeters, tweet.getRetweeters())) {
+      try {
+        twitterAccountService.updateTweetReactions(tweet.getTweetId(), tweetLikers, tweetRetweeters);
+      } catch (ObjectNotFoundException e) {
+        LOG.warn("Error while updating tweet reactions {}", tweet.getTweetId(), e);
+      }
+    }
   }
 }

@@ -18,15 +18,51 @@
  */
 package io.meeds.gamification.twitter.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Utils {
 
   public static final String CONNECTOR_NAME             = "twitter";
 
   public static final String MENTION_ACCOUNT_EVENT_NAME = "mentionAccount";
 
+  public static final String LIKE_TWEET_EVENT_NAME      = "likeTweet";
+
+  public static final String RETWEET_TWEET_EVENT_NAME   = "retweet";
+
   public static final String ACCOUNT_ID                 = "accountId";
+
+  public static final String TWEET_ID                   = "tweetId";
+
+  public static final String TWEET_LINK                 = "tweetLink";
 
   private Utils() {
     // Private constructor for Utils class
+  }
+
+  public static String extractTweetId(String tweetUrl) {
+    Pattern pattern = Pattern.compile("/status/(\\d+)");
+    Matcher matcher = pattern.matcher(tweetUrl);
+    if (matcher.find()) {
+      return matcher.group(1);
+    } else {
+      return null;
+    }
+  }
+
+  public static Map<String, String> stringToMap(String mapAsString) {
+    Map<String, String> map = new HashMap<>();
+    mapAsString = mapAsString.substring(1, mapAsString.length() - 1);
+    String[] pairs = mapAsString.split(", ");
+    for (String pair : pairs) {
+      String[] keyValue = pair.split(": ");
+      String key = keyValue[0].trim();
+      String value = keyValue[1].trim();
+      map.put(key, value);
+    }
+    return map;
   }
 }
