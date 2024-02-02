@@ -18,13 +18,15 @@
  */
 package io.meeds.gamification.twitter.service;
 
+import io.meeds.gamification.twitter.model.Tweet;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 import java.util.List;
+import java.util.Set;
 
-public interface TwitterAccountService {
+public interface TwitterService {
 
   /**
    * Get available watched twitter accounts using offset and limit.
@@ -108,6 +110,39 @@ public interface TwitterAccountService {
   void deleteTwitterAccount(long twitterAccountId, String currentUser) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
+   * Add watched Tweet.
+   *
+   * @param tweetLink Tweet link
+   */
+  void addTweetToWatch(String tweetLink);
+
+  /**
+   * Get available watched tweets using offset and limit.
+   *
+   * @param offset Offset of result
+   * @param limit Limit of result
+   * @return {@link List} of {@link Tweet}
+   */
+  List<Tweet> getTweets(int offset, int limit);
+
+  /**
+   * Retrieves a watched tweet identified by its link
+   *
+   * @param tweetLink watched tweet link
+   * @return found {@link TwitterAccount}
+   */
+  Tweet getTweetByLink(String tweetLink);
+
+  /**
+   * delete watched Tweet
+   *
+   * @param tweetId tweet Id
+   */
+  void deleteTweet(long tweetId) throws ObjectNotFoundException;
+
+  void deleteTweetById(long tweetId);
+
+  /**
    * Saves Twitter bearer token
    *
    * @param bearerToken twitter bearer token
@@ -152,4 +187,15 @@ public interface TwitterAccountService {
    *           technical name is not found
    */
   void updateAccountLastMentionTweetId(long accountId, long lastMentionTweetId) throws ObjectNotFoundException;
+
+  /**
+   * Update tweet with last reactions.
+   *
+   * @param tweetId tweetId
+   * @param likers tweet likers
+   * @param retweeters tweet retweeters
+   * @throws ObjectNotFoundException when the tweet identified by its
+   *           technical id is not found
+   */
+  void updateTweetReactions(long tweetId, Set<String> likers, Set<String> retweeters) throws ObjectNotFoundException;
 }
