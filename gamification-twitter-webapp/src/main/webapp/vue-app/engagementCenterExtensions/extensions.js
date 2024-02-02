@@ -23,10 +23,9 @@ export function init() {
       rank: 60,
       image: '/gamification-twitter/images/TwitterX.svg',
       match: (actionLabel) => [
-        'followAccount',
         'likeTweet',
         'mentionAccount',
-        'repostTweet',
+        'retweet',
       ].includes(actionLabel),
       getLink: realization => {
         if (realization.objectType === 'tweet' && realization.objectId > 0) {
@@ -34,6 +33,7 @@ export function init() {
           return realization.link;
         }
       },
+      isExtensible: true
     }
   });
 }

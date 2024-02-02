@@ -46,6 +46,48 @@
       </init-params>
     </component-plugin>
     <component-plugin>
+      <name>LikeTweet</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.gamification.plugin.EventConfigPlugin</type>
+      <init-params>
+        <object-param>
+          <name>event</name>
+          <object type="io.meeds.gamification.model.EventDTO">
+            <field name="title">
+              <string>likeTweet</string>
+            </field>
+            <field name="type">
+              <string>twitter</string>
+            </field>
+            <field name="trigger">
+              <string>likeTweet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Retweet</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.gamification.plugin.EventConfigPlugin</type>
+      <init-params>
+        <object-param>
+          <name>event</name>
+          <object type="io.meeds.gamification.model.EventDTO">
+            <field name="title">
+              <string>retweet</string>
+            </field>
+            <field name="type">
+              <string>twitter</string>
+            </field>
+            <field name="trigger">
+              <string>retweet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>ConnectorConnectTwitter</name>
       <set-method>addPlugin</set-method>
       <type>io.meeds.gamification.plugin.EventConfigPlugin</type>
