@@ -20,6 +20,7 @@ export default {
   title: 'twitterConnector.label.profile',
   description: 'twitterConnector.label.description',
   image: '/gamification-twitter/images/TwitterX.svg',
+  imageCard: '/gamification-twitter/images/TwitterXWhite.svg',
   initialized: true,
   identifier: '',
   user: '',
