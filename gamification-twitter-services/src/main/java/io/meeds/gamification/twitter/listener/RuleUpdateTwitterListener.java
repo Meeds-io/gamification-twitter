@@ -53,6 +53,7 @@ public class RuleUpdateTwitterListener extends Listener<RuleDTO, String> {
   public void onEvent(Event<RuleDTO, String> event) {
     RuleFilter ruleFilter = new RuleFilter();
     ruleFilter.setEventType(CONNECTOR_NAME);
+    ruleFilter.setAllSpaces(true);
     List<RuleDTO> rules = ruleService.getRules(ruleFilter, 0, -1);
 
     List<String> watchedTweets = rules.stream()
