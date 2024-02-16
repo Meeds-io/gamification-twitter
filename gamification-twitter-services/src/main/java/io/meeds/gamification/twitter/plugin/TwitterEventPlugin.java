@@ -43,7 +43,7 @@ public class TwitterEventPlugin extends EventPlugin {
   public boolean isValidEvent(Map<String, String> eventProperties, String triggerDetails) {
     String desiredAccountId = eventProperties.get(ACCOUNT_ID);
     String desiredTweetLink = eventProperties.get(TWEET_LINK);
-    String desiredTweetId = extractTweetId(desiredTweetLink);
+    String desiredTweetId = desiredTweetLink != null ? extractTweetId(desiredTweetLink) : null;
     Map<String, String> triggerDetailsMop = stringToMap(triggerDetails);
     return (desiredAccountId != null && desiredAccountId.equals(triggerDetailsMop.get(ACCOUNT_ID)))
         || (desiredTweetId != null && desiredTweetId.equals(triggerDetailsMop.get(TWEET_ID)));
