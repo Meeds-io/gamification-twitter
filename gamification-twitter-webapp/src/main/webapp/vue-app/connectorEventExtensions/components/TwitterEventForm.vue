@@ -54,7 +54,7 @@
           @input="handleTweet"
           @change="checkTweetLink(tweetLink)">
       </v-card-text>
-      <v-list-item-action-text  v-if="!isValidLink" class="d-flex py-0 me-0 me-sm-8">
+      <v-list-item-action-text v-if="!isValidLink" class="d-flex py-0 me-0 me-sm-8">
         <span class="error--text">{{ $t('gamification.event.detail.invalidLink.error') }}</span>
       </v-list-item-action-text>
     </template>
@@ -122,7 +122,7 @@ export default {
       this.loadingAccounts = true;
       return this.$twitterConnectorService.getWatchedAccounts()
         .then(data => {
-          this.accounts = data.twitterAccountRestEntities;
+          this.accounts = data.entities;
         }).finally(() => {
           if (this.properties) {
             this.selected = this.accounts.find(a => a.remoteId === this.properties.accountId);
@@ -168,7 +168,15 @@ export default {
             const eventProperties = {
               tweetLink: this.tweetLink
             };
-            document.dispatchEvent(new CustomEvent('event-form-filled', {detail: eventProperties}));
+            this.$twitterConnectorService.getWatchedTweets()
+              .then(data => {
+                const existingTweetIndex = data.entities.findIndex(t => t.tweetLink === this.tweetLink);
+                if (existingTweetIndex < 0 && data?.size >= 5) {
+                  this.$root.$emit('alert-message', this.$t('gamification.event.detail.tweetLimitReached.error', {
+                    0: data?.size,
+                  }), 'info');
+                }
+              }).finally(() => document.dispatchEvent(new CustomEvent('event-form-filled', {detail: eventProperties})));
           } else {
             document.dispatchEvent(new CustomEvent('event-form-unfilled'));
           }

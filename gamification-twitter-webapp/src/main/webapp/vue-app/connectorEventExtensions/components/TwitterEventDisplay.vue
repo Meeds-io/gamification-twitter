@@ -30,12 +30,12 @@
     <div v-else class="d-flex">
       <div class="d-flex align-center">
         <v-img
-            :src="avatarUrl"
-            :key="avatarUrl"
-            :alt="name"
-            height="60"
-            width="60"
-            class="rounded" />
+          :src="avatarUrl"
+          :key="avatarUrl"
+          :alt="name"
+          height="60"
+          width="60"
+          class="rounded" />
       </div>
       <v-list class="d-flex flex-column ms-3 py-0">
         <v-list-item-title class="align-self-start">
@@ -121,7 +121,7 @@ export default {
       this.loading = true;
       return this.$twitterConnectorService.getWatchedAccounts()
         .then(data => {
-          this.account = data.twitterAccountRestEntities.find(a => a.remoteId === this.accountId);
+          this.account = data.entities.find(a => a.remoteId === this.accountId);
         })        .finally(() => this.loading = false);
 
     }

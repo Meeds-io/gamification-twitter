@@ -18,6 +18,7 @@
  */
 package io.meeds.gamification.twitter.listener;
 
+import io.meeds.gamification.constant.EntityStatusType;
 import io.meeds.gamification.model.filter.RuleFilter;
 import io.meeds.gamification.service.RuleService;
 import io.meeds.gamification.twitter.model.Tweet;
@@ -53,6 +54,7 @@ public class RuleUpdateTwitterListener extends Listener<RuleDTO, String> {
   public void onEvent(Event<RuleDTO, String> event) {
     RuleFilter ruleFilter = new RuleFilter();
     ruleFilter.setEventType(CONNECTOR_NAME);
+    ruleFilter.setStatus(EntityStatusType.ENABLED);
     ruleFilter.setAllSpaces(true);
     List<RuleDTO> rules = ruleService.getRules(ruleFilter, 0, -1);
 
