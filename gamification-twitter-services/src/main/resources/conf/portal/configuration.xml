@@ -60,7 +60,7 @@
   </component>
 
   <component>
-    <type>io.meeds.gamification.twitter.rest.TwitterAccountRest</type>
+    <type>io.meeds.gamification.twitter.rest.TwitterServiceRest</type>
   </component>
 
   <external-component-plugins>

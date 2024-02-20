@@ -126,6 +126,13 @@ public interface TwitterService {
   List<Tweet> getTweets(int offset, int limit);
 
   /**
+   * Count all watched tweets
+   *
+   * @return Watched tweets count
+   */
+  int countTweets();
+
+  /**
    * Retrieves a watched tweet identified by its link
    *
    * @param tweetLink watched tweet link
@@ -194,8 +201,8 @@ public interface TwitterService {
    * @param tweetId tweetId
    * @param likers tweet likers
    * @param retweeters tweet retweeters
-   * @throws ObjectNotFoundException when the tweet identified by its
-   *           technical id is not found
+   * @throws ObjectNotFoundException when the tweet identified by its technical id
+   *           is not found
    */
   void updateTweetReactions(long tweetId, Set<String> likers, Set<String> retweeters) throws ObjectNotFoundException;
 }
