@@ -23,9 +23,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 import io.meeds.gamification.twitter.model.TokenStatus;
+import io.meeds.gamification.twitter.model.Tweet;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.rest.builder.TwitterAccountBuilder;
-import io.meeds.gamification.twitter.rest.model.TwitterAccountList;
+import io.meeds.gamification.twitter.rest.model.EntityList;
 import io.meeds.gamification.twitter.rest.model.TwitterAccountRestEntity;
 import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
@@ -47,21 +48,22 @@ import java.util.List;
 import static io.meeds.gamification.utils.Utils.getCurrentUser;
 
 @Path("/gamification/connectors/twitter")
-public class TwitterAccountRest implements ResourceContainer {
+public class TwitterServiceRest implements ResourceContainer {
 
   public static final String           TWITTER_ACCOUNT_NOT_FOUND = "The TWitter account doesn't exit";
 
-  private final TwitterService twitterAccountService;
+  private final TwitterService         twitterService;
 
   private final TwitterConsumerService twitterConsumerService;
 
-  public TwitterAccountRest(TwitterService twitterAccountService, TwitterConsumerService twitterConsumerService) {
-    this.twitterAccountService = twitterAccountService;
+  public TwitterServiceRest(TwitterService twitterAccountService, TwitterConsumerService twitterConsumerService) {
+    this.twitterService = twitterAccountService;
     this.twitterConsumerService = twitterConsumerService;
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @Path("account")
   @RolesAllowed("users")
   @Operation(summary = "Retrieves the list of twitter watched accounts", method = "GET")
   @ApiResponses(value = {
@@ -75,16 +77,16 @@ public class TwitterAccountRest implements ResourceContainer {
     String currentUser = getCurrentUser();
     List<TwitterAccountRestEntity> twitterAccountRestEntities;
     try {
-      TwitterAccountList twitterAccountList = new TwitterAccountList();
+      EntityList<TwitterAccountRestEntity> accountEntityList = new EntityList<>();
       twitterAccountRestEntities = getTwitterAccountRestEntities(currentUser, offset, limit, forceUpdate);
+      accountEntityList.setEntities(twitterAccountRestEntities);
+      accountEntityList.setOffset(offset);
+      accountEntityList.setLimit(limit);
       if (returnSize) {
-        int twitterAccountsSize = twitterAccountService.countTwitterAccounts(currentUser);
-        twitterAccountList.setSize(twitterAccountsSize);
+        int twitterAccountsSize = twitterService.countTwitterAccounts(currentUser);
+        accountEntityList.setSize(twitterAccountsSize);
       }
-      twitterAccountList.setTwitterAccountRestEntities(twitterAccountRestEntities);
-      twitterAccountList.setOffset(offset);
-      twitterAccountList.setLimit(limit);
-      return Response.ok(twitterAccountList).build();
+      return Response.ok(accountEntityList).build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
@@ -92,7 +94,7 @@ public class TwitterAccountRest implements ResourceContainer {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @Path("{accountId}")
+  @Path("account/{accountId}")
   @RolesAllowed("users")
   @Operation(summary = "Retrieves a twitter watched account by its technical identifier", method = "GET")
   @ApiResponses(value = {
@@ -107,7 +109,7 @@ public class TwitterAccountRest implements ResourceContainer {
     }
     String currentUser = getCurrentUser();
     try {
-      TwitterAccount twitterAccount = twitterAccountService.getTwitterAccountById(accountId, currentUser);
+      TwitterAccount twitterAccount = twitterService.getTwitterAccountById(accountId, currentUser);
       return Response.ok(twitterAccount).build();
     } catch (IllegalArgumentException e) {
       return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -120,6 +122,7 @@ public class TwitterAccountRest implements ResourceContainer {
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Path("account")
   @RolesAllowed("users")
   @Operation(summary = "Create a watched Twitter account.", description = "Create a watched Twitter account.", method = "POST")
   @ApiResponses(value = {
@@ -134,7 +137,7 @@ public class TwitterAccountRest implements ResourceContainer {
     }
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     try {
-      twitterAccountService.addTwitterAccount(twitterUsername, currentUser);
+      twitterService.addTwitterAccount(twitterUsername, currentUser);
       return Response.status(Response.Status.CREATED).build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
@@ -146,7 +149,7 @@ public class TwitterAccountRest implements ResourceContainer {
   }
 
   @DELETE
-  @Path("{accountId}")
+  @Path("account/{accountId}")
   @RolesAllowed("users")
   @Operation(summary = "Deletes watched Twitter account.", description = "Deletes watched Twitter account.", method = "DELETE")
   @ApiResponses(value = {
@@ -160,13 +163,35 @@ public class TwitterAccountRest implements ResourceContainer {
     }
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     try {
-      twitterAccountService.deleteTwitterAccount(accountId, currentUser);
+      twitterService.deleteTwitterAccount(accountId, currentUser);
       return Response.noContent().build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     } catch (ObjectNotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).entity(TWITTER_ACCOUNT_NOT_FOUND).build();
     }
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("tweet")
+  @RolesAllowed("users")
+  @Operation(summary = "Retrieves the list of twitter watched tweet", method = "GET")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "401", description = "Unauthorized operation"), })
+  public Response getWatchedTweets(@QueryParam("offset") int offset,
+                                   @Parameter(description = "Query results limit", required = true) @QueryParam("limit") int limit,
+                                   @Parameter(description = "Watched tweet total size") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize) {
+    List<Tweet> tweet = twitterService.getTweets(offset, limit);
+    EntityList<Tweet> tweetEntityList = new EntityList<>();
+    tweetEntityList.setEntities(tweet);
+    tweetEntityList.setOffset(offset);
+    tweetEntityList.setLimit(limit);
+    if (returnSize) {
+      tweetEntityList.setSize(twitterService.countTweets());
+    }
+    return Response.ok(tweetEntityList).build();
   }
 
   @POST
@@ -186,7 +211,7 @@ public class TwitterAccountRest implements ResourceContainer {
     }
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     try {
-      twitterAccountService.saveTwitterBearerToken(bearerToken, currentUser);
+      twitterService.saveTwitterBearerToken(bearerToken, currentUser);
       return Response.status(Response.Status.CREATED).build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
@@ -204,7 +229,7 @@ public class TwitterAccountRest implements ResourceContainer {
   public Response deleteTwitterBearerToken() {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     try {
-      twitterAccountService.deleteTwitterBearerToken(currentUser);
+      twitterService.deleteTwitterBearerToken(currentUser);
       return Response.noContent().build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
@@ -224,7 +249,7 @@ public class TwitterAccountRest implements ResourceContainer {
   public Response checkTwitterTokenStatus() {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     try {
-      String bearerToken = twitterAccountService.getTwitterBearerToken(currentUser);
+      String bearerToken = twitterService.getTwitterBearerToken(currentUser);
       TokenStatus tokenStatus = twitterConsumerService.checkTwitterTokenStatus(bearerToken);
       return Response.ok(tokenStatus).build();
     } catch (IllegalAccessException e) {
@@ -233,7 +258,7 @@ public class TwitterAccountRest implements ResourceContainer {
   }
 
   private List<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username, int offset, int limit, boolean forceUpdate) throws IllegalAccessException {
-    Collection<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(username, offset, limit, forceUpdate);
-    return TwitterAccountBuilder.toRestEntities(twitterAccountService, twitterConsumerService, twitterAccounts);
+    Collection<TwitterAccount> twitterAccounts = twitterService.getTwitterAccounts(username, offset, limit, forceUpdate);
+    return TwitterAccountBuilder.toRestEntities(twitterService, twitterConsumerService, twitterAccounts);
   }
 }
