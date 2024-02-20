@@ -209,6 +209,11 @@ public class TwitterServiceImpl implements TwitterService {
   public List<Tweet> getTweets(int offset, int limit) {
     List<Long> tweetsIds = twitterTweetStorage.getTweets(offset, limit);
     return tweetsIds.stream().map(twitterTweetStorage::getTweetById).toList();
+  } 
+  
+  @Override
+  public int countTweets() {
+    return twitterTweetStorage.countTweets();
   }
 
   @Override
