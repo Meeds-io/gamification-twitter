@@ -18,11 +18,8 @@
 package io.meeds.gamification.twitter.storage;
 
 import io.meeds.gamification.twitter.dao.TwitterTweetDAO;
-import io.meeds.gamification.twitter.entity.TwitterAccountEntity;
 import io.meeds.gamification.twitter.entity.TwitterTweetEntity;
 import io.meeds.gamification.twitter.model.Tweet;
-import io.meeds.gamification.twitter.model.TwitterAccount;
-import io.meeds.gamification.twitter.storage.mapper.TwitterAccountMapper;
 
 import java.util.List;
 import java.util.Set;
@@ -58,6 +55,10 @@ public class TwitterTweetStorage {
 
   public List<Long> getTweets(int offset, int limit) {
     return twitterTweetDAO.getTweetsIds(offset, limit);
+  }
+
+  public int countTweets() {
+    return twitterTweetDAO.count().intValue();
   }
 
   public Tweet getTweetById(Long tweetId) {

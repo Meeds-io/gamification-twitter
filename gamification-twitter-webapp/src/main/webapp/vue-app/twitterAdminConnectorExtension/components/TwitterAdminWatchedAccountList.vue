@@ -190,7 +190,7 @@ export default {
       this.loading = true;
       return this.$twitterConnectorService.getWatchedAccounts(this.offset, this.limit, this.forceUpdate)
         .then(data => {
-          this.watchedAccounts = data.twitterAccountRestEntities;
+          this.watchedAccounts = data.entities;
           this.watchedAccountsCount = data.size || 0;
           return this.$nextTick()
             .then(() => {
