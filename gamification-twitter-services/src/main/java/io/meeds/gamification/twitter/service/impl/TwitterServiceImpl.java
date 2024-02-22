@@ -133,7 +133,7 @@ public class TwitterServiceImpl implements TwitterService {
   }
 
   @Override
-  public void addTwitterAccount(String twitterUsername, String currentUser) throws ObjectAlreadyExistsException,
+  public TwitterAccount addTwitterAccount(String twitterUsername, String currentUser) throws ObjectAlreadyExistsException,
                                                                             IllegalAccessException,
                                                                             ObjectNotFoundException {
     if (!Utils.isRewardingManager(currentUser)) {
@@ -159,8 +159,9 @@ public class TwitterServiceImpl implements TwitterService {
       if (CollectionUtils.isNotEmpty(mentionTriggers)) {
         twitterAccount.setLastMentionTweetId(mentionTriggers.get(0).getTweetId());
       }
-      twitterAccountStorage.addTwitterAccount(twitterAccount);
+      return twitterAccountStorage.addTwitterAccount(twitterAccount);
     }
+    return null;
   }
 
   @Override
@@ -187,10 +188,10 @@ public class TwitterServiceImpl implements TwitterService {
          .forEach(ruleService::deleteRuleById);
   }
 
-  public void addTweetToWatch(String tweetLink) {
+  public Tweet addTweetToWatch(String tweetLink) {
     Tweet existsTweet = twitterTweetStorage.getTweetByLink(tweetLink);
     if (existsTweet != null) {
-      return;
+      return null;
     }
     Tweet tweet = new Tweet();
     tweet.setTweetLink(tweetLink);
@@ -202,7 +203,7 @@ public class TwitterServiceImpl implements TwitterService {
     if (CollectionUtils.isNotEmpty(tweetLikers)) {
       tweet.setRetweeters(tweetRetweeters);
     }
-    twitterTweetStorage.addTweetToWatch(tweet);
+    return twitterTweetStorage.addTweetToWatch(tweet);
   }
 
   @Override
