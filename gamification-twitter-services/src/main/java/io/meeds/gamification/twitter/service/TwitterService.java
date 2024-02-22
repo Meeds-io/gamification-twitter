@@ -95,9 +95,11 @@ public interface TwitterService {
    *           Twitter account.
    * @throws ObjectNotFoundException when the Twitter account identified by its
    *           technical name is not found
+   * @return {@link TwitterAccount}
    */
-  void addTwitterAccount(String twitterUsername,
-                         String currentUser) throws ObjectAlreadyExistsException, IllegalAccessException, ObjectNotFoundException;
+  TwitterAccount addTwitterAccount(String twitterUsername, String currentUser) throws ObjectAlreadyExistsException,
+                                                                               IllegalAccessException,
+                                                                               ObjectNotFoundException;
 
   /**
    * delete watched Twitter account
@@ -113,8 +115,9 @@ public interface TwitterService {
    * Add watched Tweet.
    *
    * @param tweetLink Tweet link
+   * @return {@link TwitterAccount}
    */
-  void addTweetToWatch(String tweetLink);
+  Tweet addTweetToWatch(String tweetLink);
 
   /**
    * Get available watched tweets using offset and limit.

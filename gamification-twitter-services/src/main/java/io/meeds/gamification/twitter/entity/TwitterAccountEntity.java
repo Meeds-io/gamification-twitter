@@ -23,12 +23,9 @@ import java.util.Date;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 import lombok.Data;
 
 @Entity(name = "TwitterAccounts")
-@ExoEntity
 @Table(name = "TWITTER_ACCOUNTS")
 
 @NamedQuery(name = "TwitterAccounts.getTwitterAccountByRemoteId",
