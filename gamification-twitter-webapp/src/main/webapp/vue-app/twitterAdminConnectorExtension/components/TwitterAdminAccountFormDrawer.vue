@@ -105,6 +105,7 @@ export default {
       if (this.$refs.twitterAccountFormDrawer) {
         this.$refs.twitterAccountFormDrawer.close();
       }
+      this.twitterUsername = null;
     },
     editBearerToken() {
       if (this.isTokenEditing) {

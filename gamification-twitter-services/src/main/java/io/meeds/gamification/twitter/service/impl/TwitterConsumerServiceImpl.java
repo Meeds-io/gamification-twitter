@@ -26,6 +26,7 @@ import io.meeds.gamification.twitter.storage.TwitterConsumerStorage;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 import java.util.List;
+import java.util.Set;
 
 public class TwitterConsumerServiceImpl implements TwitterConsumerService {
 
@@ -43,6 +44,14 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService {
   @Override
   public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken) {
     return twitterConsumerStorage.retrieveTwitterAccount(twitterRemoteId, bearerToken);
+  }
+
+  public Set<String> retrieveTweetLikers(String tweetLink, String bearerToken) {
+    return twitterConsumerStorage.retrieveTweetLikers(tweetLink, bearerToken);
+  }
+
+  public Set<String> retrieveTweetRetweeters(String tweetLink, String bearerToken) {
+    return twitterConsumerStorage.retrieveTweetRetweeters(tweetLink, bearerToken);
   }
 
   @Override

@@ -28,7 +28,15 @@
   </component>
 
   <component>
+    <type>io.meeds.gamification.twitter.dao.TwitterTweetDAO</type>
+  </component>
+
+  <component>
     <type>io.meeds.gamification.twitter.storage.TwitterAccountStorage</type>
+  </component>
+
+  <component>
+    <type>io.meeds.gamification.twitter.storage.TwitterTweetStorage</type>
   </component>
 
   <component>
@@ -47,12 +55,12 @@
   </component>
 
   <component>
-    <key>io.meeds.gamification.twitter.service.TwitterAccountService</key>
-    <type>io.meeds.gamification.twitter.service.impl.TwitterAccountServiceImpl</type>
+    <key>io.meeds.gamification.twitter.service.TwitterService</key>
+    <type>io.meeds.gamification.twitter.service.impl.TwitterServiceImpl</type>
   </component>
 
   <component>
-    <type>io.meeds.gamification.twitter.rest.TwitterAccountRest</type>
+    <type>io.meeds.gamification.twitter.rest.TwitterServiceRest</type>
   </component>
 
   <external-component-plugins>
@@ -61,6 +69,15 @@
       <name>twitter</name>
       <set-method>addPlugin</set-method>
       <type>io.meeds.gamification.twitter.plugin.TwitterConnectorPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.gamification.service.EventService</target-component>
+    <component-plugin>
+      <name>twitter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.gamification.twitter.plugin.TwitterEventPlugin</type>
     </component-plugin>
   </external-component-plugins>
 
@@ -119,10 +136,29 @@
           <description>Configuration to manage the periodic updating of twitter account events</description>
           <property name="jobName" value="TwitterAccountRemoteUpdate"/>
           <property name="groupName" value="Gamification"/>
-          <property name="job" value="io.meeds.gamification.twitter.scheduled.TwitterAccountRemoteUpdateJob"/>
+          <property name="job" value="io.meeds.gamification.twitter.scheduled.TwitterRemoteUpdateJob"/>
           <property name="expression" value="${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}"/><!-- Every 15 minutes -->
         </properties-param>
       </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+  <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>rule.created</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.gamification.twitter.listener.RuleUpdateTwitterListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>rule.deleted</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.gamification.twitter.listener.RuleUpdateTwitterListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>rule.updated</name>
+      <set-method>addListener</set-method>
+      <type>io.meeds.gamification.twitter.listener.RuleUpdateTwitterListener</type>
     </component-plugin>
   </external-component-plugins>
 

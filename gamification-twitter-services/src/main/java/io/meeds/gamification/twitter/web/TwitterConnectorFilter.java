@@ -43,11 +43,11 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
+import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
+
 public class TwitterConnectorFilter implements Filter {
 
   private static final Log    LOG            = ExoLogger.getLogger(TwitterConnectorFilter.class);
-
-  private static final String CONNECTOR_NAME = "twitter";
 
   private OAuth20Service      oAuthService;
 

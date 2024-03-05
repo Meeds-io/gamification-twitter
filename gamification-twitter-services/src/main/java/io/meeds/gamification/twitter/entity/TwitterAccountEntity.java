@@ -23,12 +23,9 @@ import java.util.Date;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 import lombok.Data;
 
 @Entity(name = "TwitterAccounts")
-@ExoEntity
 @Table(name = "TWITTER_ACCOUNTS")
 
 @NamedQuery(name = "TwitterAccounts.getTwitterAccountByRemoteId",
@@ -39,6 +36,8 @@ import lombok.Data;
                   + " ORDER BY twitterAccount.id ASC")
 @Data
 public class TwitterAccountEntity implements Serializable {
+
+  private static final long serialVersionUID = -7390409979056587159L;
 
   @Id
   @SequenceGenerator(name = "SEQ_TWITTER_ACCOUNTS_ID", sequenceName = "SEQ_TWITTER_ACCOUNTS_ID", allocationSize = 1)

@@ -59,7 +59,7 @@ export function deleteTwitterBearerToken() {
 export function addAccountToWatch(twitterUsername) {
   const formData = new FormData();
   formData.append('twitterUsername', twitterUsername);
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -80,7 +80,7 @@ export function addAccountToWatch(twitterUsername) {
 }
 
 export function deleteAccountToWatch(accountId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/${accountId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account/${accountId}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -91,7 +91,7 @@ export function deleteAccountToWatch(accountId) {
 }
 
 export function getWatchedAccounts(offset, limit, forceUpdate) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true&forceUpdate=${forceUpdate|| false}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true&forceUpdate=${forceUpdate|| false}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -104,7 +104,7 @@ export function getWatchedAccounts(offset, limit, forceUpdate) {
 }
 
 export function getWatchedAccountById(accountId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/${accountId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account/${accountId}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -116,22 +116,15 @@ export function getWatchedAccountById(accountId) {
   });
 }
 
-export function saveEventStatus(eventId, accountId, enabled) {
-  const formData = new FormData();
-  formData.append('eventId', eventId);
-  formData.append('accountId', accountId);
-  formData.append('enabled', enabled);
-
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/events/status`, {
-    method: 'POST',
+export function getWatchedTweets(offset, limit) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/tweet?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true`, {
+    method: 'GET',
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams(formData).toString(),
-  }).then(resp => {
-    if (!resp?.ok) {
-      throw new Error('Response code indicates a server error');
+  }).then((resp) => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting watched tweet');
     }
   });
 }
