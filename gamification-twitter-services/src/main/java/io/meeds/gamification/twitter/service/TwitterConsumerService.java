@@ -88,12 +88,4 @@ public interface TwitterConsumerService {
    * clear remote twitter account entities cache
    */
   void clearCache();
-
-  /**
-   * clear remote twitter account entity cache
-   * 
-   * @param twitterAccount Twitter account
-   * @param bearerToken Twitter bearer token
-   */
-  void clearCache(TwitterAccount twitterAccount, String bearerToken);
 }

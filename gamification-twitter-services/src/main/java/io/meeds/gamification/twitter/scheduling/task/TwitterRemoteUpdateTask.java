@@ -15,25 +15,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.gamification.twitter.scheduled;
+package io.meeds.gamification.twitter.scheduling.task;
 
 import io.meeds.gamification.twitter.model.Tweet;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
-import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
+import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.service.TwitterTriggerService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
-import org.exoplatform.container.ExoContainerContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
@@ -43,26 +42,23 @@ import static io.meeds.gamification.twitter.utils.Utils.extractTweetId;
 /**
  * A service that will manage the periodic updating of twitter events.
  */
-@DisallowConcurrentExecution
-public class TwitterRemoteUpdateJob implements Job {
+@Component
+public class TwitterRemoteUpdateTask {
 
-  private static final Log             LOG = ExoLogger.getLogger(TwitterRemoteUpdateJob.class);
+  private static final Log       LOG = ExoLogger.getLogger(TwitterRemoteUpdateTask.class);
 
-  private final TwitterConsumerService twitterConsumerService;
+  @Autowired
+  private TwitterConsumerService twitterConsumerService;
 
-  private final TwitterService twitterAccountService;
+  @Autowired
+  private TwitterService         twitterAccountService;
 
-  private final TwitterTriggerService  twitterTriggerService;
+  @Autowired
+  private TwitterTriggerService  twitterTriggerService;
 
-  public TwitterRemoteUpdateJob() {
-    this.twitterTriggerService = ExoContainerContext.getService(TwitterTriggerService.class);
-    this.twitterConsumerService = ExoContainerContext.getService(TwitterConsumerService.class);
-    this.twitterAccountService = ExoContainerContext.getService(TwitterService.class);
-  }
-
-  @Override
   @ExoTransactional
-  public void execute(JobExecutionContext context) {
+  @Scheduled(cron = "${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}")
+  public void execute() {
     String bearerToken = twitterAccountService.getTwitterBearerToken();
     if (StringUtils.isBlank(bearerToken)) {
       return;

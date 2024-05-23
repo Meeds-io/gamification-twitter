@@ -36,7 +36,7 @@ public class TwitterOAuth20Api extends DefaultApi20 {
     return "https://twitter.com/i/oauth2/authorize";
   }
 
-  public String getRevokeTokenEndpoint() {
+  public String getRevokeTokenEndpoint() { // NOSONAR
     return "https://api.twitter.com/2/oauth2/revoke";
   }
 

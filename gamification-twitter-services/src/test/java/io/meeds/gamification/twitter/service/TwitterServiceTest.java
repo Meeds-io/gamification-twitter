@@ -18,47 +18,78 @@
  */
 package io.meeds.gamification.twitter.service;
 
+import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
 import static io.meeds.gamification.twitter.utils.Utils.MENTION_ACCOUNT_EVENT_NAME;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import io.meeds.gamification.twitter.BaseTwitterTest;
+import io.meeds.gamification.model.filter.RuleFilter;
+import io.meeds.gamification.service.RuleService;
 import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.Tweet;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
-import org.exoplatform.commons.ObjectAlreadyExistsException;
+import io.meeds.gamification.twitter.service.impl.TwitterServiceImpl;
+import io.meeds.gamification.twitter.storage.TwitterAccountStorage;
+import io.meeds.gamification.twitter.storage.TwitterTweetStorage;
+import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.web.security.codec.AbstractCodec;
+import org.exoplatform.web.security.codec.CodecInitializer;
 import org.gatein.common.util.Tools;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class TwitterServiceTest extends BaseTwitterTest {
+@SpringBootTest(classes = { TwitterServiceImpl.class })
+class TwitterServiceTest {
 
-  private static final String ADMIN_USER = "root1";
+  private static final String    ADMIN_USER = "root";
 
-  private static final String USER       = "root";
+  private static final String    USER       = "user";
 
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    registerAdministratorUser(ADMIN_USER);
-    registerInternalUser(USER);
-  }
+  @MockBean
+  private SettingService         settingService;
+
+  @MockBean
+  private TwitterConsumerService twitterConsumerService;
+
+  @MockBean
+  private TwitterAccountStorage  twitterAccountStorage;
+
+  @MockBean
+  private TwitterTweetStorage    twitterTweetStorage;
+
+  @MockBean
+  private RuleService            ruleService;
+
+  @MockBean
+  private CodecInitializer       codecInitializer;
+
+  @Autowired
+  private TwitterService         twitterService;
 
   @Test
-  public void testAddTwitterAccount() throws Exception {
-    assertThrows(IllegalAccessException.class, () -> twitterService.addTwitterAccount("twitterUsername", "root"));
+  void testAddTwitterAccount() throws Exception {
 
-    twitterService.saveTwitterBearerToken("bearerToken", "root1");
+    Throwable exception = assertThrows(IllegalAccessException.class,
+                                       () -> twitterService.addTwitterAccount("twitterUsername", USER));
+    assertEquals("The user is not authorized to add a twitter watched account", exception.getMessage());
+
+    when(twitterAccountStorage.countTwitterAccounts()).thenReturn(2L);
+
+    exception = assertThrows(IllegalStateException.class, () -> twitterService.addTwitterAccount("twitterUsername", ADMIN_USER));
+    assertEquals("The maximum number of watched twitter accounts has been reached", exception.getMessage());
+
     RemoteTwitterAccount remoteTwitterAccount = new RemoteTwitterAccount(1, "username", "name", "description", "avatarUrl");
-    RemoteTwitterAccount remoteTwitterAccount1 = new RemoteTwitterAccount(2, "username1", "name1", "description1", "avatarUrl1");
-    when(twitterConsumerService.retrieveTwitterAccount("twitterUsername", "bearerToken")).thenReturn(remoteTwitterAccount);
-    when(twitterConsumerService.retrieveTwitterAccount("twitterUsername1", "bearerToken")).thenReturn(remoteTwitterAccount1);
+    when(twitterConsumerService.retrieveTwitterAccount(anyString(), anyString())).thenReturn(remoteTwitterAccount);
     List<TwitterTrigger> twitterTriggers = new ArrayList<>();
     TwitterTrigger twitterTrigger = new TwitterTrigger(MENTION_ACCOUNT_EVENT_NAME, "user1", 1254555L, "tweet", 11222121L);
     TwitterTrigger twitterTrigger1 = new TwitterTrigger(MENTION_ACCOUNT_EVENT_NAME, "user2", 12548855L, "tweet", 11222121L);
@@ -67,122 +98,85 @@ public class TwitterServiceTest extends BaseTwitterTest {
     when(twitterConsumerService.getMentionEvents(any(), anyLong(), anyString())).thenReturn(twitterTriggers);
 
     // When
-    TwitterAccount twitterAccount = twitterService.addTwitterAccount("twitterUsername", "root1");
+    when(twitterAccountStorage.countTwitterAccounts()).thenReturn(0L);
 
     // Then
-    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccounts("root", 0, 10, true));
-    assertNotNull(twitterService.getTwitterAccounts("root1", 0, 10, true));
-    assertThrows(IllegalAccessException.class, () -> twitterService.countTwitterAccounts("root"));
-    assertEquals(1, twitterService.countTwitterAccounts("root1"));
-    assertEquals(1254555L, twitterService.getTwitterAccountById(twitterAccount.getId()).getLastMentionTweetId());
+    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccounts(USER, 0, 10, true));
+    Assertions.assertNotNull(twitterService.getTwitterAccounts(ADMIN_USER, 0, 10, true));
+    assertThrows(IllegalAccessException.class, () -> twitterService.countTwitterAccounts(USER));
+    verify(twitterAccountStorage, times(1)).countTwitterAccounts();
+    twitterService.getTwitterAccountById(1L);
+    verify(twitterAccountStorage, times(1)).getTwitterAccountById(1L);
 
-    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccountById(twitterAccount.getId(), "root"));
+    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccountById(1L, USER));
     assertThrows(IllegalArgumentException.class, () -> twitterService.getTwitterAccountById(-10L));
-    assertThrows(ObjectNotFoundException.class, () -> twitterService.getTwitterAccountById(10L, "root1"));
-    assertNotNull(twitterService.getTwitterAccountById(twitterAccount.getId(), "root1"));
-
-    // When
-    TwitterAccount twitterAccount1 = twitterService.addTwitterAccount("twitterUsername1", "root1");
-
-    // Then
-    Throwable exception1 = assertThrows(IllegalStateException.class,
-                                        () -> twitterService.addTwitterAccount("twitterUsername2", "root1"));
-    assertEquals("The maximum number of watched twitter accounts has been reached", exception1.getMessage());
-
-    // When
-    twitterService.deleteTwitterAccount(twitterAccount1.getId(), "root1");
-
-    // Then
-    assertThrows(ObjectAlreadyExistsException.class, () -> twitterService.addTwitterAccount("twitterUsername", "root1"));
-
-    // When
-    twitterService.updateAccountLastMentionTweetId(twitterAccount.getId(), 111122222L);
-
-    // Then
-    assertEquals(111122222L, twitterService.getTwitterAccountById(twitterAccount.getId()).getLastMentionTweetId());
-    assertThrows(IllegalArgumentException.class, () -> twitterService.updateAccountLastMentionTweetId(-10L, 111122222L));
-    assertThrows(ObjectNotFoundException.class, () -> twitterService.updateAccountLastMentionTweetId(10L, 111122222L));
+    when(twitterAccountStorage.getTwitterAccountById(10L)).thenReturn(null);
+    assertThrows(ObjectNotFoundException.class, () -> twitterService.getTwitterAccountById(10L, ADMIN_USER));
+    TwitterAccount twitterAccount = new TwitterAccount();
+    when(twitterAccountStorage.getTwitterAccountById(20L)).thenReturn(twitterAccount);
+    Assertions.assertNotNull(twitterService.getTwitterAccountById(20L, ADMIN_USER));
   }
 
   @Test
-  public void testDeleteTwitterAccount() throws Exception {
-    twitterService.saveTwitterBearerToken("bearerToken", "root1");
-    RemoteTwitterAccount remoteTwitterAccount = new RemoteTwitterAccount(1, "username", "name", "description", "avatarUrl");
-    when(twitterConsumerService.retrieveTwitterAccount("twitterUsername", "bearerToken")).thenReturn(remoteTwitterAccount);
+  void testDeleteTwitterAccount() throws Exception {
+
+    Throwable exception = assertThrows(IllegalAccessException.class, () -> twitterService.deleteTwitterAccount(1L, USER));
+    assertEquals("The user is not authorized to delete Twitter account", exception.getMessage());
+
+    when(twitterAccountStorage.getTwitterAccountById(1L)).thenReturn(null);
+
+    exception = assertThrows(ObjectNotFoundException.class, () -> twitterService.deleteTwitterAccount(1L, ADMIN_USER));
+    assertEquals("Twitter account with remote id : 1 wasn't found", exception.getMessage());
+
+    when(twitterAccountStorage.getTwitterAccountById(2L)).thenReturn(new TwitterAccount());
 
     // When
-    TwitterAccount twitterAccount = twitterService.addTwitterAccount("twitterUsername", "root1");
+    twitterService.deleteTwitterAccount(2L, ADMIN_USER);
 
     // Then
-    assertThrows(IllegalAccessException.class, () -> twitterService.deleteTwitterAccount(twitterAccount.getId(), "root"));
-    assertThrows(ObjectNotFoundException.class, () -> twitterService.deleteTwitterAccount(10L, "root1"));
-
-    // When
-    twitterService.deleteTwitterAccount(twitterAccount.getId(), "root1");
-
-    // Then
-    assertNull(twitterService.getTwitterAccountById(twitterAccount.getId()));
+    verify(twitterAccountStorage, times(1)).deleteTwitterAccount(2L);
+    verify(twitterConsumerService, times(1)).clearCache();
+    RuleFilter ruleFilter = new RuleFilter(true);
+    ruleFilter.setEventType(CONNECTOR_NAME);
+    ruleFilter.setIncludeDeleted(true);
+    verify(ruleService, times(1)).getRules(ruleFilter, 0, -1);
   }
 
   @Test
-  public void testSaveTwitterBearerToken() throws IllegalAccessException {
-    // When
-    assertThrows(IllegalAccessException.class, () -> twitterService.saveTwitterBearerToken("bearerToken", "root"));
-    // When
-    twitterService.saveTwitterBearerToken("bearerToken", "root1");
-    // Then
-    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterBearerToken("root"));
+  void testSaveTwitterBearerToken() throws Exception {
 
-    assertNotNull(twitterService.getTwitterBearerToken("root1"));
+    Throwable exception = assertThrows(IllegalAccessException.class,
+                                       () -> twitterService.saveTwitterBearerToken("bearerToken", USER));
+    assertEquals("The user is not authorized to save or update Twitter Bearer Token", exception.getMessage());
+
     // When
-    assertThrows(IllegalAccessException.class, () -> twitterService.deleteTwitterBearerToken("root"));
-    // When
-    twitterService.deleteTwitterBearerToken("root1");
+    AbstractCodec abstractCodec = mock(AbstractCodec.class);
+    when(codecInitializer.getCodec()).thenReturn(abstractCodec);
+    twitterService.saveTwitterBearerToken("bearerToken", ADMIN_USER);
+
     // Then
-    assertNull(twitterService.getTwitterBearerToken());
+    verify(abstractCodec, times(1)).encode("bearerToken");
+    verify(settingService, times(1)).set(any(), any(), any(), any());
   }
 
   @Test
-  public void testAddTweetToWatch() throws Exception {
+  void testAddTweetToWatch() {
     Set<String> tweetLikers = Tools.toSet("user1", "user2", "user3");
     Set<String> tweetRetweeters = Tools.toSet("user1", "user2");
 
-    twitterService.saveTwitterBearerToken("bearerToken", "root1");
+    Tweet tweet = new Tweet();
+    when(twitterTweetStorage.getTweetByLink("existTweetLink")).thenReturn(tweet);
+    assertNull(twitterService.addTweetToWatch("existTweetLink"));
+
+    when(twitterTweetStorage.getTweetByLink("tweetLink")).thenReturn(null);
     when(twitterConsumerService.retrieveTweetLikers("tweetLink", "bearerToken")).thenReturn(tweetLikers);
     when(twitterConsumerService.retrieveTweetRetweeters("tweetLink", "bearerToken")).thenReturn(tweetRetweeters);
-
-    // When
-    Tweet tweet = twitterService.addTweetToWatch("tweetLink");
-
-    // Then
-    assertEquals(1, twitterService.getTweets(0, 10).size());
-    assertThrows(IllegalArgumentException.class, () -> twitterService.getTweetByLink(null));
-    assertNotNull(twitterService.getTweetByLink("tweetLink"));
 
     // When
     twitterService.addTweetToWatch("tweetLink");
 
     // Then
-    assertEquals(1, twitterService.getTweets(0, 10).size());
-
-    // When
-    twitterService.deleteTweet(tweet.getTweetId());
-
-    // Then
-    assertEquals(0, twitterService.getTweets(0, 10).size());
-    assertThrows(ObjectNotFoundException.class, () -> twitterService.deleteTweet(-10L));
-
-    // When
-    tweet = twitterService.addTweetToWatch("tweetLink");
-    tweetLikers = Tools.toSet("user1", "user2", "user3", "user4");
-    tweetRetweeters = Tools.toSet("user1", "user2", "user3");
-    twitterService.updateTweetReactions(tweet.getTweetId(), tweetLikers, tweetRetweeters);
-
-    // Then
-    assertEquals(tweetLikers, twitterService.getTweetByLink(tweet.getTweetLink()).getLikers());
-    assertEquals(tweetRetweeters, twitterService.getTweetByLink(tweet.getTweetLink()).getRetweeters());
-    assertThrows(IllegalArgumentException.class, () -> twitterService.updateTweetReactions(-10, null, null));
-    assertThrows(ObjectNotFoundException.class, () -> twitterService.updateTweetReactions(10L, null, null));
+    verify(twitterTweetStorage, times(1)).addTweetToWatch(any());
 
   }
 }

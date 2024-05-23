@@ -23,18 +23,21 @@ import java.util.List;
 import io.meeds.gamification.twitter.dao.TwitterAccountDAO;
 import io.meeds.gamification.twitter.entity.TwitterAccountEntity;
 import io.meeds.gamification.twitter.model.TwitterAccount;
+import io.meeds.gamification.twitter.storage.mapper.TwitterAccountMapper;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Repository;
 
 import static io.meeds.gamification.twitter.storage.mapper.TwitterAccountMapper.fromEntity;
 import static io.meeds.gamification.twitter.storage.mapper.TwitterAccountMapper.toEntity;
 
+@Repository
 public class TwitterAccountStorage {
 
-  private final TwitterAccountDAO twitterAccountDAO;
-
-  public TwitterAccountStorage(TwitterAccountDAO twitterAccountDAO) {
-    this.twitterAccountDAO = twitterAccountDAO;
-  }
+  @Autowired
+  private TwitterAccountDAO twitterAccountDAO;
 
   public TwitterAccount addTwitterAccount(TwitterAccount twitterAccount) throws ObjectAlreadyExistsException {
     TwitterAccount existsAccount = getTwitterAccountByRemoteId(twitterAccount.getRemoteId());
@@ -43,7 +46,7 @@ public class TwitterAccountStorage {
       twitterAccountEntity.setWatchedDate(new Date());
       twitterAccountEntity.setUpdatedDate(new Date());
       twitterAccountEntity.setRefreshDate(new Date());
-      twitterAccountEntity = twitterAccountDAO.create(twitterAccountEntity);
+      twitterAccountEntity = twitterAccountDAO.save(twitterAccountEntity);
       return fromEntity(twitterAccountEntity);
     } else {
       throw new ObjectAlreadyExistsException(existsAccount);
@@ -51,30 +54,38 @@ public class TwitterAccountStorage {
   }
 
   public TwitterAccount getTwitterAccountById(Long id) {
-    return fromEntity(twitterAccountDAO.find(id));
+    return fromEntity(twitterAccountDAO.findById(id).orElse(null));
   }
 
-  public List<Long> getTwitterAccountIds(int offset, int limit) {
-    return twitterAccountDAO.getAccountsIds(offset, limit);
+  public List<TwitterAccount> getTwitterAccounts(int offset, int limit) {
+    if (limit > 0) {
+      PageRequest pageable = PageRequest.of(Math.toIntExact(offset / limit), limit, Sort.by(Sort.Direction.ASC, "id"));
+      return twitterAccountDAO.findAll(pageable).getContent().stream().map(TwitterAccountMapper::fromEntity).toList();
+    } else {
+      return twitterAccountDAO.findAll().stream().map(TwitterAccountMapper::fromEntity).toList();
+    }
   }
 
-  public int countTwitterAccounts() {
-    return twitterAccountDAO.count().intValue();
+  public long countTwitterAccounts() {
+    return twitterAccountDAO.count();
   }
 
   public TwitterAccount getTwitterAccountByRemoteId(long remoteId) {
-    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.getAccountByRemoteId(remoteId);
+    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.findTwitterAccountEntityByRemoteId(remoteId);
     return fromEntity(twitterAccountEntity);
   }
 
   public TwitterAccount updateAccountLastMentionTweetId(long accountId, long lastMentionTweetId) {
-    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.find(accountId);
+    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.findById(accountId).orElse(null);
+    if (twitterAccountEntity == null) {
+      return null;
+    }
     twitterAccountEntity.setLastMentionTweetId(lastMentionTweetId);
-    return fromEntity(twitterAccountDAO.update(twitterAccountEntity));
+    return fromEntity(twitterAccountDAO.save(twitterAccountEntity));
   }
 
   public TwitterAccount deleteTwitterAccount(long accountId) {
-    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.find(accountId);
+    TwitterAccountEntity twitterAccountEntity = twitterAccountDAO.findById(accountId).orElse(null);
     if (twitterAccountEntity != null) {
       twitterAccountDAO.delete(twitterAccountEntity);
     }

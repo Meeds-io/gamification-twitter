@@ -18,7 +18,9 @@
 package io.meeds.gamification.twitter.service;
 
 import io.meeds.gamification.twitter.model.TwitterTrigger;
+import org.springframework.stereotype.Service;
 
+@Service
 public interface TwitterTriggerService {
 
   /**

@@ -23,13 +23,6 @@ import io.meeds.gamification.twitter.model.Tweet;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.social.core.manager.IdentityManager;
-
-import io.meeds.gamification.twitter.entity.TwitterAccountEntity;
-import io.meeds.gamification.twitter.model.TwitterAccount;
-import io.meeds.gamification.utils.Utils;
-
 public class TwitterTweetMapper {
 
   private TwitterTweetMapper() {
@@ -43,7 +36,7 @@ public class TwitterTweetMapper {
     TwitterTweetEntity twitterTweetEntity = new TwitterTweetEntity();
 
     if (tweet.getTweetId() > 0) {
-      twitterTweetEntity.setTweetId(tweet.getTweetId());
+      twitterTweetEntity.setId(tweet.getTweetId());
     }
     if (StringUtils.isNotBlank(tweet.getTweetLink())) {
       twitterTweetEntity.setTweetLink(tweet.getTweetLink());
@@ -61,7 +54,7 @@ public class TwitterTweetMapper {
     if (twitterTweetEntity == null) {
       return null;
     }
-    return new Tweet(twitterTweetEntity.getTweetId(),
+    return new Tweet(twitterTweetEntity.getId(),
                      twitterTweetEntity.getTweetLink(),
                      twitterTweetEntity.getLikers(),
                      twitterTweetEntity.getRetweeters());

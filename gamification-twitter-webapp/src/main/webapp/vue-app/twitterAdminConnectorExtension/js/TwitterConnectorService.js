@@ -16,7 +16,7 @@
  */
 
 export function checkTwitterTokenStatus() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/bearerToken`, {
+  return fetch('/gamification-twitter/rest/twitter/settings', {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -31,7 +31,7 @@ export function checkTwitterTokenStatus() {
 export function saveBearerToken(bearerToken) {
   const formData = new FormData();
   formData.append('bearerToken', bearerToken);
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/bearerToken`, {
+  return fetch('/gamification-twitter/rest/twitter/settings', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -46,7 +46,7 @@ export function saveBearerToken(bearerToken) {
 }
 
 export function deleteTwitterBearerToken() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/bearerToken`, {
+  return fetch('/gamification-twitter/rest/twitter/settings', {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -59,7 +59,7 @@ export function deleteTwitterBearerToken() {
 export function addAccountToWatch(twitterUsername) {
   const formData = new FormData();
   formData.append('twitterUsername', twitterUsername);
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account`, {
+  return fetch('/gamification-twitter/rest/twitter/accounts', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -80,7 +80,7 @@ export function addAccountToWatch(twitterUsername) {
 }
 
 export function deleteAccountToWatch(accountId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account/${accountId}`, {
+  return fetch(`/gamification-twitter/rest/twitter/accounts/${accountId}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -91,7 +91,7 @@ export function deleteAccountToWatch(accountId) {
 }
 
 export function getWatchedAccounts(offset, limit, forceUpdate) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true&forceUpdate=${forceUpdate|| false}`, {
+  return fetch(`/gamification-twitter/rest/twitter/accounts?offset=${offset || 0}&limit=${limit|| 10}&forceUpdate=${forceUpdate|| false}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -104,7 +104,7 @@ export function getWatchedAccounts(offset, limit, forceUpdate) {
 }
 
 export function getWatchedAccountById(accountId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/account/${accountId}`, {
+  return fetch(`/gamification-twitter/rest/twitter/accounts/${accountId}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -117,7 +117,7 @@ export function getWatchedAccountById(accountId) {
 }
 
 export function getWatchedTweets(offset, limit) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/gamification/connectors/twitter/tweet?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true`, {
+  return fetch(`/gamification-twitter/rest/twitter/tweets?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {

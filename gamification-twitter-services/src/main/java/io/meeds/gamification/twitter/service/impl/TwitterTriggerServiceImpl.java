@@ -21,16 +21,12 @@ package io.meeds.gamification.twitter.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import io.meeds.gamification.service.TriggerService;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
 import io.meeds.gamification.twitter.service.TwitterTriggerService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.services.listener.ListenerService;
@@ -42,55 +38,41 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import io.meeds.gamification.model.EventDTO;
 import io.meeds.gamification.service.ConnectorService;
 import io.meeds.gamification.service.EventService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
 
 import static io.meeds.gamification.twitter.utils.Utils.*;
 
-public class TwitterTriggerServiceImpl implements TwitterTriggerService, Startable {
+@Primary
+@Service
+public class TwitterTriggerServiceImpl implements TwitterTriggerService {
 
   private static final Log       LOG                        = ExoLogger.getLogger(TwitterTriggerServiceImpl.class);
 
   public static final String     GAMIFICATION_GENERIC_EVENT = "exo.gamification.generic.action";
 
-  private final ConnectorService connectorService;
+  @Autowired
+  private ConnectorService       connectorService;
 
-  private final EventService     eventService;
+  @Autowired
+  private EventService           eventService;
 
-  private final TriggerService   triggerService;
+  @Autowired
+  private TriggerService         triggerService;
 
-  private final IdentityManager  identityManager;
+  @Autowired
+  private IdentityManager        identityManager;
 
-  private final ListenerService  listenerService;
+  @Autowired
+  private ListenerService        listenerService;
 
-  private ExecutorService        executorService;
-
-  public TwitterTriggerServiceImpl(ListenerService listenerService,
-                                   ConnectorService connectorService,
-                                   IdentityManager identityManager,
-                                   EventService eventService,
-                                   TriggerService triggerService) {
-    this.listenerService = listenerService;
-    this.connectorService = connectorService;
-    this.identityManager = identityManager;
-    this.eventService = eventService;
-    this.triggerService = triggerService;
-  }
-
-  @Override
-  public void start() {
-    QueuedThreadPool threadFactory = new QueuedThreadPool(5, 1, 1);
-    threadFactory.setName("Gamification - Twitter connector");
-    executorService = Executors.newCachedThreadPool(threadFactory);
-  }
-
-  @Override
-  public void stop() {
-    if (executorService != null) {
-      executorService.shutdownNow();
-    }
-  }
+  @Autowired
+  private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
   public void handleTriggerAsync(TwitterTrigger twitterTrigger) {
-    executorService.execute(() -> handleTriggerAsyncInternal(twitterTrigger));
+    threadPoolTaskExecutor.execute(() -> handleTriggerAsyncInternal(twitterTrigger));
   }
 
   @ExoTransactional

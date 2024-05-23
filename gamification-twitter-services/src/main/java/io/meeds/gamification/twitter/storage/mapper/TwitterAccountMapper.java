@@ -66,8 +66,11 @@ public class TwitterAccountMapper {
     if (twitterAccountEntity == null) {
       return null;
     }
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    String watchedBy = identityManager.getIdentity(String.valueOf(twitterAccountEntity.getWatchedBy())).getRemoteId();
+    String watchedBy = null;
+    if (twitterAccountEntity.getWatchedBy() != null) {
+      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+      watchedBy = identityManager.getIdentity(String.valueOf(twitterAccountEntity.getWatchedBy())).getRemoteId();
+    }
     return new TwitterAccount(twitterAccountEntity.getId(),
                               twitterAccountEntity.getRemoteId(),
                               twitterAccountEntity.getIdentifier(),

@@ -19,35 +19,9 @@
 package io.meeds.gamification.twitter.dao;
 
 import io.meeds.gamification.twitter.entity.TwitterAccountEntity;
-import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
-import java.util.List;
+public interface TwitterAccountDAO extends JpaRepository<TwitterAccountEntity, Long> {
 
-public class TwitterAccountDAO extends GenericDAOJPAImpl<TwitterAccountEntity, Long> {
-
-  public static final String REMOTE_ID = "remoteId";
-
-  public TwitterAccountEntity getAccountByRemoteId(long remoteId) {
-    TypedQuery<TwitterAccountEntity> query = getEntityManager().createNamedQuery("TwitterAccounts.getTwitterAccountByRemoteId",
-                                                                                 TwitterAccountEntity.class);
-    query.setParameter(REMOTE_ID, remoteId);
-    try {
-      return query.getSingleResult();
-    } catch (NoResultException e) {
-      return null;
-    }
-  }
-
-  public List<Long> getAccountsIds(int offset, int limit) {
-    TypedQuery<Long> query = getEntityManager().createNamedQuery("TwitterAccounts.getAccountsIds", Long.class);
-    if (offset > 0) {
-      query.setFirstResult(offset);
-    }
-    if (limit > 0) {
-      query.setMaxResults(limit);
-    }
-    return query.getResultList();
-  }
+  TwitterAccountEntity findTwitterAccountEntityByRemoteId(long remoteId);
 }

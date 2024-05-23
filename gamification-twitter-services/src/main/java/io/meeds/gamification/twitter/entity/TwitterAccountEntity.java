@@ -27,13 +27,6 @@ import lombok.Data;
 
 @Entity(name = "TwitterAccounts")
 @Table(name = "TWITTER_ACCOUNTS")
-
-@NamedQuery(name = "TwitterAccounts.getTwitterAccountByRemoteId",
-            query = "SELECT twitterAccount FROM TwitterAccounts twitterAccount"
-                  + " WHERE twitterAccount.remoteId = :remoteId")
-@NamedQuery(name = "TwitterAccounts.getAccountsIds",
-            query = "SELECT twitterAccount.id FROM TwitterAccounts twitterAccount"
-                  + " ORDER BY twitterAccount.id ASC")
 @Data
 public class TwitterAccountEntity implements Serializable {
 
@@ -43,29 +36,29 @@ public class TwitterAccountEntity implements Serializable {
   @SequenceGenerator(name = "SEQ_TWITTER_ACCOUNTS_ID", sequenceName = "SEQ_TWITTER_ACCOUNTS_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_TWITTER_ACCOUNTS_ID")
   @Column(name = "ID")
-  private Long   id;
+  private Long              id;
 
   @Column(name = "REMOTE_ID")
-  private Long   remoteId;
+  private Long              remoteId;
 
   @Column(name = "IDENTIFIER", nullable = false)
-  private String identifier;
+  private String            identifier;
 
   @Column(name = "NAME", nullable = false)
-  private String name;
+  private String            name;
 
   @Column(name = "WATCHED_DATE", nullable = false)
-  private Date   watchedDate;
+  private Date              watchedDate;
 
   @Column(name = "WATCHED_BY", nullable = false)
-  private Long   watchedBy;
+  private Long              watchedBy;
 
   @Column(name = "UPDATED_DATE", nullable = false)
-  private Date   updatedDate;
+  private Date              updatedDate;
 
   @Column(name = "REFRESH_DATE", nullable = false)
-  private Date   refreshDate;
+  private Date              refreshDate;
 
   @Column(name = "LAST_MENTION_TWEET_ID")
-  private Long   lastMentionTweetId;
+  private Long              lastMentionTweetId;
 }

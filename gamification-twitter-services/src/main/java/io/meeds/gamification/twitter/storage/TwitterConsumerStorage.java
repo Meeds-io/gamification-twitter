@@ -51,10 +51,13 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Repository;
 
 import static io.meeds.gamification.twitter.utils.Utils.MENTION_ACCOUNT_EVENT_NAME;
 import static io.meeds.gamification.twitter.utils.Utils.extractTweetId;
 
+@Repository
 public class TwitterConsumerStorage {
 
   private static final Log   LOG                                     = ExoLogger.getLogger(TwitterConsumerStorage.class);
@@ -83,6 +86,7 @@ public class TwitterConsumerStorage {
 
   private HttpClient         client;
 
+  @Cacheable(value="twitterAccount", key="{#twitterUsername, #bearerToken}")
   public RemoteTwitterAccount retrieveTwitterAccount(String twitterUsername, String bearerToken) throws ObjectNotFoundException {
     URI uri = URI.create(TWITTER_API_URL + "/users/by/username/" + twitterUsername + "?user.fields=profile_image_url");
     String response;
@@ -105,6 +109,7 @@ public class TwitterConsumerStorage {
     return remoteTwitterAccount;
   }
 
+  @Cacheable(value="twitterAccount", key="{#twitterRemoteId, #bearerToken}")
   public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken) {
     URI uri = URI.create(TWITTER_API_URL + "/users/" + twitterRemoteId + "?user.fields=profile_image_url,description");
     String response;
