@@ -184,8 +184,14 @@ public class TwitterServiceImpl implements TwitterService {
     rules.stream()
          .filter(r -> !r.getEvent().getProperties().isEmpty() && r.getEvent().getProperties().get(ACCOUNT_ID) != null
              && r.getEvent().getProperties().get(ACCOUNT_ID).equals(String.valueOf(twitterAccount.getRemoteId())))
-         .map(RuleDTO::getId)
-         .forEach(ruleService::deleteRuleById);
+         .forEach(rule -> {
+           try {
+             rule.setEnabled(false);
+             ruleService.updateRule(rule);
+           } catch (ObjectNotFoundException e) {
+             LOG.warn("Error while automatically switching rule status. Rule = {} ", rule, e);
+           }
+         });
   }
 
   public Tweet addTweetToWatch(String tweetLink) {
