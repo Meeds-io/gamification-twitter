@@ -19,6 +19,10 @@
 package io.meeds.gamification.twitter.plugin;
 
 import io.meeds.gamification.plugin.EventPlugin;
+import io.meeds.gamification.service.EventService;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -26,9 +30,18 @@ import java.util.Map;
 import static io.meeds.gamification.twitter.utils.Utils.*;
 import static io.meeds.gamification.twitter.utils.Utils.extractTweetId;
 
+@Component
 public class TwitterEventPlugin extends EventPlugin {
 
   public static final String EVENT_TYPE = "twitter";
+
+  @Autowired
+  private EventService eventService;
+
+  @PostConstruct
+  public void init() {
+    eventService.addPlugin(this);
+  }
 
   @Override
   public String getEventType() {

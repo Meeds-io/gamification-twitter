@@ -20,6 +20,11 @@ package io.meeds.gamification.twitter.storage;
 import io.meeds.gamification.twitter.dao.TwitterTweetDAO;
 import io.meeds.gamification.twitter.entity.TwitterTweetEntity;
 import io.meeds.gamification.twitter.model.Tweet;
+import io.meeds.gamification.twitter.storage.mapper.TwitterTweetMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Set;
@@ -27,19 +32,17 @@ import java.util.Set;
 import static io.meeds.gamification.twitter.storage.mapper.TwitterTweetMapper.fromEntity;
 import static io.meeds.gamification.twitter.storage.mapper.TwitterTweetMapper.toEntity;
 
+@Repository
 public class TwitterTweetStorage {
 
-  private final TwitterTweetDAO twitterTweetDAO;
-
-  public TwitterTweetStorage(TwitterTweetDAO twitterTweetDAO) {
-    this.twitterTweetDAO = twitterTweetDAO;
-  }
+  @Autowired
+  private TwitterTweetDAO twitterTweetDAO;
 
   public Tweet addTweetToWatch(Tweet tweet) {
     Tweet existsTweet = getTweetByLink(tweet.getTweetLink());
     if (existsTweet == null) {
       TwitterTweetEntity twitterTweetEntity = toEntity(tweet);
-      twitterTweetEntity = twitterTweetDAO.create(twitterTweetEntity);
+      twitterTweetEntity = twitterTweetDAO.save(twitterTweetEntity);
       return fromEntity(twitterTweetEntity);
     } else {
       return null;
@@ -47,31 +50,39 @@ public class TwitterTweetStorage {
   }
 
   public Tweet updateTweetReactions(long tweetId, Set<String> likers, Set<String> retweeters) {
-    TwitterTweetEntity twitterTweetEntity = twitterTweetDAO.find(tweetId);
+    TwitterTweetEntity twitterTweetEntity = twitterTweetDAO.findById(tweetId).orElse(null);
+    if (twitterTweetEntity == null) {
+      return null;
+    }
     twitterTweetEntity.setLikers(likers);
     twitterTweetEntity.setRetweeters(retweeters);
-    return fromEntity(twitterTweetDAO.update(twitterTweetEntity));
+    return fromEntity(twitterTweetDAO.save(twitterTweetEntity));
   }
 
-  public List<Long> getTweets(int offset, int limit) {
-    return twitterTweetDAO.getTweetsIds(offset, limit);
+  public List<Tweet> getTweets(int offset, int limit) {
+    if (limit > 0) {
+      PageRequest pageable = PageRequest.of(Math.toIntExact(offset / limit), limit, Sort.by(Sort.Direction.ASC, "id"));
+      return twitterTweetDAO.findAll(pageable).getContent().stream().map(TwitterTweetMapper::fromEntity).toList();
+    } else {
+      return twitterTweetDAO.findAll().stream().map(TwitterTweetMapper::fromEntity).toList();
+    }
   }
 
-  public int countTweets() {
-    return twitterTweetDAO.count().intValue();
+  public long countTweets() {
+    return twitterTweetDAO.count();
   }
 
   public Tweet getTweetById(Long tweetId) {
-    return fromEntity(twitterTweetDAO.find(tweetId));
+    return fromEntity(twitterTweetDAO.findById(tweetId).orElse(null));
   }
 
   public Tweet getTweetByLink(String tweetLink) {
-    TwitterTweetEntity twitterTweetEntity = twitterTweetDAO.getTweetByLink(tweetLink);
+    TwitterTweetEntity twitterTweetEntity = twitterTweetDAO.findTwitterTweetEntityByTweetLink(tweetLink);
     return fromEntity(twitterTweetEntity);
   }
 
   public Tweet deleteTweet(long tweetId) {
-    TwitterTweetEntity twitterTweetEntity = twitterTweetDAO.find(tweetId);
+    TwitterTweetEntity twitterTweetEntity = twitterTweetDAO.findById(tweetId).orElse(null);
     if (twitterTweetEntity != null) {
       twitterTweetDAO.delete(twitterTweetEntity);
     }

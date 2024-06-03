@@ -30,23 +30,20 @@
   <packaging>jar</packaging>
   <name>Meeds:: Gamification Twitter - Service</name>
   <properties>
-    <exo.test.coverage.ratio>0.36</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.40</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-core</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-oauth-auth</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.addons.gamification</groupId>
       <artifactId>gamification-services</artifactId>
-      <scope>provided</scope>
     </dependency>
     <!-- Test -->
     <dependency>

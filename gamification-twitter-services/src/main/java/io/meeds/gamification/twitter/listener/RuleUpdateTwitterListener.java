@@ -30,24 +30,38 @@ import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
 
 import io.meeds.gamification.model.RuleDTO;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static io.meeds.gamification.twitter.utils.Utils.*;
 
+@Component
 public class RuleUpdateTwitterListener extends Listener<RuleDTO, String> {
 
-  private static final Log            LOG = ExoLogger.getLogger(RuleUpdateTwitterListener.class);
+  private static final Log      LOG             = ExoLogger.getLogger(RuleUpdateTwitterListener.class);
 
-  private final TwitterService twitterAccountService;
+  private static final String[] LISTENER_EVENTS = { "rule.created", "rule.deleted", "rule.updated" };
 
-  private final RuleService           ruleService;
+  @Autowired
+  private TwitterService        twitterAccountService;
 
-  public RuleUpdateTwitterListener(TwitterService twitterAccountService, RuleService ruleService) {
-    this.twitterAccountService = twitterAccountService;
-    this.ruleService = ruleService;
+  @Autowired
+  private RuleService           ruleService;
+
+  @Autowired
+  private ListenerService       listenerService;
+
+  @PostConstruct
+  public void init() {
+    for (String eventName : LISTENER_EVENTS) {
+      listenerService.addListener(eventName, this);
+    }
   }
 
   @Override
@@ -75,7 +89,8 @@ public class RuleUpdateTwitterListener extends Listener<RuleDTO, String> {
         if (StringUtils.isNotBlank(bearerToken)) {
           twitterAccountService.addTweetToWatch(watchedTweet);
         } else {
-          LOG.warn("The Tweet {} could not be viewed, because the Twitter bearer token was not configured", extractTweetId(watchedTweet));
+          LOG.warn("The Tweet {} could not be viewed, because the Twitter bearer token was not configured",
+                   extractTweetId(watchedTweet));
         }
       }
     });

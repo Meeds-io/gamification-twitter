@@ -18,8 +18,6 @@
  */
 package io.meeds.gamification.twitter.web;
 
-import java.io.IOException;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -28,58 +26,39 @@ import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.web.filter.Filter;
 
 import io.meeds.gamification.model.RemoteConnectorSettings;
 import io.meeds.gamification.service.ConnectorSettingService;
 import io.meeds.gamification.twitter.model.TwitterOAuth20Api;
-import io.meeds.oauth.exception.OAuthException;
-import io.meeds.oauth.exception.OAuthExceptionCode;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
 
-public class TwitterConnectorFilter implements Filter {
+@Controller
+@RequestMapping("/")
+public class TwitterConnectionFilter {
 
-  private static final Log    LOG            = ExoLogger.getLogger(TwitterConnectorFilter.class);
+  private OAuth20Service   oAuthService;
 
-  private OAuth20Service      oAuthService;
+  private long             remoteConnectorId;
 
-  private long                remoteConnectorId;
-
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+  @GetMapping("/twitterOauth")
+  public ModelAndView redirectToAuthorization() {
     ConnectorSettingService connectorSettingService = CommonsUtils.getService(ConnectorSettingService.class);
     RemoteConnectorSettings remoteConnectorSettings = connectorSettingService.getConnectorSettings(CONNECTOR_NAME);
     remoteConnectorSettings.setSecretKey(connectorSettingService.getConnectorSecretKey(CONNECTOR_NAME));
+
     if (StringUtils.isBlank(remoteConnectorSettings.getApiKey()) || StringUtils.isBlank(remoteConnectorSettings.getSecretKey())) {
-      LOG.warn("Missing '{}' connector settings", CONNECTOR_NAME);
-      return;
+      // Handle missing connector settings, perhaps by showing an error page or message
+      return new ModelAndView("errorPage");  // Assume errorPage is a valid view
     }
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    try {
-      String secretState = "state";
-      PKCE pkce = new PKCE();
-      pkce.setCodeChallenge("challenge");
-      pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
-      pkce.setCodeVerifier("challenge");
-      String authorizationUrl = getOAuthService(remoteConnectorSettings).createAuthorizationUrlBuilder()
-                                                                        .pkce(pkce)
-                                                                        .state(secretState)
-                                                                        .build();
-      if (StringUtils.isNotBlank(authorizationUrl)) {
-        // Redirect to twitter to perform authentication
-        httpResponse.sendRedirect(authorizationUrl);
-      }
-    } catch (IOException e) { // NOSONAR
-      throw new OAuthException(OAuthExceptionCode.IO_ERROR, e);
-    }
+
+    String authorizationUrl = getAuthorizationUrl(remoteConnectorSettings);
+    return new ModelAndView("redirect:" + authorizationUrl);
   }
 
   private OAuth20Service getOAuthService(RemoteConnectorSettings remoteConnectorSettings) {
@@ -91,5 +70,18 @@ public class TwitterConnectorFilter implements Filter {
                                                                             .build(TwitterOAuth20Api.instance());
     }
     return oAuthService;
+  }
+
+  private String getAuthorizationUrl(RemoteConnectorSettings remoteConnectorSettings) {
+    String secretState = "state";
+    PKCE pkce = new PKCE();
+    pkce.setCodeChallenge("challenge");
+    pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
+    pkce.setCodeVerifier("challenge");
+
+    return getOAuthService(remoteConnectorSettings).createAuthorizationUrlBuilder()
+            .pkce(pkce)
+            .state(secretState)
+            .build();
   }
 }

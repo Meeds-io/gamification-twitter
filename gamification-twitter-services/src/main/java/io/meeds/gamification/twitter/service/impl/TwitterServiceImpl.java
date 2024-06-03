@@ -25,8 +25,8 @@ import io.meeds.gamification.twitter.model.RemoteTwitterAccount;
 import io.meeds.gamification.twitter.model.Tweet;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
-import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.service.TwitterConsumerService;
+import io.meeds.gamification.twitter.service.TwitterService;
 import io.meeds.gamification.twitter.storage.TwitterAccountStorage;
 import io.meeds.gamification.twitter.storage.TwitterTweetStorage;
 import io.meeds.gamification.utils.Utils;
@@ -42,6 +42,9 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.TokenServiceInitializationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
@@ -49,39 +52,35 @@ import java.util.Set;
 import static io.meeds.gamification.twitter.utils.Utils.ACCOUNT_ID;
 import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
 
+@Primary
+@Service
 public class TwitterServiceImpl implements TwitterService {
 
-  private static final Log             LOG                     = ExoLogger.getLogger(TwitterServiceImpl.class);
+  private static final Log       LOG                     = ExoLogger.getLogger(TwitterServiceImpl.class);
 
-  private static final Scope           TWITTER_CONNECTOR_SCOPE = Scope.APPLICATION.id("twitterConnector");
+  private static final Scope     TWITTER_CONNECTOR_SCOPE = Scope.APPLICATION.id("twitterConnector");
 
-  private static final String          BEARER_TOKEN_KEY        = "BEARER_TOKEN";
+  private static final String    BEARER_TOKEN_KEY        = "BEARER_TOKEN";
 
-  private final SettingService         settingService;
+  public static final String     NOT_FOUND               = " wasn't found";
 
-  private final TwitterConsumerService twitterConsumerService;
+  @Autowired
+  private SettingService         settingService;
 
-  private final TwitterAccountStorage  twitterAccountStorage;
+  @Autowired
+  private TwitterConsumerService twitterConsumerService;
 
-  private final TwitterTweetStorage    twitterTweetStorage;
+  @Autowired
+  private TwitterAccountStorage  twitterAccountStorage;
 
-  private final RuleService            ruleService;
+  @Autowired
+  private TwitterTweetStorage    twitterTweetStorage;
 
-  private final CodecInitializer       codecInitializer;
+  @Autowired
+  private RuleService            ruleService;
 
-  public TwitterServiceImpl(SettingService settingService,
-                            TwitterConsumerService twitterConsumerService,
-                            TwitterAccountStorage twitterAccountStorage,
-                            TwitterTweetStorage twitterTweetStorage,
-                            RuleService ruleService,
-                            CodecInitializer codecInitializer) {
-    this.settingService = settingService;
-    this.twitterConsumerService = twitterConsumerService;
-    this.twitterAccountStorage = twitterAccountStorage;
-    this.twitterTweetStorage = twitterTweetStorage;
-    this.ruleService = ruleService;
-    this.codecInitializer = codecInitializer;
-  }
+  @Autowired
+  private CodecInitializer       codecInitializer;
 
   @Override
   public List<TwitterAccount> getTwitterAccounts(String currentUser,
@@ -120,12 +119,11 @@ public class TwitterServiceImpl implements TwitterService {
 
   @Override
   public List<TwitterAccount> getTwitterAccounts(int offset, int limit) {
-    List<Long> hooksIds = twitterAccountStorage.getTwitterAccountIds(offset, limit);
-    return hooksIds.stream().map(twitterAccountStorage::getTwitterAccountById).toList();
+    return twitterAccountStorage.getTwitterAccounts(offset, limit);
   }
 
   @Override
-  public int countTwitterAccounts(String currentUser) throws IllegalAccessException {
+  public long countTwitterAccounts(String currentUser) throws IllegalAccessException {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to access Twitter watched accounts");
     }
@@ -134,8 +132,8 @@ public class TwitterServiceImpl implements TwitterService {
 
   @Override
   public TwitterAccount addTwitterAccount(String twitterUsername, String currentUser) throws ObjectAlreadyExistsException,
-                                                                            IllegalAccessException,
-                                                                            ObjectNotFoundException {
+                                                                                      IllegalAccessException,
+                                                                                      ObjectNotFoundException {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to add a twitter watched account");
     }
@@ -173,10 +171,10 @@ public class TwitterServiceImpl implements TwitterService {
     }
     TwitterAccount twitterAccount = twitterAccountStorage.getTwitterAccountById(twitterAccountId);
     if (twitterAccount == null) {
-      throw new ObjectNotFoundException("Twitter account with remote id : " + twitterAccountId + " wasn't found");
+      throw new ObjectNotFoundException("Twitter account with remote id : " + twitterAccountId + NOT_FOUND);
     }
     twitterAccountStorage.deleteTwitterAccount(twitterAccountId);
-    twitterConsumerService.clearCache(twitterAccount, getTwitterBearerToken());
+    twitterConsumerService.clearCache();
     RuleFilter ruleFilter = new RuleFilter(true);
     ruleFilter.setEventType(CONNECTOR_NAME);
     ruleFilter.setIncludeDeleted(true);
@@ -194,6 +192,7 @@ public class TwitterServiceImpl implements TwitterService {
          });
   }
 
+  @Override
   public Tweet addTweetToWatch(String tweetLink) {
     Tweet existsTweet = twitterTweetStorage.getTweetByLink(tweetLink);
     if (existsTweet != null) {
@@ -214,12 +213,11 @@ public class TwitterServiceImpl implements TwitterService {
 
   @Override
   public List<Tweet> getTweets(int offset, int limit) {
-    List<Long> tweetsIds = twitterTweetStorage.getTweets(offset, limit);
-    return tweetsIds.stream().map(twitterTweetStorage::getTweetById).toList();
-  } 
-  
+    return twitterTweetStorage.getTweets(offset, limit);
+  }
+
   @Override
-  public int countTweets() {
+  public long countTweets() {
     return twitterTweetStorage.countTweets();
   }
 
@@ -235,7 +233,7 @@ public class TwitterServiceImpl implements TwitterService {
   public void deleteTweet(long tweetId) throws ObjectNotFoundException {
     Tweet tweet = twitterTweetStorage.getTweetById(tweetId);
     if (tweet == null) {
-      throw new ObjectNotFoundException("Tweet with id : " + tweetId + " wasn't found");
+      throw new ObjectNotFoundException("Tweet with id : " + tweetId + NOT_FOUND);
     }
     twitterTweetStorage.deleteTweet(tweetId);
   }
@@ -288,7 +286,7 @@ public class TwitterServiceImpl implements TwitterService {
     }
     TwitterAccount account = twitterAccountStorage.getTwitterAccountById(accountId);
     if (account == null) {
-      throw new ObjectNotFoundException("Twitter account with id : " + accountId + " wasn't found");
+      throw new ObjectNotFoundException("Twitter account with id : " + accountId + NOT_FOUND);
     }
     twitterAccountStorage.updateAccountLastMentionTweetId(accountId, lastMentionTweetId);
   }
@@ -299,7 +297,7 @@ public class TwitterServiceImpl implements TwitterService {
     }
     Tweet tweet = twitterTweetStorage.getTweetById(tweetId);
     if (tweet == null) {
-      throw new ObjectNotFoundException("Tweet with id : " + tweetId + " wasn't found");
+      throw new ObjectNotFoundException("Tweet with id : " + tweetId + NOT_FOUND);
     }
     twitterTweetStorage.updateTweetReactions(tweetId, likers, retweeters);
   }

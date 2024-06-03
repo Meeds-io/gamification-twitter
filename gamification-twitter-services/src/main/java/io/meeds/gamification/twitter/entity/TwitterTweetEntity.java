@@ -25,35 +25,27 @@ import lombok.Data;
 
 @Entity(name = "TwitterTweets")
 @Table(name = "TWITTER_TWEETS")
-
-@NamedQuery(name = "TwitterTweets.getTweetByLink",
-        query = "SELECT tweet FROM TwitterTweets tweet"
-                + " WHERE tweet.tweetLink = :tweetLink")
-@NamedQuery(name = "TwitterTweets.getTweetsIds",
-        query = "SELECT tweet.tweetId FROM TwitterTweets tweet"
-                + " ORDER BY tweet.tweetId ASC")
-
 @Data
 public class TwitterTweetEntity implements Serializable {
 
-    private static final long serialVersionUID = -4871930064565777769L;
+  private static final long serialVersionUID = -4871930064565777769L;
 
-    @Id
-    @SequenceGenerator(name = "SEQ_TWITTER_ACCOUNTS_ID", sequenceName = "SEQ_TWITTER_ACCOUNTS_ID", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_TWITTER_ACCOUNTS_ID")
-    @Column(name = "TWEET_ID")
-    private Long   tweetId;
+  @Id
+  @SequenceGenerator(name = "SEQ_TWITTER_ACCOUNTS_ID", sequenceName = "SEQ_TWITTER_ACCOUNTS_ID", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_TWITTER_ACCOUNTS_ID")
+  @Column(name = "TWEET_ID")
+  private Long              id;
 
-    @Column(name = "TWEET_LINK")
-    private String   tweetLink;
+  @Column(name = "TWEET_LINK")
+  private String            tweetLink;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "TWITTER_TWEET_LIKERS", joinColumns = @JoinColumn(name = "TWEET_ID"))
-    @Column(name = "LIKER_USERNAME")
-    private Set<String> likers;
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "TWITTER_TWEET_LIKERS", joinColumns = @JoinColumn(name = "TWEET_ID"))
+  @Column(name = "LIKER_USERNAME")
+  private Set<String>       likers;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "TWITTER_TWEET_RETWEETERS", joinColumns = @JoinColumn(name = "TWEET_ID"))
-    @Column(name = "RETWEETER_USERNAME")
-    private Set<String> retweeters;
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "TWITTER_TWEET_RETWEETERS", joinColumns = @JoinColumn(name = "TWEET_ID"))
+  @Column(name = "RETWEETER_USERNAME")
+  private Set<String>       retweeters;
 }

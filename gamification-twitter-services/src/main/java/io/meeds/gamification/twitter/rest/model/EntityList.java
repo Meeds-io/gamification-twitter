@@ -34,5 +34,5 @@ public class EntityList<T> {
 
   private int     limit;
 
-  private int     size;
+  private long    size;
 }

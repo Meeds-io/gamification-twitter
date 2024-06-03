@@ -19,9 +19,19 @@
 package io.meeds.gamification.twitter.service;
 
 import io.meeds.gamification.model.EventDTO;
-import io.meeds.gamification.twitter.BaseTwitterTest;
+import io.meeds.gamification.service.ConnectorService;
+import io.meeds.gamification.service.EventService;
+import io.meeds.gamification.service.TriggerService;
 import io.meeds.gamification.twitter.model.TwitterTrigger;
-import org.junit.Test;
+import io.meeds.gamification.twitter.service.impl.TwitterTriggerServiceImpl;
+import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,21 +42,34 @@ import static io.meeds.gamification.twitter.service.impl.TwitterTriggerServiceIm
 import static io.meeds.gamification.twitter.utils.Utils.*;
 import static org.mockito.Mockito.*;
 
-public class TwitterTriggerServiceTest extends BaseTwitterTest {
+@SpringBootTest(classes = { TwitterTriggerServiceImpl.class, })
+class TwitterTriggerServiceTest {
 
-  private static final String ADMIN_USER = "root1";
+  private static final String   USER = "root";
 
-  private static final String USER       = "root";
+  @MockBean
+  private ConnectorService      connectorService;
 
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    registerAdministratorUser(ADMIN_USER);
-    registerInternalUser(USER);
-  }
+  @MockBean
+  private EventService          eventService;
+
+  @MockBean
+  private TriggerService        triggerService;
+
+  @MockBean
+  private IdentityManager       identityManager;
+
+  @MockBean
+  private ListenerService       listenerService;
+
+  @MockBean
+  private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+  @Autowired
+  private TwitterTriggerService twitterTriggerService;
 
   @Test
-  public void testHandleTriggerAsync() throws Exception {
+  void testHandleTriggerAsync() throws Exception {
 
     TwitterTrigger twitterTrigger = new TwitterTrigger();
     twitterTrigger.setType("tweet");
@@ -54,7 +77,9 @@ public class TwitterTriggerServiceTest extends BaseTwitterTest {
     twitterTrigger.setTwitterUsername("liker");
     twitterTrigger.setTweetId(11112222L);
     when(triggerService.isTriggerEnabledForAccount(twitterTrigger.getTrigger(), twitterTrigger.getAccountId())).thenReturn(true);
-    when(connectorService.getAssociatedUsername(CONNECTOR_NAME, twitterTrigger.getTwitterUsername())).thenReturn("root1");
+    when(connectorService.getAssociatedUsername(CONNECTOR_NAME, twitterTrigger.getTwitterUsername())).thenReturn(USER);
+    Identity identity = mock(Identity.class);
+    when( identityManager.getOrCreateUserIdentity(USER)).thenReturn(identity);
     List<EventDTO> events = new ArrayList<>();
     EventDTO eventDTO = new EventDTO(1, "likeTweet", "twitter", "likeTweet", null, null);
     EventDTO eventDTO1 = new EventDTO(2, "likeTweet", "twitter", "likeTweet", null, null);
@@ -66,8 +91,8 @@ public class TwitterTriggerServiceTest extends BaseTwitterTest {
         + twitterTrigger.getTweetId() + "}";
 
     Map<String, String> gam = new HashMap<>();
-    gam.put("senderId", "root1");
-    gam.put("receiverId", "root1");
+    gam.put("senderId", USER);
+    gam.put("receiverId", USER);
     gam.put("objectId", "11112222");
     gam.put("objectType", "tweet");
     gam.put("ruleTitle", "likeTweet");

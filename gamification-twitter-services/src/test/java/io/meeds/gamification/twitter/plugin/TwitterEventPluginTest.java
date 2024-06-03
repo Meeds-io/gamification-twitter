@@ -18,8 +18,8 @@
  */
 package io.meeds.gamification.twitter.plugin;
 
-import io.meeds.gamification.twitter.BaseTwitterTest;
 import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +27,10 @@ import java.util.Map;
 
 import static io.meeds.gamification.twitter.plugin.TwitterEventPlugin.EVENT_TYPE;
 import static io.meeds.gamification.twitter.utils.Utils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TwitterEventPluginTest extends BaseTwitterTest {
+@SpringBootTest(classes = { TwitterEventPlugin.class, })
+public class TwitterEventPluginTest {
 
   @Test
   public void testIsValidEvent() {

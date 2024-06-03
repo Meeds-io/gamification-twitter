@@ -22,10 +22,12 @@ import io.meeds.gamification.twitter.model.Tweet;
 import io.meeds.gamification.twitter.model.TwitterAccount;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 
+@Service
 public interface TwitterService {
 
   /**
@@ -82,7 +84,7 @@ public interface TwitterService {
    * @throws IllegalAccessException when user is not authorized to get watched
    *           twitter accounts
    */
-  int countTwitterAccounts(String currentUser) throws IllegalAccessException;
+  long countTwitterAccounts(String currentUser) throws IllegalAccessException;
 
   /**
    * Add watched Twitter account.
@@ -133,7 +135,7 @@ public interface TwitterService {
    *
    * @return Watched tweets count
    */
-  int countTweets();
+  long countTweets();
 
   /**
    * Retrieves a watched tweet identified by its link

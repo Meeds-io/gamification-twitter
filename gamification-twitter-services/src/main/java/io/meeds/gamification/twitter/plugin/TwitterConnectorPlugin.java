@@ -26,6 +26,7 @@ import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 import io.meeds.gamification.model.RemoteConnectorSettings;
 import io.meeds.gamification.plugin.ConnectorPlugin;
+import io.meeds.gamification.service.ConnectorService;
 import io.meeds.gamification.service.ConnectorSettingService;
 import io.meeds.gamification.twitter.model.TwitterAccessTokenContext;
 import io.meeds.gamification.twitter.model.TwitterOAuth20Api;
@@ -33,10 +34,13 @@ import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
 import io.meeds.oauth.utils.HttpResponseContext;
 import io.meeds.oauth.utils.OAuthUtils;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -45,18 +49,26 @@ import java.util.concurrent.ExecutionException;
 
 import static io.meeds.gamification.twitter.utils.Utils.CONNECTOR_NAME;
 
+@Component
 public class TwitterConnectorPlugin extends ConnectorPlugin {
 
-  private static final Log              LOG = ExoLogger.getLogger(TwitterConnectorPlugin.class);
+  private static final Log        LOG  = ExoLogger.getLogger(TwitterConnectorPlugin.class);
 
-  private final ConnectorSettingService connectorSettingService;
+  private static final String     NAME = "twitter";
 
-  private OAuth20Service                oAuthService;
+  private long                    remoteConnectorId;
 
-  private long                          remoteConnectorId;
+  private OAuth20Service          oAuthService;
 
-  public TwitterConnectorPlugin(ConnectorSettingService connectorSettingService) {
-    this.connectorSettingService = connectorSettingService;
+  @Autowired
+  private ConnectorSettingService connectorSettingService;
+
+  @Autowired
+  private ConnectorService        connectorService;
+
+  @PostConstruct
+  public void initData() {
+    connectorService.addPlugin(this);
   }
 
   @Override
@@ -92,6 +104,11 @@ public class TwitterConnectorPlugin extends ConnectorPlugin {
   @Override
   public String getConnectorName() {
     return CONNECTOR_NAME;
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
   }
 
   private OAuth20Service getOAuthService(RemoteConnectorSettings remoteConnectorSettings) {

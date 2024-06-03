@@ -1,8 +1,8 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
- * Copyright (C) 2022 Meeds Association contact@meeds.io
- * 
+ *
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -14,31 +14,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
  */
-package io.meeds.gamification.twitter.storage.cached.model;
+package io.meeds.gamification.twitter.plugin;
 
-import java.io.Serializable;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class CacheKey implements Serializable {
+import static io.meeds.gamification.twitter.utils.Utils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-  private static final long serialVersionUID = -7490772779963803443L;
+@SpringBootTest(classes = { TwitterConnectorPlugin.class, })
+public class TwitterConnectorPluginTest {
 
-  private long              remoteId;
+    @Test
+    public void testValidateToken() {
+        // When
+        TwitterConnectorPlugin twitterConnectorPlugin = new TwitterConnectorPlugin();
 
-  private String            bearerToken;
-
-  private Integer           context;
-
-  public CacheKey(Integer context, long remoteId, String bearerToken) {
-    this.remoteId = remoteId;
-    this.bearerToken = bearerToken;
-    this.context = context;
-  }
+        // Then
+        assertEquals(CONNECTOR_NAME, twitterConnectorPlugin.getConnectorName());
+        assertEquals(CONNECTOR_NAME, twitterConnectorPlugin.getName());
+    }
 }
