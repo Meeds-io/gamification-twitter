@@ -69,7 +69,7 @@ export default {
   },
   computed: {
     tweetLink() {
-      return this.properties?.tweetLink;
+      return this.convertXtoTwitter(this.properties?.tweetLink);
     },
     accountId() {
       return this.properties?.accountId;
@@ -124,6 +124,10 @@ export default {
           this.account = data.entities.find(a => a.remoteId === this.accountId);
         })        .finally(() => this.loading = false);
 
+    },
+    convertXtoTwitter(url) {
+      const xComRegex = /^https:\/\/x\.com\//;
+      return url.replace(xComRegex, 'https://twitter.com/');
     }
   }
 };

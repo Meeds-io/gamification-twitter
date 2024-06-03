@@ -186,7 +186,7 @@ export default {
       }, this.endTypingKeywordTimeout);
     },
     checkTweetLink(tweetLink) {
-      const tweetUrlRegex = /^https:\/\/twitter\.com\/[^/]+\/status\/\d+$/;
+      const tweetUrlRegex = /^https:\/\/(twitter\.com|x\.com)\/[^/]+\/status\/\d+$/;
       this.isValidLink = tweetUrlRegex.test(tweetLink);
       return this.isValidLink;
     },
