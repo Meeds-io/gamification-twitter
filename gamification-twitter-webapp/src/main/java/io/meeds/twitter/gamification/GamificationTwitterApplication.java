@@ -19,6 +19,7 @@
 package io.meeds.twitter.gamification;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.PropertySource;
 
 import io.meeds.spring.AvailableIntegration;
@@ -32,6 +33,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     AvailableIntegration.LIQUIBASE_MODULE,
     AvailableIntegration.WEB_MODULE,
   })
+@EnableCaching
 @EnableJpaRepositories(basePackages = GamificationTwitterApplication.MODULE_NAME)
 @PropertySource("classpath:application.properties")
 @PropertySource("classpath:application-common.properties")

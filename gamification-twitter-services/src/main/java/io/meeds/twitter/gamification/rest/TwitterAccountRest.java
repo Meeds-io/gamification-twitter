@@ -174,7 +174,7 @@ public class TwitterAccountRest {
                                                                        int offset,
                                                                        int limit,
                                                                        boolean forceUpdate) throws IllegalAccessException {
-    Collection<TwitterAccount> twitterAccounts = twitterService.getTwitterAccounts(username, offset, limit, forceUpdate);
-    return TwitterAccountBuilder.toRestEntities(twitterService, twitterConsumerService, twitterAccounts);
+    Collection<TwitterAccount> twitterAccounts = twitterService.getTwitterAccounts(username, offset, limit);
+    return TwitterAccountBuilder.toRestEntities(twitterService, twitterConsumerService, twitterAccounts, forceUpdate);
   }
 }

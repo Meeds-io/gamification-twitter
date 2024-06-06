@@ -25,7 +25,6 @@ import io.meeds.twitter.gamification.service.TwitterConsumerService;
 import io.meeds.twitter.gamification.storage.TwitterConsumerStorage;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,7 +42,10 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService {
   }
 
   @Override
-  public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken) {
+  public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken, boolean forceUpdate) {
+    if (forceUpdate) {
+      twitterConsumerStorage.evictCache();
+    }
     return twitterConsumerStorage.retrieveTwitterAccount(twitterRemoteId, bearerToken);
   }
 
@@ -63,11 +65,5 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService {
   @Override
   public List<TwitterTrigger> getMentionEvents(TwitterAccount twitterAccount, long lastMentionTweetId, String bearerToken) {
     return twitterConsumerStorage.getMentionEvents(twitterAccount, lastMentionTweetId, bearerToken);
-  }
-
-  @Override
-  @CacheEvict(value = "twitterAccount", allEntries = true)
-  public void clearCache() {
-    twitterConsumerStorage.clearCache();
   }
 }

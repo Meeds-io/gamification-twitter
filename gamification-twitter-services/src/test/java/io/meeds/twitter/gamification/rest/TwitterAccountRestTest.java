@@ -95,7 +95,7 @@ class TwitterAccountRestTest {
         + "?offset=0&limit=10&forceUpdate=false&returnSize=true").with(testSimpleUser()));
     response.andExpect(status().isOk());
 
-    doThrow(new IllegalAccessException()).when(twitterService).getTwitterAccounts(SIMPLE_USER, 0, 10, false);
+    doThrow(new IllegalAccessException()).when(twitterService).getTwitterAccounts(SIMPLE_USER, 0, 10);
 
     response = mockMvc.perform(get(REST_PATH + "?offset=0&limit=10&forceUpdate=false&returnSize=true").with(testSimpleUser()));
     response.andExpect(status().isUnauthorized());

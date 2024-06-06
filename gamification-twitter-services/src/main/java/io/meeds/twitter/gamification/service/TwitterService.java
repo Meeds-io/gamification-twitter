@@ -36,15 +36,13 @@ public interface TwitterService {
    * @param currentUser user name attempting to access watched twitter accounts
    * @param offset Offset of result
    * @param limit Limit of result
-   * @param forceUpdate force Load remote accounts or not.
    * @return {@link List} of {@link TwitterAccount}
    * @throws IllegalAccessException when user is not authorized to access watched
    *           twitter accounts
    */
   List<TwitterAccount> getTwitterAccounts(String currentUser,
                                           int offset,
-                                          int limit,
-                                          boolean forceUpdate) throws IllegalAccessException;
+                                          int limit) throws IllegalAccessException;
 
   /**
    * Retrieves a watched twitter account identified by its technical identifier.

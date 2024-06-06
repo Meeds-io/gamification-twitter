@@ -52,6 +52,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
@@ -84,7 +85,6 @@ public class TwitterConsumerStorage {
 
   private HttpClient         client;
 
-  @Cacheable(value = "twitterAccount", key = "{#twitterUsername, #bearerToken}")
   public RemoteTwitterAccount retrieveTwitterAccount(String twitterUsername, String bearerToken) throws ObjectNotFoundException {
     URI uri = URI.create(TWITTER_API_URL + "/users/by/username/" + twitterUsername + "?user.fields=profile_image_url");
     String response;
@@ -107,7 +107,7 @@ public class TwitterConsumerStorage {
     return remoteTwitterAccount;
   }
 
-  @Cacheable(value = "twitterAccount", key = "{#twitterRemoteId, #bearerToken}")
+  @Cacheable(value = "RemoteTwitterAccount")
   public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken) {
     URI uri = URI.create(TWITTER_API_URL + "/users/" + twitterRemoteId + "?user.fields=profile_image_url,description");
     String response;
@@ -283,6 +283,11 @@ public class TwitterConsumerStorage {
     }
   }
 
+  @CacheEvict(value = "RemoteTwitterAccount", allEntries = true)
+  public void evictCache() {
+    // This method will evict the cache for all entries
+  }
+
   private String processGet(URI uri, String bearerToken) throws TwitterConnectionException {
     HttpClient httpClient = getHttpClient();
     HttpGet request = new HttpGet(uri);
@@ -357,14 +362,6 @@ public class TwitterConsumerStorage {
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
     connectionManager.setDefaultMaxPerRoute(10);
     return connectionManager;
-  }
-
-  public void clearCache() { // NOSONAR
-    // implemented in cached storage
-  }
-
-  public void clearCache(TwitterAccount twitterAccount, String bearerToken) {
-    // implemented in cached storage
   }
 
   @SuppressWarnings("unchecked")

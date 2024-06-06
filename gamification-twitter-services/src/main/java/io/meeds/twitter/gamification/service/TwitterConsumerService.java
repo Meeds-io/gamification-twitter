@@ -44,9 +44,10 @@ public interface TwitterConsumerService {
    *
    * @param twitterRemoteId Twitter account remote Id
    * @param bearerToken Twitter bearer token
+   * @param forceUpdate force Load remote webhooks count or not.
    * @return {@link RemoteTwitterAccount}
    */
-  RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken);
+  RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken, boolean forceUpdate);
 
   /**
    * Retrieve the list of tweet likers.
@@ -83,9 +84,4 @@ public interface TwitterConsumerService {
    * @param bearerToken Twitter bearer token
    */
   List<TwitterTrigger> getMentionEvents(TwitterAccount twitterAccount, long lastMentionTweetId, String bearerToken);
-
-  /**
-   * clear remote twitter account entities cache
-   */
-  void clearCache();
 }

@@ -24,7 +24,14 @@ import io.meeds.twitter.gamification.dao.TwitterAccountDAO;
 import io.meeds.twitter.gamification.entity.TwitterAccountEntity;
 import io.meeds.twitter.gamification.model.TwitterAccount;
 import io.meeds.twitter.gamification.storage.mapper.TwitterAccountMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
+import org.exoplatform.web.security.codec.CodecInitializer;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -36,8 +43,18 @@ import static io.meeds.twitter.gamification.storage.mapper.TwitterAccountMapper.
 @Repository
 public class TwitterAccountStorage {
 
+  private static final Scope  TWITTER_CONNECTOR_SCOPE = Scope.APPLICATION.id("twitterConnector");
+
+  private static final String BEARER_TOKEN_KEY        = "BEARER_TOKEN";
+
   @Autowired
-  private TwitterAccountDAO twitterAccountDAO;
+  private TwitterAccountDAO   twitterAccountDAO;
+
+  @Autowired
+  private SettingService      settingService;
+
+  @Autowired
+  private CodecInitializer    codecInitializer;
 
   public TwitterAccount addTwitterAccount(TwitterAccount twitterAccount) throws ObjectAlreadyExistsException {
     TwitterAccount existsAccount = getTwitterAccountByRemoteId(twitterAccount.getRemoteId());
@@ -90,5 +107,38 @@ public class TwitterAccountStorage {
       twitterAccountDAO.delete(twitterAccountEntity);
     }
     return fromEntity(twitterAccountEntity);
+  }
+
+  public void saveTwitterBearerToken(String bearerToken) {
+    String encodedBearerToken = encode(bearerToken);
+    this.settingService.set(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY, SettingValue.create(encodedBearerToken));
+  }
+
+  public void deleteTwitterBearerToken() {
+    this.settingService.remove(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY);
+  }
+
+  public String getTwitterBearerToken() {
+    SettingValue<?> settingValue = settingService.get(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY);
+    if (settingValue != null && settingValue.getValue() != null && StringUtils.isNotBlank(settingValue.getValue().toString())) {
+      return decode(settingValue.getValue().toString());
+    }
+    return null;
+  }
+
+  private String encode(String token) {
+    try {
+      return codecInitializer.getCodec().encode(token);
+    } catch (TokenServiceInitializationException e) {
+      throw new IllegalStateException("Error encrypting token", e);
+    }
+  }
+
+  private String decode(String encryptedToken) {
+    try {
+      return codecInitializer.getCodec().decode(encryptedToken);
+    } catch (TokenServiceInitializationException e) {
+      throw new IllegalStateException("Error decrypting token", e);
+    }
   }
 }

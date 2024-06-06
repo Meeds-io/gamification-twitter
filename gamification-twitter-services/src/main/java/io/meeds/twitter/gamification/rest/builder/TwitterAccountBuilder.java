@@ -36,14 +36,15 @@ public class TwitterAccountBuilder {
   public static TwitterAccountRestEntity toRestEntity(String twitterBearerToken,
                                                       TokenStatus tokenStatus,
                                                       TwitterConsumerService twitterConsumerService,
-                                                      TwitterAccount twitterAccount) {
+                                                      TwitterAccount twitterAccount,
+                                                      boolean forceUpdate) {
     if (twitterAccount == null) {
       return null;
     }
     RemoteTwitterAccount remoteTwitterAccount = null;
     if (Boolean.TRUE.equals(tokenStatus != null && tokenStatus.getIsValid() != null && tokenStatus.getIsValid())
         && tokenStatus.getRemaining() > 0) {
-      remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterAccount.getRemoteId(), twitterBearerToken);
+      remoteTwitterAccount = twitterConsumerService.retrieveTwitterAccount(twitterAccount.getRemoteId(), twitterBearerToken, forceUpdate);
     }
 
     return new TwitterAccountRestEntity(twitterAccount.getId(),
@@ -60,7 +61,8 @@ public class TwitterAccountBuilder {
 
   public static List<TwitterAccountRestEntity> toRestEntities(TwitterService twitterAccountService,
                                                               TwitterConsumerService twitterConsumerService,
-                                                              Collection<TwitterAccount> twitterAccounts) {
+                                                              Collection<TwitterAccount> twitterAccounts,
+                                                              boolean forceUpdate) {
     String twitterBearerToken = twitterAccountService.getTwitterBearerToken();
     TokenStatus tokenStatus = twitterConsumerService.checkTwitterTokenStatus(twitterBearerToken);
 
@@ -68,7 +70,8 @@ public class TwitterAccountBuilder {
                           .map(twitterAccount -> toRestEntity(twitterBearerToken,
                                                               tokenStatus,
                                                               twitterConsumerService,
-                                                              twitterAccount))
+                                                              twitterAccount,
+                                                              forceUpdate))
                           .toList();
   }
 }

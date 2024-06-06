@@ -33,15 +33,9 @@ import io.meeds.gamification.utils.Utils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
-import org.exoplatform.commons.api.settings.SettingService;
-import org.exoplatform.commons.api.settings.SettingValue;
-import org.exoplatform.commons.api.settings.data.Context;
-import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.web.security.codec.CodecInitializer;
-import org.exoplatform.web.security.security.TokenServiceInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -56,16 +50,9 @@ import static io.meeds.twitter.gamification.utils.Utils.CONNECTOR_NAME;
 @Service
 public class TwitterServiceImpl implements TwitterService {
 
-  private static final Log       LOG                     = ExoLogger.getLogger(TwitterServiceImpl.class);
+  private static final Log       LOG       = ExoLogger.getLogger(TwitterServiceImpl.class);
 
-  private static final Scope     TWITTER_CONNECTOR_SCOPE = Scope.APPLICATION.id("twitterConnector");
-
-  private static final String    BEARER_TOKEN_KEY        = "BEARER_TOKEN";
-
-  public static final String     NOT_FOUND               = " wasn't found";
-
-  @Autowired
-  private SettingService         settingService;
+  public static final String     NOT_FOUND = " wasn't found";
 
   @Autowired
   private TwitterConsumerService twitterConsumerService;
@@ -79,19 +66,12 @@ public class TwitterServiceImpl implements TwitterService {
   @Autowired
   private RuleService            ruleService;
 
-  @Autowired
-  private CodecInitializer       codecInitializer;
-
   @Override
   public List<TwitterAccount> getTwitterAccounts(String currentUser,
                                                  int offset,
-                                                 int limit,
-                                                 boolean forceUpdate) throws IllegalAccessException {
+                                                 int limit) throws IllegalAccessException {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to access Twitter watched accounts");
-    }
-    if (forceUpdate) {
-      twitterConsumerService.clearCache();
     }
     return getTwitterAccounts(offset, limit);
   }
@@ -174,7 +154,6 @@ public class TwitterServiceImpl implements TwitterService {
       throw new ObjectNotFoundException("Twitter account with remote id : " + twitterAccountId + NOT_FOUND);
     }
     twitterAccountStorage.deleteTwitterAccount(twitterAccountId);
-    twitterConsumerService.clearCache();
     RuleFilter ruleFilter = new RuleFilter(true);
     ruleFilter.setEventType(CONNECTOR_NAME);
     ruleFilter.setIncludeDeleted(true);
@@ -252,15 +231,15 @@ public class TwitterServiceImpl implements TwitterService {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to save or update Twitter Bearer Token");
     }
-    String encodedBearerToken = encode(bearerToken);
-    this.settingService.set(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY, SettingValue.create(encodedBearerToken));
+    twitterAccountStorage.saveTwitterBearerToken(bearerToken);
   }
 
+  @Override
   public void deleteTwitterBearerToken(String currentUser) throws IllegalAccessException {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to delete Twitter Bearer Token");
     }
-    this.settingService.remove(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY);
+    twitterAccountStorage.deleteTwitterBearerToken();
   }
 
   @Override
@@ -273,13 +252,10 @@ public class TwitterServiceImpl implements TwitterService {
 
   @Override
   public String getTwitterBearerToken() {
-    SettingValue<?> settingValue = settingService.get(Context.GLOBAL, TWITTER_CONNECTOR_SCOPE, BEARER_TOKEN_KEY);
-    if (settingValue != null && settingValue.getValue() != null && StringUtils.isNotBlank(settingValue.getValue().toString())) {
-      return decode(settingValue.getValue().toString());
-    }
-    return null;
+    return twitterAccountStorage.getTwitterBearerToken();
   }
 
+  @Override
   public void updateAccountLastMentionTweetId(long accountId, long lastMentionTweetId) throws ObjectNotFoundException {
     if (accountId <= 0) {
       throw new IllegalArgumentException("Account id must be positive");
@@ -291,6 +267,7 @@ public class TwitterServiceImpl implements TwitterService {
     twitterAccountStorage.updateAccountLastMentionTweetId(accountId, lastMentionTweetId);
   }
 
+  @Override
   public void updateTweetReactions(long tweetId, Set<String> likers, Set<String> retweeters) throws ObjectNotFoundException {
     if (tweetId <= 0) {
       throw new IllegalArgumentException("Tweet id must be positive");
@@ -300,21 +277,5 @@ public class TwitterServiceImpl implements TwitterService {
       throw new ObjectNotFoundException("Tweet with id : " + tweetId + NOT_FOUND);
     }
     twitterTweetStorage.updateTweetReactions(tweetId, likers, retweeters);
-  }
-
-  private String encode(String token) {
-    try {
-      return codecInitializer.getCodec().encode(token);
-    } catch (TokenServiceInitializationException e) {
-      throw new IllegalStateException("Error encrypting token", e);
-    }
-  }
-
-  private String decode(String encryptedToken) {
-    try {
-      return codecInitializer.getCodec().decode(encryptedToken);
-    } catch (TokenServiceInitializationException e) {
-      throw new IllegalStateException("Error decrypting token", e);
-    }
   }
 }

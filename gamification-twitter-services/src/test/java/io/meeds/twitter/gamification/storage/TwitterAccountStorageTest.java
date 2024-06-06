@@ -32,6 +32,8 @@ import java.util.Optional;
 import io.meeds.twitter.gamification.dao.TwitterAccountDAO;
 import io.meeds.twitter.gamification.entity.TwitterAccountEntity;
 import io.meeds.twitter.gamification.model.TwitterAccount;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.web.security.codec.CodecInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +60,13 @@ class TwitterAccountStorageTest {
 
   @MockBean
   private TwitterAccountDAO     twitterAccountDAO;
+
+  @MockBean
+  private SettingService        settingService;
+
+  @MockBean
+  private CodecInitializer codecInitializer;
+
 
   @BeforeEach
   void setup() {

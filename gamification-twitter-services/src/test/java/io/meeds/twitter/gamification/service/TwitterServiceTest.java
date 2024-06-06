@@ -33,9 +33,7 @@ import io.meeds.twitter.gamification.model.TwitterTrigger;
 import io.meeds.twitter.gamification.service.impl.TwitterServiceImpl;
 import io.meeds.twitter.gamification.storage.TwitterAccountStorage;
 import io.meeds.twitter.gamification.storage.TwitterTweetStorage;
-import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.web.security.codec.AbstractCodec;
 import org.exoplatform.web.security.codec.CodecInitializer;
 import org.gatein.common.util.Tools;
 import org.junit.jupiter.api.Assertions;
@@ -56,9 +54,6 @@ class TwitterServiceTest {
   private static final String    USER       = "user";
 
   @MockBean
-  private SettingService         settingService;
-
-  @MockBean
   private TwitterConsumerService twitterConsumerService;
 
   @MockBean
@@ -69,9 +64,6 @@ class TwitterServiceTest {
 
   @MockBean
   private RuleService            ruleService;
-
-  @MockBean
-  private CodecInitializer       codecInitializer;
 
   @Autowired
   private TwitterService         twitterService;
@@ -101,8 +93,8 @@ class TwitterServiceTest {
     when(twitterAccountStorage.countTwitterAccounts()).thenReturn(0L);
 
     // Then
-    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccounts(USER, 0, 10, true));
-    Assertions.assertNotNull(twitterService.getTwitterAccounts(ADMIN_USER, 0, 10, true));
+    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccounts(USER, 0, 10));
+    Assertions.assertNotNull(twitterService.getTwitterAccounts(ADMIN_USER, 0, 10));
     assertThrows(IllegalAccessException.class, () -> twitterService.countTwitterAccounts(USER));
     verify(twitterAccountStorage, times(1)).countTwitterAccounts();
     twitterService.getTwitterAccountById(1L);
@@ -135,7 +127,6 @@ class TwitterServiceTest {
 
     // Then
     verify(twitterAccountStorage, times(1)).deleteTwitterAccount(2L);
-    verify(twitterConsumerService, times(1)).clearCache();
     RuleFilter ruleFilter = new RuleFilter(true);
     ruleFilter.setEventType(CONNECTOR_NAME);
     ruleFilter.setIncludeDeleted(true);
@@ -150,13 +141,10 @@ class TwitterServiceTest {
     assertEquals("The user is not authorized to save or update Twitter Bearer Token", exception.getMessage());
 
     // When
-    AbstractCodec abstractCodec = mock(AbstractCodec.class);
-    when(codecInitializer.getCodec()).thenReturn(abstractCodec);
     twitterService.saveTwitterBearerToken("bearerToken", ADMIN_USER);
 
     // Then
-    verify(abstractCodec, times(1)).encode("bearerToken");
-    verify(settingService, times(1)).set(any(), any(), any(), any());
+    verify(twitterAccountStorage, times(1)).saveTwitterBearerToken("bearerToken");
   }
 
   @Test
