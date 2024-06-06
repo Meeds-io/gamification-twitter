@@ -23,7 +23,7 @@
   <parent>
     <groupId>io.meeds.gamification-twitter</groupId>
     <artifactId>gamification-twitter-parent</artifactId>
-    <version>7.0.x-exo-SNAPSHOT</version>
+    <version>7.0.0-exo-M20</version>
   </parent>
   <artifactId>gamification-twitter-webapp</artifactId>
   <packaging>war</packaging>
