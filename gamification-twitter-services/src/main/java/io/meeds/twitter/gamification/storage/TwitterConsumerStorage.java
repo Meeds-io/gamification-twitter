@@ -52,7 +52,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
@@ -281,11 +280,6 @@ public class TwitterConsumerStorage {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to retrieve Twitter bearer token status", e);
     }
-  }
-
-  @CacheEvict(value = "RemoteTwitterAccount", allEntries = true)
-  public void evictCache() {
-    // This method will evict the cache for all entries
   }
 
   private String processGet(URI uri, String bearerToken) throws TwitterConnectionException {

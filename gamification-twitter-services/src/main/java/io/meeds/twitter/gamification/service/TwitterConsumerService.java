@@ -44,10 +44,9 @@ public interface TwitterConsumerService {
    *
    * @param twitterRemoteId Twitter account remote Id
    * @param bearerToken Twitter bearer token
-   * @param forceUpdate force Load remote webhooks count or not.
    * @return {@link RemoteTwitterAccount}
    */
-  RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken, boolean forceUpdate);
+  RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken);
 
   /**
    * Retrieve the list of tweet likers.

@@ -85,19 +85,19 @@ class TwitterAccountRestTest {
 
   @Test
   void getWatchedAccountsAnonymously() throws Exception {
-    ResultActions response = mockMvc.perform(get(REST_PATH + "?offset=0&limit=10&forceUpdate=false&returnSize=true"));
+    ResultActions response = mockMvc.perform(get(REST_PATH + "?offset=0&limit=10&returnSize=true"));
     response.andExpect(status().isForbidden());
   }
 
   @Test
   void getWatchedAccountsSimpleUser() throws Exception {
     ResultActions response = mockMvc.perform(get(REST_PATH
-        + "?offset=0&limit=10&forceUpdate=false&returnSize=true").with(testSimpleUser()));
+        + "?offset=0&limit=10&returnSize=true").with(testSimpleUser()));
     response.andExpect(status().isOk());
 
     doThrow(new IllegalAccessException()).when(twitterService).getTwitterAccounts(SIMPLE_USER, 0, 10);
 
-    response = mockMvc.perform(get(REST_PATH + "?offset=0&limit=10&forceUpdate=false&returnSize=true").with(testSimpleUser()));
+    response = mockMvc.perform(get(REST_PATH + "?offset=0&limit=10&returnSize=true").with(testSimpleUser()));
     response.andExpect(status().isUnauthorized());
   }
 

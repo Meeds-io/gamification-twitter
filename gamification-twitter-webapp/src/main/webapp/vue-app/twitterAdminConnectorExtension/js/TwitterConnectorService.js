@@ -90,8 +90,8 @@ export function deleteAccountToWatch(accountId) {
   });
 }
 
-export function getWatchedAccounts(offset, limit, forceUpdate) {
-  return fetch(`/gamification-twitter/rest/twitter/accounts?offset=${offset || 0}&limit=${limit|| 10}&forceUpdate=${forceUpdate|| false}&returnSize=true`, {
+export function getWatchedAccounts(offset, limit) {
+  return fetch(`/gamification-twitter/rest/twitter/accounts?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {

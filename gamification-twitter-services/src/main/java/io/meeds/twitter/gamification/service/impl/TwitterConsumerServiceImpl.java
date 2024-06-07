@@ -42,10 +42,7 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService {
   }
 
   @Override
-  public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken, boolean forceUpdate) {
-    if (forceUpdate) {
-      twitterConsumerStorage.evictCache();
-    }
+  public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken) {
     return twitterConsumerStorage.retrieveTwitterAccount(twitterRemoteId, bearerToken);
   }
 

@@ -69,10 +69,6 @@ public class TwitterAccountRest {
                                                                  @Parameter(description = "Query results limit", required = true)
                                                                  @RequestParam("limit")
                                                                  Optional<Integer> limit,
-                                                                 @Parameter(description = "Force update accounts")
-                                                                 @Schema(defaultValue = "false")
-                                                                 @RequestParam("forceUpdate")
-                                                                 boolean forceUpdate,
                                                                  @Parameter(description = "Watched accounts total size")
                                                                  @Schema(defaultValue = "false")
                                                                  @RequestParam("returnSize")
@@ -83,8 +79,7 @@ public class TwitterAccountRest {
       EntityList<TwitterAccountRestEntity> accountEntityList = new EntityList<>();
       twitterAccountRestEntities = getTwitterAccountRestEntities(request.getRemoteUser(),
                                                                  offset.orElse(0),
-                                                                 limit.orElse(0),
-                                                                 forceUpdate);
+                                                                 limit.orElse(0));
       accountEntityList.setEntities(twitterAccountRestEntities);
       accountEntityList.setOffset(offset.orElse(0));
       accountEntityList.setLimit(limit.orElse(0));
@@ -172,9 +167,8 @@ public class TwitterAccountRest {
 
   private List<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username,
                                                                        int offset,
-                                                                       int limit,
-                                                                       boolean forceUpdate) throws IllegalAccessException {
+                                                                       int limit) throws IllegalAccessException {
     Collection<TwitterAccount> twitterAccounts = twitterService.getTwitterAccounts(username, offset, limit);
-    return TwitterAccountBuilder.toRestEntities(twitterService, twitterConsumerService, twitterAccounts, forceUpdate);
+    return TwitterAccountBuilder.toRestEntities(twitterService, twitterConsumerService, twitterAccounts);
   }
 }
