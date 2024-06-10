@@ -46,7 +46,7 @@ public class TwitterConnectionFilter {
 
   private long           remoteConnectorId;
 
-  @GetMapping("/twitterOauth")
+  @GetMapping("/oauth")
   public ModelAndView redirectToAuthorization() {
     ConnectorSettingService connectorSettingService = CommonsUtils.getService(ConnectorSettingService.class);
     RemoteConnectorSettings remoteConnectorSettings = connectorSettingService.getConnectorSettings(CONNECTOR_NAME);

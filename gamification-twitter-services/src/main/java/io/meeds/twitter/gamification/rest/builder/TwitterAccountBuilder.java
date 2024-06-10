@@ -17,15 +17,13 @@
  */
 package io.meeds.twitter.gamification.rest.builder;
 
-import java.util.Collection;
-import java.util.List;
-
 import io.meeds.twitter.gamification.model.RemoteTwitterAccount;
 import io.meeds.twitter.gamification.model.TokenStatus;
 import io.meeds.twitter.gamification.model.TwitterAccount;
 import io.meeds.twitter.gamification.rest.model.TwitterAccountRestEntity;
 import io.meeds.twitter.gamification.service.TwitterService;
 import io.meeds.twitter.gamification.service.TwitterConsumerService;
+import org.springframework.data.domain.Page;
 
 public class TwitterAccountBuilder {
 
@@ -58,17 +56,15 @@ public class TwitterAccountBuilder {
                                         remoteTwitterAccount != null ? remoteTwitterAccount.getAvatarUrl() : null);
   }
 
-  public static List<TwitterAccountRestEntity> toRestEntities(TwitterService twitterAccountService,
+  public static Page<TwitterAccountRestEntity> toRestEntities(TwitterService twitterAccountService,
                                                               TwitterConsumerService twitterConsumerService,
-                                                              Collection<TwitterAccount> twitterAccounts) {
+                                                              Page<TwitterAccount> twitterAccounts) {
     String twitterBearerToken = twitterAccountService.getTwitterBearerToken();
     TokenStatus tokenStatus = twitterConsumerService.checkTwitterTokenStatus(twitterBearerToken);
 
-    return twitterAccounts.stream()
-                          .map(twitterAccount -> toRestEntity(twitterBearerToken,
+    return twitterAccounts.map(twitterAccount -> toRestEntity(twitterBearerToken,
                                                               tokenStatus,
                                                               twitterConsumerService,
-                                                              twitterAccount))
-                          .toList();
+                                                              twitterAccount));
   }
 }

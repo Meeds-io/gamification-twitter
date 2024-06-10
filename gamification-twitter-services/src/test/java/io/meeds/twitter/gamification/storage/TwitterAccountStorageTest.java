@@ -45,6 +45,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @SpringBootTest(classes = { TwitterAccountStorage.class, })
@@ -54,6 +55,8 @@ class TwitterAccountStorageTest {
   private static final Long     ID        = 2L;
 
   private static final Long     REMOTE_ID = 1232L;
+
+  private static final Pageable PAGEABLE  = Pageable.ofSize(2);
 
   @Autowired
   private TwitterAccountStorage twitterAccountStorage;
@@ -65,8 +68,7 @@ class TwitterAccountStorageTest {
   private SettingService        settingService;
 
   @MockBean
-  private CodecInitializer codecInitializer;
-
+  private CodecInitializer      codecInitializer;
 
   @BeforeEach
   void setup() {
@@ -77,8 +79,7 @@ class TwitterAccountStorageTest {
       }
       when(twitterAccountDAO.findById(ID)).thenReturn(Optional.of(entity));
       when(twitterAccountDAO.findTwitterAccountEntityByRemoteId(REMOTE_ID)).thenReturn(entity);
-      PageRequest pageable = PageRequest.of(Math.toIntExact(0 / 10), 10, Sort.by(Sort.Direction.ASC, "id"));
-      when(twitterAccountDAO.findAll(pageable)).thenReturn(new PageImpl<>(List.of(entity)));
+      when(twitterAccountDAO.findAll(PAGEABLE)).thenReturn(new PageImpl<>(List.of(entity)));
       when(twitterAccountDAO.count()).thenReturn(1L);
       return entity;
     });
@@ -116,7 +117,7 @@ class TwitterAccountStorageTest {
 
     // Then
     assertNotNull(createdTwitterAccount);
-    assertEquals(List.of(createdTwitterAccount), twitterAccountStorage.getTwitterAccounts(0, 10));
+    assertEquals(new PageImpl<>(List.of(createdTwitterAccount)), twitterAccountStorage.getTwitterAccounts(PAGEABLE));
     assertEquals(1L, twitterAccountStorage.countTwitterAccounts());
   }
 

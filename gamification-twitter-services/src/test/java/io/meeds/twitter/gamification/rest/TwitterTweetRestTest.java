@@ -18,11 +18,16 @@
  */
 package io.meeds.twitter.gamification.rest;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import io.meeds.twitter.gamification.model.Tweet;
 import io.meeds.twitter.gamification.service.TwitterService;
+import org.gatein.common.util.Tools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +37,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,6 +51,8 @@ import io.meeds.spring.web.security.PortalAuthenticationManager;
 import io.meeds.spring.web.security.WebSecurityConfiguration;
 import jakarta.servlet.Filter;
 
+import java.util.List;
+
 @SpringBootTest(classes = { TwitterTweetRest.class, PortalAuthenticationManager.class, })
 @ContextConfiguration(classes = { WebSecurityConfiguration.class })
 @AutoConfigureWebMvc
@@ -52,7 +60,7 @@ import jakarta.servlet.Filter;
 @ExtendWith(MockitoExtension.class)
 class TwitterTweetRestTest {
 
-  private static final String   REST_PATH     = "/twitter/tweets"; // NOSONAR
+  private static final String   REST_PATH     = "/tweets";     // NOSONAR
 
   private static final String   SIMPLE_USER   = "simple";
 
@@ -76,18 +84,24 @@ class TwitterTweetRestTest {
 
   @Test
   void getWatchedTweetsAnonymously() throws Exception {
-    ResultActions response = mockMvc.perform(get(REST_PATH + "?offset=0&limit=10&returnSize=true"));
+    ResultActions response = mockMvc.perform(get(REST_PATH));
     response.andExpect(status().isForbidden());
   }
 
   @Test
   void getWatchedTweetsSimpleUser() throws Exception {
-    ResultActions response = mockMvc.perform(get(REST_PATH + "?offset=0&limit=10&returnSize=true").with(testSimpleUser()));
+    when(twitterService.getTweets(any())).thenReturn(new PageImpl<>(List.of(newWatchedTweet())));
+
+    ResultActions response = mockMvc.perform(get(REST_PATH).with(testSimpleUser()));
     response.andExpect(status().isOk());
   }
 
   private RequestPostProcessor testSimpleUser() {
     return user(SIMPLE_USER).password(TEST_PASSWORD).authorities(new SimpleGrantedAuthority("users"));
+  }
+
+  private Tweet newWatchedTweet() {
+    return new Tweet(1, "tweetLink", Tools.toSet("user1", "user2", "user3"), Tools.toSet("user1", "user2"));
   }
 
 }

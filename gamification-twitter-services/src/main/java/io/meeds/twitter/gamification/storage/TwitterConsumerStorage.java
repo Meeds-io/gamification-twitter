@@ -106,7 +106,7 @@ public class TwitterConsumerStorage {
     return remoteTwitterAccount;
   }
 
-  @Cacheable(value = "RemoteTwitterAccount")
+  @Cacheable(value = "gamification.twitter.remoteAccount")
   public RemoteTwitterAccount retrieveTwitterAccount(long twitterRemoteId, String bearerToken) {
     URI uri = URI.create(TWITTER_API_URL + "/users/" + twitterRemoteId + "?user.fields=profile_image_url,description");
     String response;

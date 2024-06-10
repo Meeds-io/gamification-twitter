@@ -38,6 +38,8 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,13 +69,12 @@ public class TwitterServiceImpl implements TwitterService {
   private RuleService            ruleService;
 
   @Override
-  public List<TwitterAccount> getTwitterAccounts(String currentUser,
-                                                 int offset,
-                                                 int limit) throws IllegalAccessException {
+  public Page<TwitterAccount> getTwitterAccounts(String currentUser,
+                                                 Pageable pageable) throws IllegalAccessException {
     if (!Utils.isRewardingManager(currentUser)) {
       throw new IllegalAccessException("The user is not authorized to access Twitter watched accounts");
     }
-    return getTwitterAccounts(offset, limit);
+    return getTwitterAccounts(pageable);
   }
 
   @Override
@@ -98,8 +99,13 @@ public class TwitterServiceImpl implements TwitterService {
   }
 
   @Override
-  public List<TwitterAccount> getTwitterAccounts(int offset, int limit) {
-    return twitterAccountStorage.getTwitterAccounts(offset, limit);
+  public Page<TwitterAccount> getTwitterAccounts(Pageable pageable) {
+    return twitterAccountStorage.getTwitterAccounts(pageable);
+  }
+
+  @Override
+  public List<TwitterAccount> getTwitterAccounts() {
+    return twitterAccountStorage.getTwitterAccounts();
   }
 
   @Override
@@ -191,8 +197,13 @@ public class TwitterServiceImpl implements TwitterService {
   }
 
   @Override
-  public List<Tweet> getTweets(int offset, int limit) {
-    return twitterTweetStorage.getTweets(offset, limit);
+  public Page<Tweet> getTweets(Pageable pageable) {
+    return twitterTweetStorage.getTweets(pageable);
+  }
+
+  @Override
+  public List<Tweet> getTweets() {
+    return twitterTweetStorage.getTweets();
   }
 
   @Override

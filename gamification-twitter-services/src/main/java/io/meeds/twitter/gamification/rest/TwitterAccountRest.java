@@ -18,26 +18,25 @@
  */
 package io.meeds.twitter.gamification.rest;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
 import io.meeds.twitter.gamification.model.TwitterAccount;
 import io.meeds.twitter.gamification.rest.builder.TwitterAccountBuilder;
-import io.meeds.twitter.gamification.rest.model.EntityList;
 import io.meeds.twitter.gamification.rest.model.TwitterAccountRestEntity;
 import io.meeds.twitter.gamification.service.TwitterConsumerService;
 import io.meeds.twitter.gamification.service.TwitterService;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.hateoas.EntityModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +45,8 @@ import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 @RestController
-@RequestMapping("twitter/accounts")
-@Tag(name = "twitter/watch", description = "Manage and access twitter watched accounts") // NOSONAR
+@RequestMapping("accounts")
+@Tag(name = "accounts", description = "Manage and access twitter watched accounts") // NOSONAR
 public class TwitterAccountRest {
 
   @Autowired
@@ -62,32 +61,14 @@ public class TwitterAccountRest {
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "401", description = "Unauthorized operation"),
       @ApiResponse(responseCode = "500", description = "Internal server error") })
-  public EntityList<TwitterAccountRestEntity> getWatchedAccounts(HttpServletRequest request,
-                                                                 @Parameter(description = "Query Offset", required = true)
-                                                                 @RequestParam("offset")
-                                                                 Optional<Integer> offset,
-                                                                 @Parameter(description = "Query results limit", required = true)
-                                                                 @RequestParam("limit")
-                                                                 Optional<Integer> limit,
-                                                                 @Parameter(description = "Watched accounts total size")
-                                                                 @Schema(defaultValue = "false")
-                                                                 @RequestParam("returnSize")
-                                                                 boolean returnSize) {
+  public PagedModel<EntityModel<TwitterAccountRestEntity>> getWatchedAccounts(HttpServletRequest request,
+                                                                              Pageable pageable,
+                                                                              PagedResourcesAssembler<TwitterAccountRestEntity> assembler) {
 
-    List<TwitterAccountRestEntity> twitterAccountRestEntities;
     try {
-      EntityList<TwitterAccountRestEntity> accountEntityList = new EntityList<>();
-      twitterAccountRestEntities = getTwitterAccountRestEntities(request.getRemoteUser(),
-                                                                 offset.orElse(0),
-                                                                 limit.orElse(0));
-      accountEntityList.setEntities(twitterAccountRestEntities);
-      accountEntityList.setOffset(offset.orElse(0));
-      accountEntityList.setLimit(limit.orElse(0));
-      if (returnSize) {
-        long twitterAccountsSize = twitterService.countTwitterAccounts(request.getRemoteUser());
-        accountEntityList.setSize(twitterAccountsSize);
-      }
-      return accountEntityList;
+      Page<TwitterAccountRestEntity> twitterAccountRestEntities =
+                                                                getTwitterAccountRestEntities(request.getRemoteUser(), pageable);
+      return assembler.toModel(twitterAccountRestEntities);
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
@@ -165,10 +146,9 @@ public class TwitterAccountRest {
     }
   }
 
-  private List<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username,
-                                                                       int offset,
-                                                                       int limit) throws IllegalAccessException {
-    Collection<TwitterAccount> twitterAccounts = twitterService.getTwitterAccounts(username, offset, limit);
+  private Page<TwitterAccountRestEntity> getTwitterAccountRestEntities(String username,
+                                                                       Pageable pageable) throws IllegalAccessException {
+    Page<TwitterAccount> twitterAccounts = twitterService.getTwitterAccounts(username, pageable);
     return TwitterAccountBuilder.toRestEntities(twitterService, twitterConsumerService, twitterAccounts);
   }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,8 +33,8 @@ import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.TokenServiceInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import static io.meeds.twitter.gamification.storage.mapper.TwitterAccountMapper.fromEntity;
@@ -74,13 +74,14 @@ public class TwitterAccountStorage {
     return fromEntity(twitterAccountDAO.findById(id).orElse(null));
   }
 
-  public List<TwitterAccount> getTwitterAccounts(int offset, int limit) {
-    if (limit > 0) {
-      PageRequest pageable = PageRequest.of(Math.toIntExact(offset / limit), limit, Sort.by(Sort.Direction.ASC, "id"));
-      return twitterAccountDAO.findAll(pageable).getContent().stream().map(TwitterAccountMapper::fromEntity).toList();
-    } else {
-      return twitterAccountDAO.findAll().stream().map(TwitterAccountMapper::fromEntity).toList();
-    }
+  public Page<TwitterAccount> getTwitterAccounts(Pageable pageable) {
+    Page<TwitterAccountEntity> page = twitterAccountDAO.findAll(pageable);
+    return page.map(TwitterAccountMapper::fromEntity);
+  }
+
+  public List<TwitterAccount> getTwitterAccounts() {
+    List<TwitterAccountEntity> twitterAccountEntities = twitterAccountDAO.findAll();
+    return twitterAccountEntities.stream().map(TwitterAccountMapper::fromEntity).toList();
   }
 
   public long countTwitterAccounts() {

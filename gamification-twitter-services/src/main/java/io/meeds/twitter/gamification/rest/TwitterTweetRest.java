@@ -18,25 +18,24 @@
  */
 package io.meeds.twitter.gamification.rest;
 
-import java.util.List;
-import java.util.Optional;
-
-import io.meeds.twitter.gamification.rest.model.EntityList;
 import io.meeds.twitter.gamification.model.Tweet;
 import io.meeds.twitter.gamification.service.TwitterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("twitter/tweets")
+@RequestMapping("tweets")
 @Tag(name = "twitter/tweets", description = "Manage and access twitter watched tweets") // NOSONAR
 public class TwitterTweetRest {
 
@@ -47,25 +46,9 @@ public class TwitterTweetRest {
   @Secured("users")
   @Operation(summary = "Retrieves the list of twitter watched tweet", method = "GET")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized operation"), })
-  public EntityList<Tweet> getWatchedTweets(@Parameter(description = "Query Offset", required = true)
-  @RequestParam("offset")
-  Optional<Integer> offset,
-                                            @Parameter(description = "Query results limit", required = true)
-                                            @RequestParam("limit")
-                                            Optional<Integer> limit,
-                                            @Parameter(description = "Watched tweet total size")
-                                            @Schema(defaultValue = "false")
-                                            @RequestParam("returnSize")
-                                            boolean returnSize) {
-    List<Tweet> tweet = twitterService.getTweets(offset.orElse(0), limit.orElse(0));
-    EntityList<Tweet> tweetEntityList = new EntityList<>();
-    tweetEntityList.setEntities(tweet);
-    tweetEntityList.setOffset(offset.orElse(0));
-    tweetEntityList.setLimit(limit.orElse(0));
-    if (returnSize) {
-      tweetEntityList.setSize(twitterService.countTweets());
-    }
-    return tweetEntityList;
+                          @ApiResponse(responseCode = "401", description = "Unauthorized operation"), })
+  public PagedModel<EntityModel<Tweet>> getWatchedTweets(Pageable pageable, PagedResourcesAssembler<Tweet> assembler) {
+    Page<Tweet> tweets = twitterService.getTweets(pageable);
+    return assembler.toModel(tweets);
   }
 }

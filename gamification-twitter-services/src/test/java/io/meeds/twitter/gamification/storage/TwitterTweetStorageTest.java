@@ -40,21 +40,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @SpringBootTest(classes = { TwitterTweetStorage.class, })
 @ExtendWith(MockitoExtension.class)
 class TwitterTweetStorageTest {
 
-  private static final Long   ID         = 2L;
+  private static final Long     ID         = 2L;
 
-  private static final String TWEET_LINK = "tweetLink";
+  private static final String   TWEET_LINK = "tweetLink";
+
+  private static final Pageable PAGEABLE   = Pageable.ofSize(2);
 
   @Autowired
-  private TwitterTweetStorage twitterTweetStorage;
+  private TwitterTweetStorage   twitterTweetStorage;
 
   @MockBean
-  private TwitterTweetDAO     twitterTweetDAO;
+  private TwitterTweetDAO       twitterTweetDAO;
 
   @BeforeEach
   void setup() {
@@ -65,8 +68,7 @@ class TwitterTweetStorageTest {
       }
       when(twitterTweetDAO.findById(ID)).thenReturn(Optional.of(entity));
       when(twitterTweetDAO.findTwitterTweetEntityByTweetLink(TWEET_LINK)).thenReturn(entity);
-      PageRequest pageable = PageRequest.of(Math.toIntExact(0 / 10), 10, Sort.by(Sort.Direction.ASC, "id"));
-      when(twitterTweetDAO.findAll(pageable)).thenReturn(new PageImpl<>(List.of(entity)));
+      when(twitterTweetDAO.findAll(PAGEABLE)).thenReturn(new PageImpl<>(List.of(entity)));
       when(twitterTweetDAO.count()).thenReturn(1L);
       return entity;
     });
@@ -117,7 +119,7 @@ class TwitterTweetStorageTest {
 
     // Then
     assertNotNull(createdTweet);
-    assertEquals(List.of(createdTweet), twitterTweetStorage.getTweets(0, 10));
+    assertEquals(new PageImpl<>(List.of(createdTweet)), twitterTweetStorage.getTweets(PAGEABLE));
     assertEquals(1L, twitterTweetStorage.countTweets());
   }
 

@@ -16,7 +16,7 @@
  */
 
 export function checkTwitterTokenStatus() {
-  return fetch('/gamification-twitter/rest/twitter/settings', {
+  return fetch('/gamification-twitter/rest/settings', {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -31,7 +31,7 @@ export function checkTwitterTokenStatus() {
 export function saveBearerToken(bearerToken) {
   const formData = new FormData();
   formData.append('bearerToken', bearerToken);
-  return fetch('/gamification-twitter/rest/twitter/settings', {
+  return fetch('/gamification-twitter/rest/settings', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -46,7 +46,7 @@ export function saveBearerToken(bearerToken) {
 }
 
 export function deleteTwitterBearerToken() {
-  return fetch('/gamification-twitter/rest/twitter/settings', {
+  return fetch('/gamification-twitter/rest/settings', {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -59,7 +59,7 @@ export function deleteTwitterBearerToken() {
 export function addAccountToWatch(twitterUsername) {
   const formData = new FormData();
   formData.append('twitterUsername', twitterUsername);
-  return fetch('/gamification-twitter/rest/twitter/accounts', {
+  return fetch('/gamification-twitter/rest/accounts', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -80,7 +80,7 @@ export function addAccountToWatch(twitterUsername) {
 }
 
 export function deleteAccountToWatch(accountId) {
-  return fetch(`/gamification-twitter/rest/twitter/accounts/${accountId}`, {
+  return fetch(`/gamification-twitter/rest/accounts/${accountId}`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -90,8 +90,20 @@ export function deleteAccountToWatch(accountId) {
   });
 }
 
-export function getWatchedAccounts(offset, limit) {
-  return fetch(`/gamification-twitter/rest/twitter/accounts?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true`, {
+export function getWatchedAccounts(paramsObj) {
+  const formData = new FormData();
+  if (paramsObj) {
+    Object.keys(paramsObj).forEach(key => {
+      const value = paramsObj[key];
+      if (window.Array && Array.isArray && Array.isArray(value)) {
+        value.forEach(val => formData.append(key, val));
+      } else {
+        formData.append(key, value);
+      }
+    });
+  }
+  const params = new URLSearchParams(formData).toString();
+  return fetch(`/gamification-twitter/rest/accounts?${params}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -104,7 +116,7 @@ export function getWatchedAccounts(offset, limit) {
 }
 
 export function getWatchedAccountById(accountId) {
-  return fetch(`/gamification-twitter/rest/twitter/accounts/${accountId}`, {
+  return fetch(`/gamification-twitter/rest/accounts/${accountId}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
@@ -116,8 +128,20 @@ export function getWatchedAccountById(accountId) {
   });
 }
 
-export function getWatchedTweets(offset, limit) {
-  return fetch(`/gamification-twitter/rest/twitter/tweets?offset=${offset || 0}&limit=${limit|| 10}&returnSize=true`, {
+export function getWatchedTweets(paramsObj) {
+  const formData = new FormData();
+  if (paramsObj) {
+    Object.keys(paramsObj).forEach(key => {
+      const value = paramsObj[key];
+      if (window.Array && Array.isArray && Array.isArray(value)) {
+        value.forEach(val => formData.append(key, val));
+      } else {
+        formData.append(key, value);
+      }
+    });
+  }
+  const params = new URLSearchParams(formData).toString();
+  return fetch(`/gamification-twitter/rest/tweets?${params}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {

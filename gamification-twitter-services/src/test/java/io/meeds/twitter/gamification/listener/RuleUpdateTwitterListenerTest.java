@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.elastic.clients.elasticsearch.ml.Page;
 import io.meeds.gamification.model.EventDTO;
 import io.meeds.gamification.model.RuleDTO;
 import io.meeds.gamification.model.filter.RuleFilter;
@@ -38,6 +39,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.ListenerService;
+import org.springframework.data.domain.PageImpl;
 
 @SpringBootTest(classes = { RuleUpdateTwitterListener.class, })
 class RuleUpdateTwitterListenerTest {
@@ -71,7 +73,7 @@ class RuleUpdateTwitterListenerTest {
     eventDTO.setProperties(properties);
     when(rule.getEvent()).thenReturn(eventDTO);
     when(ruleService.getRules(any(RuleFilter.class), anyInt(), anyInt())).thenReturn(List.of(rule));
-    when(twitterAccountService.getTweets(0, -1)).thenReturn(List.of(tweet));
+    when(twitterAccountService.getTweets(null)).thenReturn(new PageImpl<>(List.of(tweet)));
     when(twitterAccountService.getTwitterBearerToken()).thenReturn("bearerToken");
     ruleUpdateTwitterListener.onEvent(event);
     verify(twitterAccountService, times(1)).addTweetToWatch("tweetLink");

@@ -79,7 +79,7 @@ public class RuleUpdateTwitterListener extends Listener<RuleDTO, String> {
                                       .map(r -> r.getEvent().getProperties().get(Utils.TWEET_LINK))
                                       .toList();
 
-    List<Tweet> tweets = twitterAccountService.getTweets(0, -1);
+    List<Tweet> tweets = twitterAccountService.getTweets();
 
     String bearerToken = twitterAccountService.getTwitterBearerToken();
     watchedTweets.forEach(watchedTweet -> {

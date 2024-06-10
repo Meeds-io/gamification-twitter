@@ -120,25 +120,27 @@ export default {
   methods: {
     retrieveAccounts() {
       this.loadingAccounts = true;
-      return this.$twitterConnectorService.getWatchedAccounts()
-        .then(data => {
-          this.accounts = data.entities;
-        }).finally(() => {
-          if (this.properties) {
-            this.selected = this.accounts.find(a => a.remoteId === this.properties.accountId);
-            this.value = this.accounts.indexOf(this.selected);
-          } else if (this.accounts.length === 1) {
-            this.selected = this.accounts[0];
-            const eventProperties = {
-              accountId: this.selected?.remoteId.toString()
-            };
-            document.dispatchEvent(new CustomEvent('event-form-filled', {detail: eventProperties}));
-            this.value = this.accounts.indexOf(this.selected);
-          } else {
-            document.dispatchEvent(new CustomEvent('event-form-unfilled'));
-          }
-          this.loadingAccounts = false;
-        });
+      return this.$twitterConnectorService.getWatchedAccounts({
+        page: 0,
+        size: 5,
+      }).then(data => {
+        this.accounts = data?._embedded?.twitterAccountRestEntityList;
+      }).finally(() => {
+        if (this.properties) {
+          this.selected = this.accounts.find(a => a.remoteId === this.properties.accountId);
+          this.value = this.accounts.indexOf(this.selected);
+        } else if (this.accounts.length === 1) {
+          this.selected = this.accounts[0];
+          const eventProperties = {
+            accountId: this.selected?.remoteId.toString()
+          };
+          document.dispatchEvent(new CustomEvent('event-form-filled', {detail: eventProperties}));
+          this.value = this.accounts.indexOf(this.selected);
+        } else {
+          document.dispatchEvent(new CustomEvent('event-form-unfilled'));
+        }
+        this.loadingAccounts = false;
+      });
     },
     selectAccount(value) {
       this.selected = this.accounts[value];
@@ -170,10 +172,10 @@ export default {
             };
             this.$twitterConnectorService.getWatchedTweets()
               .then(data => {
-                const existingTweetIndex = data.entities.findIndex(t => t.tweetLink === this.tweetLink);
-                if (existingTweetIndex < 0 && data?.size >= 5) {
+                const existingTweetIndex = data?._embedded?.tweetList?.findIndex(t => t.tweetLink === this.tweetLink);
+                if (existingTweetIndex < 0 && data?.page?.totalElements >= 5) {
                   this.$root.$emit('alert-message', this.$t('gamification.event.detail.tweetLimitReached.error', {
-                    0: data?.size,
+                    0: data?.page?.totalElements,
                   }), 'info');
                 }
               }).finally(() => document.dispatchEvent(new CustomEvent('event-form-filled', {detail: eventProperties})));

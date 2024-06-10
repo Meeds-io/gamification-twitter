@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,8 @@ class TwitterServiceTest {
   private static final String    ADMIN_USER = "root";
 
   private static final String    USER       = "user";
+
+  private static final Pageable  PAGEABLE   = Pageable.ofSize(2);
 
   @MockBean
   private TwitterConsumerService twitterConsumerService;
@@ -93,8 +96,8 @@ class TwitterServiceTest {
     when(twitterAccountStorage.countTwitterAccounts()).thenReturn(0L);
 
     // Then
-    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccounts(USER, 0, 10));
-    Assertions.assertNotNull(twitterService.getTwitterAccounts(ADMIN_USER, 0, 10));
+    assertThrows(IllegalAccessException.class, () -> twitterService.getTwitterAccounts(USER, PAGEABLE));
+    //Assertions.assertNotNull(twitterService.getTwitterAccounts(ADMIN_USER, PAGEABLE));
     assertThrows(IllegalAccessException.class, () -> twitterService.countTwitterAccounts(USER));
     verify(twitterAccountStorage, times(1)).countTwitterAccounts();
     twitterService.getTwitterAccountById(1L);

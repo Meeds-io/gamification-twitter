@@ -55,7 +55,7 @@ import jakarta.servlet.Filter;
 @ExtendWith(MockitoExtension.class)
 class TwitterSettingsRestTest {
 
-  private static final String    REST_PATH     = "/twitter/settings"; // NOSONAR
+  private static final String    REST_PATH     = "/settings"; // NOSONAR
 
   private static final String    SIMPLE_USER   = "simple";
 

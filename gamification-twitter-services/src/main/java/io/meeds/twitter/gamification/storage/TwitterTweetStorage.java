@@ -22,8 +22,8 @@ import io.meeds.twitter.gamification.entity.TwitterTweetEntity;
 import io.meeds.twitter.gamification.model.Tweet;
 import io.meeds.twitter.gamification.storage.mapper.TwitterTweetMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -59,13 +59,14 @@ public class TwitterTweetStorage {
     return fromEntity(twitterTweetDAO.save(twitterTweetEntity));
   }
 
-  public List<Tweet> getTweets(int offset, int limit) {
-    if (limit > 0) {
-      PageRequest pageable = PageRequest.of(Math.toIntExact(offset / limit), limit, Sort.by(Sort.Direction.ASC, "id"));
-      return twitterTweetDAO.findAll(pageable).getContent().stream().map(TwitterTweetMapper::fromEntity).toList();
-    } else {
-      return twitterTweetDAO.findAll().stream().map(TwitterTweetMapper::fromEntity).toList();
-    }
+  public Page<Tweet> getTweets(Pageable pageable) {
+    Page<TwitterTweetEntity> page = twitterTweetDAO.findAll(pageable);
+    return page.map(TwitterTweetMapper::fromEntity);
+  }
+
+  public List<Tweet> getTweets() {
+    List<TwitterTweetEntity> twitterTweetEntities = twitterTweetDAO.findAll();
+    return twitterTweetEntities.stream().map(TwitterTweetMapper::fromEntity).toList();
   }
 
   public long countTweets() {

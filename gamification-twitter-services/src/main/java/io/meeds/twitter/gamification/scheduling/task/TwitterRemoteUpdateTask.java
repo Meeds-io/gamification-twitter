@@ -62,12 +62,12 @@ public class TwitterRemoteUpdateTask {
     if (StringUtils.isBlank(bearerToken)) {
       return;
     }
-    List<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts(0, -1);
-    if (CollectionUtils.isNotEmpty(twitterAccounts)) {
+    List<TwitterAccount> twitterAccounts = twitterAccountService.getTwitterAccounts();
+    if (!twitterAccounts.isEmpty()) {
       twitterAccounts.forEach(twitterAccount -> processTwitterAccount(twitterAccount, bearerToken));
     }
-    List<Tweet> tweets = twitterAccountService.getTweets(0, -1);
-    if (CollectionUtils.isNotEmpty(tweets)) {
+    List<Tweet> tweets = twitterAccountService.getTweets();
+    if (!tweets.isEmpty()) {
       tweets.forEach(tweet -> processTweetReactionsUpdate(tweet, bearerToken));
     }
   }

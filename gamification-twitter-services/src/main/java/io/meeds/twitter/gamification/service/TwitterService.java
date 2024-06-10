@@ -22,6 +22,8 @@ import io.meeds.twitter.gamification.model.Tweet;
 import io.meeds.twitter.gamification.model.TwitterAccount;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,18 +33,15 @@ import java.util.Set;
 public interface TwitterService {
 
   /**
-   * Get available watched twitter accounts using offset and limit.
+   * Get available watched twitter accounts using page.
    *
    * @param currentUser user name attempting to access watched twitter accounts
-   * @param offset Offset of result
-   * @param limit Limit of result
+   * @param pageable {@link Pageable} the page to be returned.
    * @return {@link List} of {@link TwitterAccount}
    * @throws IllegalAccessException when user is not authorized to access watched
    *           twitter accounts
    */
-  List<TwitterAccount> getTwitterAccounts(String currentUser,
-                                          int offset,
-                                          int limit) throws IllegalAccessException;
+  Page<TwitterAccount> getTwitterAccounts(String currentUser, Pageable pageable) throws IllegalAccessException;
 
   /**
    * Retrieves a watched twitter account identified by its technical identifier.
@@ -66,13 +65,19 @@ public interface TwitterService {
   TwitterAccount getTwitterAccountById(long accountId, String username) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
-   * Get available watched twitter accounts using offset and limit.
+   * Get available watched twitter accounts using page.
    *
-   * @param offset Offset of result
-   * @param limit Limit of result
+   * @param pageable {@link Pageable} the page to be returned.
    * @return {@link List} of {@link TwitterAccount}
    */
-  List<TwitterAccount> getTwitterAccounts(int offset, int limit);
+  Page<TwitterAccount> getTwitterAccounts(Pageable pageable);
+
+  /**
+   * Get all watched twitter accounts.
+   *
+   * @return {@link List} of {@link TwitterAccount}
+   */
+  List<TwitterAccount> getTwitterAccounts();
 
   /**
    * Count all watched twitter accounts
@@ -120,13 +125,19 @@ public interface TwitterService {
   Tweet addTweetToWatch(String tweetLink);
 
   /**
-   * Get available watched tweets using offset and limit.
+   * Get available watched tweets using page.
    *
-   * @param offset Offset of result
-   * @param limit Limit of result
+   * @param pageable {@link Pageable} the page to be returned.
    * @return {@link List} of {@link Tweet}
    */
-  List<Tweet> getTweets(int offset, int limit);
+  Page<Tweet> getTweets(Pageable pageable);
+
+  /**
+   * Get all watched tweets.
+   *
+   * @return {@link List} of {@link Tweet}
+   */
+  List<Tweet> getTweets();
 
   /**
    * Count all watched tweets

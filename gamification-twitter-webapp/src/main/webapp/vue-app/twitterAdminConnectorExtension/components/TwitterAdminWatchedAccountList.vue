@@ -175,15 +175,17 @@ export default {
     },
     refreshWatchedAccount() {
       this.loading = true;
-      return this.$twitterConnectorService.getWatchedAccounts(this.offset, this.limit)
-        .then(data => {
-          this.watchedAccounts = data.entities;
-          this.watchedAccountsCount = data.size || 0;
-          return this.$nextTick()
-            .then(() => {
-              this.$emit('updated', this.watchedAccounts);
-            });
-        }).finally(() => this.loading = false);
+      return this.$twitterConnectorService.getWatchedAccounts({
+        page: 0,
+        size: 5,
+      }).then(data => {
+        this.watchedAccounts = data?._embedded?.twitterAccountRestEntityList;
+        this.watchedAccountsCount = data?.page?.totalElements || 0;
+        return this.$nextTick()
+          .then(() => {
+            this.$emit('updated', this.watchedAccounts);
+          });
+      }).finally(() => this.loading = false);
     },
     addWatchedAccount() {
       this.$root.$emit('twitter-account-form-drawer');

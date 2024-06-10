@@ -28,7 +28,7 @@ export default {
   PROFILE_BASER_URL: 'https://twitter.com',
   openOauthPopup() {
     // Construct the Twitter OAuth URL with the oauth_token
-    const authUrl =`${window.location.origin}/gamification-twitter/rest/twitterOauth`;
+    const authUrl =`${window.location.origin}/gamification-twitter/rest/oauth`;
     const width = 600;
     const height = 600;
     const left = window.innerWidth / 2 - width / 2;

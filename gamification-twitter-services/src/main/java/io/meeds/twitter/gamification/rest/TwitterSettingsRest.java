@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("twitter/settings")
+@RequestMapping("settings")
 @Tag(name = "twitter/settings", description = "Manage and access twitter settings") // NOSONAR
 public class TwitterSettingsRest {
 
