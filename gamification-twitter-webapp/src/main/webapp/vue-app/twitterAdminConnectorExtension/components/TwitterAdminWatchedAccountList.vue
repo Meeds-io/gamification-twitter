@@ -119,12 +119,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <script>
 
 export default {
-  props: {
-    forceUpdate: {
-      type: Boolean,
-      default: false
-    },
-  },
   data() {
     return {
       showLoadMoreButton: false,
@@ -150,13 +144,6 @@ export default {
     },
     addButtonLabel() {
       return this.maxAccountsReached ? this.$t('twitterConnector.admin.label.maxAccountsReached') : this.$t('twitterConnector.admin.label.addAccount');
-    }
-  },
-  watch: {
-    forceUpdate() {
-      if (this.forceUpdate) {
-        this.refreshWatchedAccount();
-      }
     }
   },
   created() {
@@ -188,15 +175,17 @@ export default {
     },
     refreshWatchedAccount() {
       this.loading = true;
-      return this.$twitterConnectorService.getWatchedAccounts(this.offset, this.limit, this.forceUpdate)
-        .then(data => {
-          this.watchedAccounts = data.entities;
-          this.watchedAccountsCount = data.size || 0;
-          return this.$nextTick()
-            .then(() => {
-              this.$emit('updated', this.watchedAccounts);
-            });
-        }).finally(() => this.loading = false);
+      return this.$twitterConnectorService.getWatchedAccounts({
+        page: 0,
+        size: 5,
+      }).then(data => {
+        this.watchedAccounts = data?._embedded?.twitterAccountRestEntityList;
+        this.watchedAccountsCount = data?.page?.totalElements || 0;
+        return this.$nextTick()
+          .then(() => {
+            this.$emit('updated', this.watchedAccounts);
+          });
+      }).finally(() => this.loading = false);
     },
     addWatchedAccount() {
       this.$root.$emit('twitter-account-form-drawer');
