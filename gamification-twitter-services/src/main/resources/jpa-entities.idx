@@ -1,2 +1,2 @@
-io.meeds.gamification.twitter.entity.TwitterAccountEntity
-io.meeds.gamification.twitter.entity.TwitterTweetEntity
+io.meeds.twitter.gamification.entity.TwitterAccountEntity
+io.meeds.twitter.gamification.entity.TwitterTweetEntity
