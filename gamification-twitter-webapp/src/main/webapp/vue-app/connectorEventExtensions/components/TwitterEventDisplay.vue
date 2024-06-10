@@ -69,7 +69,7 @@ export default {
   },
   computed: {
     tweetLink() {
-      return this.properties?.tweetLink;
+      return this.convertXtoTwitter(this.properties?.tweetLink);
     },
     accountId() {
       return this.properties?.accountId;
@@ -119,11 +119,17 @@ export default {
     },
     getTwitterAccount() {
       this.loading = true;
-      return this.$twitterConnectorService.getWatchedAccounts()
-        .then(data => {
-          this.account = data.entities.find(a => a.remoteId === this.accountId);
-        })        .finally(() => this.loading = false);
+      return this.$twitterConnectorService.getWatchedAccounts({
+        page: 0,
+        size: 5,
+      }).then(data => {
+        this.account = data?._embedded?.twitterAccountRestEntityList.find(a => a.remoteId === this.accountId);
+      })        .finally(() => this.loading = false);
 
+    },
+    convertXtoTwitter(url) {
+      const xComRegex = /^https:\/\/x\.com\//;
+      return url.replace(xComRegex, 'https://twitter.com/');
     }
   }
 };
