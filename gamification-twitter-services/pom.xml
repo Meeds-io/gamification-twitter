@@ -34,23 +34,23 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-core</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-oauth-auth</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.addons.gamification</groupId>
+      <groupId>io.meeds.addons.gamification</groupId>
       <artifactId>gamification-services</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Test -->
     <dependency>
-      <groupId>org.exoplatform.addons.gamification</groupId>
+      <groupId>io.meeds.addons.gamification</groupId>
       <artifactId>gamification-services</artifactId>
       <scope>test</scope>
       <type>test-jar</type>
