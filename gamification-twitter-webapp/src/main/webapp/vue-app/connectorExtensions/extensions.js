@@ -23,6 +23,7 @@ export function init() {
     image: '/gamification-twitter/images/TwitterX.svg',
     title: 'Twitter',
     description: 'twitterConnector.admin.label.description',
+    actionLabel: 'twitterConnector.action.form.label',
     rank: 30,
   });
 }
