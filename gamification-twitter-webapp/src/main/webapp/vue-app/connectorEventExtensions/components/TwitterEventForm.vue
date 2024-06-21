@@ -17,7 +17,7 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-app>
+  <div>
     <template v-if="isTriggerForAccount">
       <v-card-text class="px-0 dark-grey-color font-weight-bold">
         {{ $t('gamification.event.form.account') }}
@@ -58,7 +58,7 @@
         <span class="error--text">{{ $t('gamification.event.detail.invalidLink.error') }}</span>
       </v-list-item-action-text>
     </template>
-  </v-app>
+  </div>
 </template>
 
 <script>
