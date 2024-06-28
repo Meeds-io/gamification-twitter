@@ -19,7 +19,7 @@
 <template>
   <div>
     <template v-if="isTriggerForAccount">
-      <v-card-text class="px-0 dark-grey-color font-weight-bold">
+      <v-card-text class="px-0">
         {{ $t('gamification.event.form.account') }}
       </v-card-text>
       <v-progress-circular
@@ -40,7 +40,7 @@
       </v-chip-group>
     </template>
     <template v-else>
-      <v-card-text class="px-0 dark-grey-color font-weight-bold">
+      <v-card-text class="px-0">
         {{ $t('gamification.event.form.tweet') }}
       </v-card-text>
       <v-card-text class="ps-0 py-0">
