@@ -19,7 +19,7 @@
 <template>
   <div>
     <template v-if="isTriggerForAccount">
-      <v-card-text class="px-0">
+      <v-card-text class="pa-0 pt-3">
         {{ $t('gamification.event.form.account') }}
       </v-card-text>
       <v-progress-circular
