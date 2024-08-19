@@ -36,10 +36,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           </v-list-item-title>
           <v-list-item-subtitle v-if="description" class="text-truncate d-flex caption mt-1">{{ description }}</v-list-item-subtitle>
           <div class="d-flex flex-row">
-            <span class="text-truncate d-flex caption d-content pt-2px"> {{ watchedByLabel }} </span>
+            <span class="text-truncate d-flex caption d-content"> {{ watchedByLabel }} </span>
             <exo-user-avatar
               :profile-id="watchedBy"
-              extra-class="ms-1"
+              extra-class="ms-1 align-self-center"
               fullname
               popover />
           </div>
