@@ -18,7 +18,6 @@
  */
 import '../connectorEventExtensions/initComponents';
 import '../connectorEventExtensions/services';
-import '../connectorEventExtensions/twitterWidgets';
 
 export function init() {
   extensionRegistry.registerComponent('engagementCenterEvent', 'connector-event-extensions', {

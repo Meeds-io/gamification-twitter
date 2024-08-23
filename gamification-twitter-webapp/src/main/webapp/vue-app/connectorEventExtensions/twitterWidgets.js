@@ -16,20 +16,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-window.twttr = (function(d, s, id) {
-  /* eslint-disable prefer-const */
-  let js, fjs = d.getElementsByTagName(s)[0],
-    t = window.twttr || {};
-  if (d.getElementById(id)) {return t;}
-  js = d.createElement(s);
-  js.id = id;
-  js.src = 'https://platform.twitter.com/widgets.js';
-  fjs.parentNode.insertBefore(js, fjs);
+export function initWidgets() {
+  window.twttr = (function(d, s, id) {
+    /* eslint-disable prefer-const */
+    let js, fjs = d.getElementsByTagName(s)[0],
+      t = window.twttr || {};
+    if (d.getElementById(id)) {return t;}
+    js = d.createElement(s);
+    js.id = id;
+    js.src = 'https://platform.twitter.com/widgets.js';
+    fjs.parentNode.insertBefore(js, fjs);
 
-  t._e = [];
-  t.ready = function(f) {
-    t._e.push(f);
-  };
+    t._e = [];
+    t.ready = function(f) {
+      t._e.push(f);
+    };
 
-  return t;
-}(document, 'script', 'twitter-wjs'));
+    return t;
+  }(document, 'script', 'twitter-wjs'));
+}
