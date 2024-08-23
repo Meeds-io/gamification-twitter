@@ -19,9 +19,16 @@
  */
 
 import * as twitterConnectorService from '../twitterAdminConnectorExtension/js/TwitterConnectorService.js';
+import * as twitterWidgets from './twitterWidgets.js';
 
 if (!Vue.prototype.$twitterConnectorService) {
   window.Object.defineProperty(Vue.prototype, '$twitterConnectorService', {
     value: twitterConnectorService,
+  });
+}
+
+if (!Vue.prototype.$twitterWidgets) {
+  window.Object.defineProperty(Vue.prototype, '$twitterWidgets', {
+    value: twitterWidgets,
   });
 }
