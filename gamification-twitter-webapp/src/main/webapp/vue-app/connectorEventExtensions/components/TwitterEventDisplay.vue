@@ -49,6 +49,7 @@
 
 
 <script>
+
 export default {
   props: {
     properties: {
@@ -104,14 +105,16 @@ export default {
       // Check the trigger and set the appropriate HTML
       if (this.trigger !== 'mentionAccount') {
         this.widgetHtml = `<blockquote class="twitter-tweet"><a href="${this.tweetLink}"></a></blockquote>`;
-        if (typeof twttr !== 'undefined') {
+        /* eslint-disable no-undef */
+        if (typeof twttr !== 'undefined' && twttr.widgets?.load) {
           /* eslint-disable no-undef */
-          twttr.widgets.load();
-          twttr.events.bind('loaded', () => {
+          twttr?.widgets?.load?.();
+          twttr?.events?.bind?.('loaded', () => {
             this.loading = false;
           });
         } else {
           setTimeout(() => {
+            this.$twitterWidgets.initWidgets();
             this.loadTwitterWidget();
           }, 500);
         }
