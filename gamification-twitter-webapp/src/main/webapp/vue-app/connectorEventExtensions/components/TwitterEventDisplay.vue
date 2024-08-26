@@ -109,7 +109,7 @@ export default {
         if (typeof twttr !== 'undefined' && twttr.widgets?.load) {
           /* eslint-disable no-undef */
           twttr?.widgets?.load?.();
-          twttr?.events?.bind('loaded', () => {
+          twttr?.events?.bind?.('loaded', () => {
             this.loading = false;
           });
         } else {
