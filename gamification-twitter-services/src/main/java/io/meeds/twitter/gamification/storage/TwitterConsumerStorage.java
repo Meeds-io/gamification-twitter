@@ -90,7 +90,7 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_ERROR, twitterUsername);
+      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_ERROR, twitterUsername, e);
       return null;
     }
     if (response == null) {
@@ -113,7 +113,7 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_ERROR, twitterRemoteId);
+      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_ERROR, twitterRemoteId, e);
       return null;
     }
     if (response == null) {
@@ -143,7 +143,7 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_MENTIONS_ERROR, twitterAccount.getRemoteId());
+      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_MENTIONS_ERROR, twitterAccount.getRemoteId(), e);
       return Collections.emptyList();
     }
     if (response == null) {
@@ -196,7 +196,7 @@ public class TwitterConsumerStorage {
       try {
         response = processGet(uri, bearerToken);
       } catch (TwitterConnectionException e) {
-        LOG.warn(TWITTER_RETRIEVE_TWEET_LIKERS_ERROR, tweetId);
+        LOG.warn(TWITTER_RETRIEVE_TWEET_LIKERS_ERROR, tweetId, e);
         return Collections.emptySet();
       }
       if (response == null) {
@@ -224,7 +224,7 @@ public class TwitterConsumerStorage {
       try {
         response = processGet(uri, bearerToken);
       } catch (TwitterConnectionException e) {
-        LOG.warn(TWITTER_RETRIEVE_TWEET_RETWEETERS_ERROR, tweetId);
+        LOG.warn(TWITTER_RETRIEVE_TWEET_RETWEETERS_ERROR, tweetId, e);
         return Collections.emptySet();
       }
       if (response == null) {
