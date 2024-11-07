@@ -29,6 +29,7 @@
 
   <!-- Definition of TWITTER_ACCOUNTS table -->
   <changeSet author="twitter-connector" id="1.0.0-1">
+    <validCheckSum>9:2e0dbc626f3e23dbc53c12b7f233283d</validCheckSum>
     <createTable tableName="TWITTER_ACCOUNTS">
       <column name="ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TWITTER_ACCOUNTS"/>
@@ -36,10 +37,10 @@
       <column name="REMOTE_ID" type="BIGINT">
         <constraints nullable="false"/>
       </column>
-      <column name="IDENTIFIER" type="NVARCHAR(250)">
+      <column name="IDENTIFIER" type="VARCHAR(250)">
         <constraints nullable="false"/>
       </column>
-      <column name="NAME" type="NVARCHAR(250)">
+      <column name="NAME" type="VARCHAR(250)">
         <constraints nullable="false"/>
       </column>
       <column name="WATCHED_DATE" type="DATE">
@@ -73,11 +74,12 @@
   </changeSet>
 
   <changeSet author="twitter-connector" id="1.0.0-4">
+    <validCheckSum>9:fd19c9e26bf3b0b7e08ab344311433b6</validCheckSum>
     <createTable tableName="TWITTER_TWEETS">
       <column name="TWEET_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TWITTER_TWEETS"/>
       </column>
-      <column name="TWEET_LINK" type="NVARCHAR(250)">
+      <column name="TWEET_LINK" type="VARCHAR(250)">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -88,7 +90,7 @@
       <column name="TWEET_ID" type="BIGINT">
         <constraints nullable="false" foreignKeyName="FK_TWITTER_TWEET_LIKER_ID" references="TWITTER_TWEETS(TWEET_ID)" deleteCascade="true" />
       </column>
-      <column name="LIKER_USERNAME" type="NVARCHAR(200)">
+      <column name="LIKER_USERNAME" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -99,7 +101,7 @@
       <column name="TWEET_ID" type="BIGINT">
         <constraints nullable="false" foreignKeyName="FK_TWITTER_TWEET_RETWEETER_ID" references="TWITTER_TWEETS(TWEET_ID)" deleteCascade="true" />
       </column>
-      <column name="RETWEETER_USERNAME" type="NVARCHAR(200)">
+      <column name="RETWEETER_USERNAME" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
     </createTable>
