@@ -144,7 +144,7 @@ export default {
     return {
       editing: false,
       displayAccountDetail: false,
-      twitterConnectorLinkBasePath: '/portal/administration/home/recognition/connectors#twitter',
+      twitterConnectorLinkBasePath: '/portal/administration/home/gamification/connectors#twitter',
       selectedAccount: null,
     };
   },
