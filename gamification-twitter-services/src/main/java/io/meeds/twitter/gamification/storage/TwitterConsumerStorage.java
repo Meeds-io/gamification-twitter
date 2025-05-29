@@ -21,22 +21,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.meeds.twitter.gamification.exception.TwitterConnectionException;
-import io.meeds.twitter.gamification.model.RemoteTwitterAccount;
-import io.meeds.twitter.gamification.model.TokenStatus;
-import io.meeds.twitter.gamification.model.TwitterAccount;
-import io.meeds.twitter.gamification.model.TwitterTrigger;
-import io.meeds.twitter.gamification.utils.Utils;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -48,12 +46,22 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Repository;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Repository;
+
+import io.meeds.twitter.gamification.exception.TwitterConnectionException;
+import io.meeds.twitter.gamification.model.RemoteTwitterAccount;
+import io.meeds.twitter.gamification.model.TokenStatus;
+import io.meeds.twitter.gamification.model.TwitterAccount;
+import io.meeds.twitter.gamification.model.TwitterTrigger;
+import io.meeds.twitter.gamification.utils.Utils;
 
 @Repository
 public class TwitterConsumerStorage {
