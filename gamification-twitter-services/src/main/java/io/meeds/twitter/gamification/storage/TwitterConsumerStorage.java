@@ -92,6 +92,8 @@ public class TwitterConsumerStorage {
 
   private HttpClient         client;
 
+  private boolean            clientForbiddenLogged;
+
   public RemoteTwitterAccount retrieveTwitterAccount(String twitterUsername, String bearerToken) throws ObjectNotFoundException {
     URI uri = URI.create(TWITTER_API_URL + "/users/by/username/" + twitterUsername + "?user.fields=profile_image_url");
     String response;
@@ -151,7 +153,12 @@ public class TwitterConsumerStorage {
     try {
       response = processGet(uri, bearerToken);
     } catch (TwitterConnectionException e) {
-      LOG.warn(TWITTER_RETRIEVE_ACCOUNT_MENTIONS_ERROR, twitterAccount.getRemoteId(), e);
+      if (LOG.isDebugEnabled() || !e.getMessage().contains("Client Forbidden")) {
+        LOG.warn(TWITTER_RETRIEVE_ACCOUNT_MENTIONS_ERROR, twitterAccount.getRemoteId(), e);
+      } else if (!clientForbiddenLogged) {
+        LOG.warn("{}. Future errors of same type will be ignored", e.getMessage());
+        clientForbiddenLogged = true;
+      }
       return Collections.emptyList();
     }
     if (response == null) {
