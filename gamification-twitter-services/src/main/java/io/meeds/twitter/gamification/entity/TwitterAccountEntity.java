@@ -21,8 +21,12 @@ package io.meeds.twitter.gamification.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import jakarta.persistence.*;
+import io.meeds.common.persistence.PortableSequence;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity(name = "TwitterAccounts")
@@ -33,8 +37,7 @@ public class TwitterAccountEntity implements Serializable {
   private static final long serialVersionUID = -7390409979056587159L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_TWITTER_ACCOUNTS_ID", sequenceName = "SEQ_TWITTER_ACCOUNTS_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_TWITTER_ACCOUNTS_ID")
+  @PortableSequence(name = "SEQ_TWITTER_ACCOUNTS_ID")
   @Column(name = "ID")
   private Long              id;
 

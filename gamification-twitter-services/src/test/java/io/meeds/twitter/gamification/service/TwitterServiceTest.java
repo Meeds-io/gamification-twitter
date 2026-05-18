@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
@@ -56,16 +56,16 @@ class TwitterServiceTest {
 
   private static final Pageable  PAGEABLE   = Pageable.ofSize(2);
 
-  @MockBean
+  @MockitoBean
   private TwitterConsumerService twitterConsumerService;
 
-  @MockBean
+  @MockitoBean
   private TwitterAccountStorage  twitterAccountStorage;
 
-  @MockBean
+  @MockitoBean
   private TwitterTweetStorage    twitterTweetStorage;
 
-  @MockBean
+  @MockitoBean
   private RuleService            ruleService;
 
   @Autowired
