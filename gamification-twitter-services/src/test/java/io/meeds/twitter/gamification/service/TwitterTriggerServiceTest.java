@@ -30,7 +30,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.ArrayList;
@@ -47,22 +47,22 @@ class TwitterTriggerServiceTest {
 
   private static final String    USER = "root";
 
-  @MockBean
+  @MockitoBean
   private ConnectorService       connectorService;
 
-  @MockBean
+  @MockitoBean
   private EventService           eventService;
 
-  @MockBean
+  @MockitoBean
   private TriggerService         triggerService;
 
-  @MockBean
+  @MockitoBean
   private IdentityManager        identityManager;
 
-  @MockBean
+  @MockitoBean
   private ListenerService        listenerService;
 
-  @MockBean
+  @MockitoBean
   private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
   @Autowired
