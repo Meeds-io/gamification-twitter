@@ -35,7 +35,7 @@ import io.meeds.twitter.gamification.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.ListenerService;
@@ -44,22 +44,22 @@ import org.springframework.data.domain.PageImpl;
 @SpringBootTest(classes = { RuleUpdateTwitterListener.class, })
 class RuleUpdateTwitterListenerTest {
 
-  @MockBean
+  @MockitoBean
   private TwitterService            twitterAccountService;
 
-  @MockBean
+  @MockitoBean
   private RuleService               ruleService;
 
-  @MockBean
+  @MockitoBean
   private ListenerService           listenerService;
 
-  @MockBean
+  @MockitoBean
   private RuleDTO                   rule;
 
-  @MockBean
+  @MockitoBean
   private Tweet                     tweet;
 
-  @MockBean
+  @MockitoBean
   private Event<RuleDTO, String>    event;
 
   @Autowired
