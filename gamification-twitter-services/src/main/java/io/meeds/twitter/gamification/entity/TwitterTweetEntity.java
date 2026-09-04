@@ -20,7 +20,17 @@ package io.meeds.twitter.gamification.entity;
 
 import java.io.Serializable;
 import java.util.Set;
-import jakarta.persistence.*;
+
+import io.meeds.common.persistence.PortableSequence;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity(name = "TwitterTweets")
@@ -31,8 +41,7 @@ public class TwitterTweetEntity implements Serializable {
   private static final long serialVersionUID = -4871930064565777769L;
 
   @Id
-  @SequenceGenerator(name = "SEQ_TWITTER_ACCOUNTS_ID", sequenceName = "SEQ_TWITTER_ACCOUNTS_ID", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_TWITTER_ACCOUNTS_ID")
+  @PortableSequence(name = "SEQ_TWITTER_ACCOUNTS_ID")
   @Column(name = "TWEET_ID")
   private Long              id;
 
