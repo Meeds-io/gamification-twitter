@@ -17,6 +17,7 @@
  */
 package io.meeds.twitter.gamification.scheduling.task;
 
+import io.meeds.spring.kernel.ClusterTaskScheduler;
 import io.meeds.twitter.gamification.model.Tweet;
 import io.meeds.twitter.gamification.model.TwitterAccount;
 import io.meeds.twitter.gamification.model.TwitterTrigger;
@@ -56,7 +57,7 @@ public class TwitterRemoteUpdateTask {
   private TwitterTriggerService  twitterTriggerService;
 
   @ExoTransactional
-  @Scheduled(cron = "${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}")
+  @Scheduled(cron = "${io.meeds.gamification.TwitterAccountRemoteUpdate.expression:0 */15 * * * ?}", scheduler = ClusterTaskScheduler.NAME)
   public void execute() {
     String bearerToken = twitterAccountService.getTwitterBearerToken();
     if (StringUtils.isBlank(bearerToken)) {
